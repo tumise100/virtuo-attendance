@@ -51,6 +51,7 @@ export const COLORS = {
   },
   technical: "#535474",
   textColor: "#141417",
+  black: "#000000",
   white: "#FFFFFF",
   transparent: "transparent",
   gray3: "#828282",
