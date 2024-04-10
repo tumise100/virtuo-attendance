@@ -9,8 +9,9 @@ import {
 import CustomPaperTextInput from "@/src/components/UI/Inputs/CustomPaperTextInput";
 import { CustomButton } from "@/src/components/UI/Buttons";
 import { COLORS } from "@/src/theme/colors";
+import { StackNavigationProps } from "@/src/shared";
 
-const SignInScreen = () => {
+const SignInScreen = ({ navigation }: StackNavigationProps) => {
   return (
     <View className="flex-1 bg-white px-4 pt-7">
       <StatusBar
@@ -34,7 +35,10 @@ const SignInScreen = () => {
           />
         </View>
         <View className="mt-20">
-          <CustomButton title="Login" />
+          <CustomButton
+            title="Login"
+            onPress={() => navigation.navigate("DrawerNavigator")}
+          />
           <Text className="text-center">Don't have an account? Signup</Text>
         </View>
       </View>

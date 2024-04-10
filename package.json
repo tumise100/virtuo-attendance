@@ -1,5 +1,5 @@
 {
-  "name": "virtuo-mobile-app",
+  "name": "virtuo-attendance",
   "version": "1.0.0",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
