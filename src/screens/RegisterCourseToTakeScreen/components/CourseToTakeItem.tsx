@@ -23,7 +23,7 @@ const CourseToTakeItem = ({
     >
       <Checkbox
         status={isChecked ? "checked" : "unchecked"}
-        uncheckedColor={COLORS.gray3}
+        uncheckedColor={COLORS.borderColor}
         color={COLORS.primary[500]}
       />
       <View>

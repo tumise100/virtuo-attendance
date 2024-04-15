@@ -7,11 +7,11 @@ import { TextFontType } from "@/src/theme/typography/typography";
 import { Overline2Text } from "@/src/theme/typography/OtherText";
 
 const QuickActionCard = ({
-  color,
+  colorType,
   title,
   subtitle,
 }: {
-  color: string;
+  colorType: string;
   title: string;
   subtitle: string;
 }) => {
@@ -19,7 +19,7 @@ const QuickActionCard = ({
   let color200 = "";
   let color300 = "";
 
-  switch (color) {
+  switch (colorType) {
     case "success":
       color100 = "bg-success-100";
       color200 = "bg-success-200";

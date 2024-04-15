@@ -11,6 +11,7 @@ import { TextFontType } from "@/src/theme/typography/typography";
 import { InputLabelMedium12, TextMedium14 } from "@/src/theme/typography";
 import ClassCardOverview from "@/src/components/UI/ClassCardOverview";
 import QuickActionCard from "@/src/components/UI/QuickActionCard";
+import StudentOverviewCard from "@/src/components/UI/StudentOverviewCard";
 
 // "name": "virtuo-mobile-app"
 
@@ -39,7 +40,7 @@ const HomeScreen = ({
       </View>
       <View className="mt-4">
         <CustomPaperTextInputWithIcons
-          outerStyle="bg-white border border-gray3"
+          outerStyle="bg-white border border-borderColor"
           innerStyle="bg-white text-sm"
           rightComponent={
             <TextInput.Icon
@@ -77,19 +78,40 @@ const HomeScreen = ({
             <QuickActionCard
               title="Courses"
               subtitle="Withdraw money to your bank account instantly"
-              color="danger"
+              colorType="danger"
             />
             <QuickActionCard
               title="Students"
               subtitle="Scan other users QR Code and pay them instantly"
-              color="warning"
+              colorType="warning"
             />
           </View>
           <View className="flex-row justify-between items-center mt-4">
-            <QuickActionCard title="Profile" subtitle="Send money to different bank accounts instantly" color="info" />
-            <QuickActionCard title="Mark Sheet" subtitle="Airtime, Electricity, Cable, Internet, and Betting" color="success" />
+            <QuickActionCard
+              title="Profile"
+              subtitle="Send money to different bank accounts instantly"
+              colorType="info"
+            />
+            <QuickActionCard
+              title="Mark Sheet"
+              subtitle="Airtime, Electricity, Cable, Internet, and Betting"
+              colorType="success"
+            />
           </View>
         </>
+      </View>
+
+      <View className="my-3">
+        <Sub2Text
+          type={TextFontType.Bold}
+          text="Top Students"
+          customClassName="mb-2"
+        />
+        <View>
+          <StudentOverviewCard />
+          <StudentOverviewCard />
+          <StudentOverviewCard />
+        </View>
       </View>
     </ScrollView>
   );

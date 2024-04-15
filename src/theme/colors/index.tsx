@@ -43,6 +43,7 @@ export const COLORS = {
     100: "#FFF4D2",
   },
   danger: {
+    600: "#CD3227",
     500: "#D94949",
     400: "#E26060",
     300: "#EB8C8C",
@@ -55,4 +56,5 @@ export const COLORS = {
   white: "#FFFFFF",
   transparent: "transparent",
   gray3: "#828282",
+  borderColor: "#D0D5DD",
 };

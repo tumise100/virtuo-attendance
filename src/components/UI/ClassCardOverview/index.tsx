@@ -9,7 +9,7 @@ import { TextFontType } from "@/src/theme/typography/typography";
 import { BodyRegular } from "@/src/theme/typography/BodyText";
 import { COLORS } from "@/src/theme/colors";
 
-enum ClassCardOverviewAttendanceStatusType {
+export enum OverviewAttendanceStatusType {
   PRESENT = "PRESENT",
   ABSENT = "ABSENT",
 }
@@ -39,9 +39,9 @@ const ClassCardOverview = () => {
           customClassName="text-white mb-1"
         />
         <View className="flex-row items-center">
-          <ClassCardOverviewAttendanceStatus />
-          <ClassCardOverviewAttendanceStatus
-            type={ClassCardOverviewAttendanceStatusType.ABSENT}
+          <OverviewAttendanceStatus />
+          <OverviewAttendanceStatus
+            type={OverviewAttendanceStatusType.ABSENT}
             value={"20"}
           />
         </View>
@@ -52,14 +52,16 @@ const ClassCardOverview = () => {
 
 export default ClassCardOverview;
 
-const ClassCardOverviewAttendanceStatus = ({
-  type = ClassCardOverviewAttendanceStatusType.PRESENT,
+export const OverviewAttendanceStatus = ({
+  type = OverviewAttendanceStatusType.PRESENT,
   value = "120",
+  alt
 }: {
-  type?: ClassCardOverviewAttendanceStatusType;
+  type?: OverviewAttendanceStatusType;
   value?: string;
+  alt?: boolean;
 }) => {
-  const isPresent = type === ClassCardOverviewAttendanceStatusType.PRESENT;
+  const isPresent = type === OverviewAttendanceStatusType.PRESENT;
 
   return (
     <View className="flex-row items-center mr-1">
@@ -68,12 +70,12 @@ const ClassCardOverviewAttendanceStatus = ({
         type={TextFontType.Regular}
         customClassName={`px-[6px] py-[3px] rounded-full bg-danger-500 mr-[3px] text-white text-[8px] ${
           isPresent && "bg-success-500"
-        }`}
+        } ${alt && 'text-black'}`}
       />
       <DescriptionText
         text={value}
         type={TextFontType.Regular}
-        customClassName="text-white text-[9px]"
+        customClassName={`text-white text-[9px] ${alt && 'text-black'}`}
       />
     </View>
   );
