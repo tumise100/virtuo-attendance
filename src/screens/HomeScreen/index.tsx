@@ -63,8 +63,12 @@ const HomeScreen = ({
           customClassName="mb-2"
         />
         <>
-          <ClassCardOverview />
-          <ClassCardOverview />
+          <ClassCardOverview
+            onPress={() => navigation.navigate("ClassViewScreen")}
+          />
+          <ClassCardOverview
+            onPress={() => navigation.navigate("ClassViewScreen")}
+          />
         </>
       </View>
       <View className="mt-3">

@@ -7,12 +7,16 @@ import {
 } from "@/src/theme/typography/OtherText";
 import { TextFontType } from "@/src/theme/typography/typography";
 import { BodyRegular } from "@/src/theme/typography/BodyText";
-import {
-  OverviewAttendanceStatus,
-  OverviewAttendanceStatusType,
-} from "../ClassCardOverview";
+import { OverviewAttendanceStatus } from "../ClassCardOverview";
+import { OverviewAttendanceStatusType } from "@/src/shared";
 
-const StudentOverviewCard = () => {
+const StudentOverviewCard = ({
+  hideStatsShowOnlyAttendanceStat,
+  attendanceStatusType,
+}: {
+  hideStatsShowOnlyAttendanceStat?: boolean;
+  attendanceStatusType?: OverviewAttendanceStatusType;
+}) => {
   return (
     <TouchableOpacity className="flex-row items-center justify-between mb-3 rounded-md border border-borderColor p-3">
       <View className="flex-row items-center">
@@ -32,21 +36,29 @@ const StudentOverviewCard = () => {
           />
         </View>
       </View>
-      <View className="">
-        <BodyRegular
-          text="90% Avg."
-          type={TextFontType.Medium}
-          customClassName="mb-1"
+      {hideStatsShowOnlyAttendanceStat && attendanceStatusType ? (
+        <OverviewAttendanceStatus
+          alt
+          hideStatsShowOnlyAttendanceStat
+          type={attendanceStatusType}
         />
-        <View className="flex-row items-center">
-          <OverviewAttendanceStatus alt />
-          <OverviewAttendanceStatus
-            alt
-            type={OverviewAttendanceStatusType.ABSENT}
-            value={"20"}
+      ) : (
+        <View className="">
+          <BodyRegular
+            text="90% Avg."
+            type={TextFontType.Medium}
+            customClassName="mb-1"
           />
+          <View className="flex-row items-center">
+            <OverviewAttendanceStatus alt />
+            <OverviewAttendanceStatus
+              alt
+              type={OverviewAttendanceStatusType.ABSENT}
+              value={"20"}
+            />
+          </View>
         </View>
-      </View>
+      )}
     </TouchableOpacity>
   );
 };

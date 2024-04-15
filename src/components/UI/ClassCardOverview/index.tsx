@@ -8,15 +8,22 @@ import {
 import { TextFontType } from "@/src/theme/typography/typography";
 import { BodyRegular } from "@/src/theme/typography/BodyText";
 import { COLORS } from "@/src/theme/colors";
+import { OverviewAttendanceStatusType } from "@/src/shared";
 
-export enum OverviewAttendanceStatusType {
-  PRESENT = "PRESENT",
-  ABSENT = "ABSENT",
-}
-
-const ClassCardOverview = () => {
+const ClassCardOverview = ({
+  onPress,
+  customclassName,
+  showAttendanceStats = true,
+}: {
+  onPress?: () => void;
+  customclassName?: string;
+  showAttendanceStats?: boolean;
+}) => {
   return (
-    <TouchableOpacity className="flex-row rounded-md items-center justify-between bg-info-500 p-3 mb-3">
+    <TouchableOpacity
+      onPress={onPress}
+      className={`flex-row rounded-md items-center justify-between bg-info-500 p-3 mb-3 ${customclassName}`}
+    >
       <View className="bg-white p-[10px] rounded-full">
         <Ionicons name="trophy" size={19} color={COLORS.primary[500]} />
       </View>
@@ -38,13 +45,15 @@ const ClassCardOverview = () => {
           type={TextFontType.Medium}
           customClassName="text-white mb-1"
         />
-        <View className="flex-row items-center">
-          <OverviewAttendanceStatus />
-          <OverviewAttendanceStatus
-            type={OverviewAttendanceStatusType.ABSENT}
-            value={"20"}
-          />
-        </View>
+        {showAttendanceStats ? (
+          <View className="flex-row items-center">
+            <OverviewAttendanceStatus />
+            <OverviewAttendanceStatus
+              type={OverviewAttendanceStatusType.ABSENT}
+              value={"20"}
+            />
+          </View>
+        ) : null}
       </View>
     </TouchableOpacity>
   );
@@ -55,11 +64,13 @@ export default ClassCardOverview;
 export const OverviewAttendanceStatus = ({
   type = OverviewAttendanceStatusType.PRESENT,
   value = "120",
-  alt
+  alt,
+  hideStatsShowOnlyAttendanceStat = false,
 }: {
   type?: OverviewAttendanceStatusType;
   value?: string;
   alt?: boolean;
+  hideStatsShowOnlyAttendanceStat?: boolean;
 }) => {
   const isPresent = type === OverviewAttendanceStatusType.PRESENT;
 
@@ -70,13 +81,15 @@ export const OverviewAttendanceStatus = ({
         type={TextFontType.Regular}
         customClassName={`px-[6px] py-[3px] rounded-full bg-danger-500 mr-[3px] text-white text-[8px] ${
           isPresent && "bg-success-500"
-        } ${alt && 'text-black'}`}
+        } ${alt && "text-black"} ${hideStatsShowOnlyAttendanceStat && 'text-[12px] text-white px-[6px] py-[5px]'}`}
       />
-      <DescriptionText
-        text={value}
-        type={TextFontType.Regular}
-        customClassName={`text-white text-[9px] ${alt && 'text-black'}`}
-      />
+      {!hideStatsShowOnlyAttendanceStat && (
+        <DescriptionText
+          text={value}
+          type={TextFontType.Regular}
+          customClassName={`text-white text-[9px] ${alt && "text-black"}`}
+        />
+      )}
     </View>
   );
 };

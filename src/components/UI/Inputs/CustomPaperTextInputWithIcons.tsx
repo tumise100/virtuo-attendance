@@ -53,28 +53,12 @@ const CustomPaperTextInputWithIcons: React.FC<
 }) => {
   return (
     <View
-      style={[
-        styles.inputContainer,
-        containerStyle,
-        {
-          // backgroundColor: isDarkMode
-          //   ? COLORS.darkBaseColorInputBg
-          //   : COLORS.white,
-        },
-      ]}
+      style={[styles.inputContainer, containerStyle]}
       className={outerStyle}
     >
       <TextInput
         mode="flat"
-        style={[
-          styles.input,
-          inputStyle,
-          // {
-          //   backgroundColor: isDarkMode
-          //     ? COLORS.darkBaseColorInputBg
-          //     : COLORS.white,
-          // },
-        ]}
+        style={[styles.input, inputStyle]}
         className={innerStyle}
         // textColor={isDarkMode ? COLORS.black : COLORS.black}
         label={label}

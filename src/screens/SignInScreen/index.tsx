@@ -37,7 +37,7 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
         <View className="mt-20">
           <CustomButton
             title="Login"
-            onPress={() => navigation.navigate("DrawerNavigator")}
+            onPress={() => navigation.navigate("BaseNavigator")}
           />
           <Text className="text-center">Don't have an account? Signup</Text>
         </View>

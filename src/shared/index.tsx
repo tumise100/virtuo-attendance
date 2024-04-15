@@ -15,3 +15,8 @@ export interface StackNavigationProps {
   navigation: StackNavigatorProp;
   route?: RouterProp;
 }
+
+export enum OverviewAttendanceStatusType {
+  PRESENT = "PRESENT",
+  ABSENT = "ABSENT",
+}
