@@ -80,6 +80,7 @@ const HomeScreen = ({
         <>
           <View className="flex-row justify-between items-center">
             <QuickActionCard
+              onPress={() => navigation.navigate("AllCourseScreen")}
               title="Courses"
               subtitle="Withdraw money to your bank account instantly"
               colorType="danger"

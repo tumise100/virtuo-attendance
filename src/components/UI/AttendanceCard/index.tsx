@@ -2,29 +2,28 @@ import { View, Text } from "react-native";
 import React from "react";
 import { BodyRegular, BodySmall } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
-import { OverviewAttendanceStatusType } from "@/src/shared";
+import { AttendanceStatusType } from "@/src/shared";
 
 const AttendanceCard = ({
-  type,
-  count = 120,
+  title,
+  subtitle,
+  borderColor,
 }: {
-  type: OverviewAttendanceStatusType;
-  count?: number;
+  title: string;
+  subtitle: string;
+  borderColor: string;
 }) => {
-  const isPresent = type === OverviewAttendanceStatusType.PRESENT;
   return (
     <View
-      className={`p-3 border border-l-[16px] border-success-600 w-[47%] rounded-md ${
-        !isPresent && "border-danger-500"
-      }`}
+      className={`p-3 border border-l-[16px] border-success-600 w-[47%] rounded-md ${borderColor}`}
     >
       <BodySmall
-        text={isPresent ? "Presents" : "Absent"}
+        text={title}
         type={TextFontType.Regular}
         customClassName="p-0 m-0"
       />
       <BodyRegular
-        text="120 Students"
+        text={subtitle}
         type={TextFontType.Semibold}
         customClassName="p-0 m-0 my-1"
       />

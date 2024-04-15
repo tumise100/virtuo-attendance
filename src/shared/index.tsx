@@ -16,7 +16,11 @@ export interface StackNavigationProps {
   route?: RouterProp;
 }
 
-export enum OverviewAttendanceStatusType {
+export enum AttendanceStatusType {
   PRESENT = "PRESENT",
   ABSENT = "ABSENT",
+}
+
+export interface ModalProp {
+  setVisible: (a: boolean) => void;
 }

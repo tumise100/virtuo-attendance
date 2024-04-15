@@ -10,10 +10,12 @@ const QuickActionCard = ({
   colorType,
   title,
   subtitle,
+  onPress,
 }: {
   colorType: string;
   title: string;
   subtitle: string;
+  onPress?: () => void;
 }) => {
   let color100 = "";
   let color200 = "";
@@ -47,7 +49,10 @@ const QuickActionCard = ({
   console.log(color100, color200, color300);
 
   return (
-    <TouchableOpacity className={`w-[47%] p-3 ${color100} rounded-md`}>
+    <TouchableOpacity
+      onPress={onPress}
+      className={`w-[47%] p-3 ${color100} rounded-md`}
+    >
       <View className="flex-row">
         <View className={`${color200} p-[5px] rounded-full`}>
           <View className={`${color300} p-[5px] rounded-full`}>

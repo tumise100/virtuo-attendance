@@ -8,14 +8,14 @@ import {
 import { TextFontType } from "@/src/theme/typography/typography";
 import { BodyRegular } from "@/src/theme/typography/BodyText";
 import { OverviewAttendanceStatus } from "../ClassCardOverview";
-import { OverviewAttendanceStatusType } from "@/src/shared";
+import { AttendanceStatusType } from "@/src/shared";
 
 const StudentOverviewCard = ({
   hideStatsShowOnlyAttendanceStat,
   attendanceStatusType,
 }: {
   hideStatsShowOnlyAttendanceStat?: boolean;
-  attendanceStatusType?: OverviewAttendanceStatusType;
+  attendanceStatusType?: AttendanceStatusType;
 }) => {
   return (
     <TouchableOpacity className="flex-row items-center justify-between mb-3 rounded-md border border-borderColor p-3">
@@ -53,7 +53,7 @@ const StudentOverviewCard = ({
             <OverviewAttendanceStatus alt />
             <OverviewAttendanceStatus
               alt
-              type={OverviewAttendanceStatusType.ABSENT}
+              type={AttendanceStatusType.ABSENT}
               value={"20"}
             />
           </View>

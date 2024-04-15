@@ -8,7 +8,7 @@ import {
 import { TextFontType } from "@/src/theme/typography/typography";
 import { BodyRegular } from "@/src/theme/typography/BodyText";
 import { COLORS } from "@/src/theme/colors";
-import { OverviewAttendanceStatusType } from "@/src/shared";
+import { AttendanceStatusType } from "@/src/shared";
 
 const ClassCardOverview = ({
   onPress,
@@ -49,7 +49,7 @@ const ClassCardOverview = ({
           <View className="flex-row items-center">
             <OverviewAttendanceStatus />
             <OverviewAttendanceStatus
-              type={OverviewAttendanceStatusType.ABSENT}
+              type={AttendanceStatusType.ABSENT}
               value={"20"}
             />
           </View>
@@ -62,17 +62,17 @@ const ClassCardOverview = ({
 export default ClassCardOverview;
 
 export const OverviewAttendanceStatus = ({
-  type = OverviewAttendanceStatusType.PRESENT,
+  type = AttendanceStatusType.PRESENT,
   value = "120",
   alt,
   hideStatsShowOnlyAttendanceStat = false,
 }: {
-  type?: OverviewAttendanceStatusType;
+  type?: AttendanceStatusType;
   value?: string;
   alt?: boolean;
   hideStatsShowOnlyAttendanceStat?: boolean;
 }) => {
-  const isPresent = type === OverviewAttendanceStatusType.PRESENT;
+  const isPresent = type === AttendanceStatusType.PRESENT;
 
   return (
     <View className="flex-row items-center mr-1">
@@ -81,7 +81,10 @@ export const OverviewAttendanceStatus = ({
         type={TextFontType.Regular}
         customClassName={`px-[6px] py-[3px] rounded-full bg-danger-500 mr-[3px] text-white text-[8px] ${
           isPresent && "bg-success-500"
-        } ${alt && "text-black"} ${hideStatsShowOnlyAttendanceStat && 'text-[12px] text-white px-[6px] py-[5px]'}`}
+        } ${alt && "text-black"} ${
+          hideStatsShowOnlyAttendanceStat &&
+          "text-[12px] text-white px-[6px] py-[4px]"
+        }`}
       />
       {!hideStatsShowOnlyAttendanceStat && (
         <DescriptionText
@@ -90,6 +93,23 @@ export const OverviewAttendanceStatus = ({
           customClassName={`text-white text-[9px] ${alt && "text-black"}`}
         />
       )}
+    </View>
+  );
+};
+
+export const AttendanceStatusText = ({
+  type,
+}: {
+  type: AttendanceStatusType;
+}) => {
+  const isPresent = type === AttendanceStatusType.PRESENT;
+  return (
+    <View className="flex-row">
+      <Text
+        className={`text-[12px] text-white px-[7px] py-[3px] rounded-full ${isPresent ? "bg-success-600" : "bg-danger-600"}`}
+      >
+        {isPresent ? "P" : "A"}
+      </Text>
     </View>
   );
 };
