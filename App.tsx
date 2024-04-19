@@ -5,6 +5,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { PaperProvider } from "react-native-paper";
 import AuthNavigator from "./src/navigations/AuthNavigator";
 import BaseNavigator from "./src/navigations/BaseNavigator";
+import NfcScreen from "./src/screens/NfcScreen";
 
 export default function App() {
   const Stack = createStackNavigator();
@@ -12,6 +13,7 @@ export default function App() {
     <PaperProvider>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="NfcScreen" component={NfcScreen} />
           <Stack.Screen name="AuthNavigator" component={AuthNavigator} />
           <Stack.Screen name="BaseNavigator" component={BaseNavigator} />
         </Stack.Navigator>
