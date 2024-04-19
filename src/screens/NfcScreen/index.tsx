@@ -21,7 +21,7 @@ const NfcScreen = () => {
   }, []);
 
   return (
-    <View>
+    <View className="flex-1 justify-center items-center bg-green-700">
       <Text>NfcScreen: {hasNfc}</Text>
     </View>
   );
