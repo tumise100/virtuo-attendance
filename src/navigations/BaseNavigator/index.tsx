@@ -5,6 +5,8 @@ import DrawerNavigator from "../DrawerNavigator";
 import ClassViewScreen from "@/src/screens/ClassViewScreen";
 import AllCourseScreen from "@/src/screens/AllCourseScreen";
 import CourseViewScreen from "@/src/screens/CourseViewScreen";
+import AttendanceTakingScreen from "@/src/screens/AttendanceTakingScreen";
+import AllStudentScreen from "@/src/screens/AllStudentScreen";
 
 const BaseNavigator = () => {
   const Stack = createStackNavigator();
@@ -15,6 +17,11 @@ const BaseNavigator = () => {
       <Stack.Screen name="ClassViewScreen" component={ClassViewScreen} />
       <Stack.Screen name="AllCourseScreen" component={AllCourseScreen} />
       <Stack.Screen name="CourseViewScreen" component={CourseViewScreen} />
+      <Stack.Screen
+        name="AttendanceTakingScreen"
+        component={AttendanceTakingScreen}
+      />
+      <Stack.Screen name="AllStudentScreen" component={AllStudentScreen} />
     </Stack.Navigator>
   );
 };

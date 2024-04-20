@@ -12,9 +12,11 @@ import { AttendanceStatusType } from "@/src/shared";
 
 const StudentOverviewCard = ({
   hideStatsShowOnlyAttendanceStat,
+  hideStatsShowOnlyAttendanceAverage,
   attendanceStatusType,
 }: {
   hideStatsShowOnlyAttendanceStat?: boolean;
+  hideStatsShowOnlyAttendanceAverage?: boolean;
   attendanceStatusType?: AttendanceStatusType;
 }) => {
   return (
@@ -41,6 +43,16 @@ const StudentOverviewCard = ({
           alt
           hideStatsShowOnlyAttendanceStat
           type={attendanceStatusType}
+        />
+      ) : hideStatsShowOnlyAttendanceAverage && attendanceStatusType ? (
+        <BodyRegular
+          text="90% Avg."
+          type={TextFontType.Medium}
+          customClassName={`mb-1 ${
+            attendanceStatusType === AttendanceStatusType.PRESENT
+              ? "text-success-600"
+              : "text-danger-600"
+          }`}
         />
       ) : (
         <View className="">

@@ -9,8 +9,9 @@ import { BodyText } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
 import ClassCardOverview from "@/src/components/UI/ClassCardOverview";
 import FloatingButton from "@/src/components/UI/Buttons/FloatingButton";
+import { StackNavigationProps } from "@/src/shared";
 
-const CourseViewScreen = () => {
+const CourseViewScreen = ({navigation}:StackNavigationProps) => {
   return (
     <View className="flex-1 bg-white px-4 pt-7">
       <StatusBar
@@ -43,7 +44,11 @@ const CourseViewScreen = () => {
           />
         </View>
         <View className="flex-1">
-          <BodyText text="Classes" type={TextFontType.Bold} customClassName="my-4" />
+          <BodyText
+            text="Classes"
+            type={TextFontType.Bold}
+            customClassName="my-4"
+          />
           <ScrollView className="flex-1">
             {[1, 2, 3, 4, 5, 5, 6, 7, 3, 2, 2].map((i, _) => (
               <ClassCardOverview key={_} />
@@ -51,7 +56,10 @@ const CourseViewScreen = () => {
           </ScrollView>
         </View>
       </View>
-      <FloatingButton title="New attendance" />
+      <FloatingButton
+        title="New attendance"
+        onPress={() => navigation.navigate("AttendanceTakingScreen")}
+      />
     </View>
   );
 };

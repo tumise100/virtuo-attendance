@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import NfcManager, { NfcEvents } from "react-native-nfc-manager";
 
 const NfcScreen = () => {
-  const [hasNfc, setHasNFC] = useState(false);
+  const [hasNfc, setHasNFC] = useState(true);
 
   useEffect(() => {
     const checkIsSupported = async () => {
@@ -20,9 +20,23 @@ const NfcScreen = () => {
     checkIsSupported();
   }, []);
 
+  useEffect(() => {
+    NfcManager.setEventListener(NfcEvents.DiscoverTag, (tag:any) => {
+      console.log(tag, "tag found");
+    });
+
+    return () => {
+      NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
+    };
+  }, []);
+
+  const readTag = async () => {
+    await NfcManager.registerTagEvent();
+  };
+
   return (
     <View className="flex-1 justify-center items-center bg-green-700">
-      <Text>NfcScreen: {hasNfc}</Text>
+      <Text>NfcScreen: Yes/no {hasNfc}</Text>
     </View>
   );
 };
