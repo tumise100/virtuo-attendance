@@ -4,7 +4,7 @@ import { HeadingsSemibold24, TextMedium14 } from "@/src/theme/typography";
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
 import { TextInput } from "react-native-paper";
 import CustomPaperTextInput from "@/src/components/UI/Inputs/CustomPaperTextInput";
-import LecturerPostDropdown from "@/src/components/UI/Dropdown/LecturerPostDropdown";
+import CustomDropdown from "@/src/components/UI/Dropdown";
 import { CustomButton } from "@/src/components/UI/Buttons";
 import { StackNavigationProps } from "@/src/shared";
 import { COLORS } from "@/src/theme/colors";
@@ -28,7 +28,7 @@ const SignUpScreen = ({ navigation }: StackNavigationProps) => {
       <View>
         <CustomPaperTextInput label="Surname" />
         <CustomPaperTextInput label="Given Name" />
-        <LecturerPostDropdown placeholder="Post/Status" />
+        <CustomDropdown placeholder="Post/Status" />
         <CustomPaperTextInput label="Email Address" />
         <CustomPaperTextInput label="Phone Number" />
         <CustomPaperTextInput label="Password" />

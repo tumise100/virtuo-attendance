@@ -3,14 +3,21 @@ import { StyleSheet, Text, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import { Entypo } from "@expo/vector-icons/";
 import { COLORS } from "@/src/theme/colors";
+import { DropdownData } from "@/src/shared";
 
-const data = [
+const _data: DropdownData[] = [
   { name: "Senior Lecturer", id: "1" },
   { name: "Junior Lecturer", id: "2" },
   { name: "Graduate Assistant", id: "3" },
 ];
 
-const LecturerPostDropdown = ({ placeholder }: { placeholder?: string }) => {
+const CustomDropdown = ({
+  placeholder,
+  data = _data,
+}: {
+  placeholder?: string;
+  data?: DropdownData[];
+}) => {
   const [value, setValue] = useState<string | null>(null);
   const [isFocus, setIsFocus] = useState(false);
 
@@ -42,7 +49,7 @@ const LecturerPostDropdown = ({ placeholder }: { placeholder?: string }) => {
   );
 };
 
-export default LecturerPostDropdown;
+export default CustomDropdown;
 
 const styles = StyleSheet.create({
   dropdown: {

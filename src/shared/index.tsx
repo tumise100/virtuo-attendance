@@ -24,3 +24,8 @@ export enum AttendanceStatusType {
 export interface ModalProp {
   setVisible: (a: boolean) => void;
 }
+
+export interface DropdownData {
+  name: string;
+  id: string;
+}

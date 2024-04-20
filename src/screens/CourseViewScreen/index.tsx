@@ -1,17 +1,27 @@
-import { View, Text, StatusBar, ScrollView } from "react-native";
-import React from "react";
+import {
+  View,
+  Text,
+  StatusBar,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
+import React, { useRef } from "react";
 import { COLORS } from "@/src/theme/colors";
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
 import { SubheadingSemibold18 } from "@/src/theme/typography";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import AttendanceCard from "@/src/components/UI/AttendanceCard";
 import { BodyText } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
 import ClassCardOverview from "@/src/components/UI/ClassCardOverview";
 import FloatingButton from "@/src/components/UI/Buttons/FloatingButton";
-import { StackNavigationProps } from "@/src/shared";
+import { ModalProp, StackNavigationProps } from "@/src/shared";
+import Modal from "@/src/components/UI/Modal";
+import CourseSettingsModalContent from "./components/CourseSettingsModalContent";
 
-const CourseViewScreen = ({navigation}:StackNavigationProps) => {
+const CourseViewScreen = ({ navigation }: StackNavigationProps) => {
+  const courseSettingsModalRef = useRef<ModalProp>(null);
+
   return (
     <View className="flex-1 bg-white px-4 pt-7">
       <StatusBar
@@ -27,7 +37,11 @@ const CourseViewScreen = ({navigation}:StackNavigationProps) => {
             customClassName="ml-5"
           />
         </View>
-        <MaterialIcons name="filter-list" size={24} />
+        <TouchableOpacity
+          onPress={() => courseSettingsModalRef.current?.setVisible(true)}
+        >
+          <Ionicons name="options-outline" size={24} />
+        </TouchableOpacity>
       </View>
 
       <View className="flex-1">
@@ -60,6 +74,15 @@ const CourseViewScreen = ({navigation}:StackNavigationProps) => {
         title="New attendance"
         onPress={() => navigation.navigate("AttendanceTakingScreen")}
       />
+
+      <Modal
+        ref={courseSettingsModalRef}
+        onCancel={() => {
+          courseSettingsModalRef.current?.setVisible(false);
+        }}
+      >
+        <CourseSettingsModalContent modalRef={courseSettingsModalRef} />
+      </Modal>
     </View>
   );
 };
