@@ -29,3 +29,10 @@ export interface DropdownData {
   name: string;
   id: string;
 }
+
+export interface StudentAttendance {
+  name: string;
+  matric_no: string;
+  course: string;
+  level: string;
+}

@@ -14,7 +14,7 @@ import FilterStudentsBy from "./components/FilterStudentsBy";
 import FilterStudentsByPercentage from "./components/FilterStudentsByPercentage";
 import FilterStudentsByLevel from "./components/FilterStudentsByLevel";
 
-const AllStudentScreen = () => {
+const StudentAttendanceScreen = () => {
   const filterStudentsByModalRef = useRef<ModalProp>(null);
   const filterStudentsByPercentageModalRef = useRef<ModalProp>(null);
   const filterStudentsByLevelModalRef = useRef<ModalProp>(null);
@@ -26,11 +26,9 @@ const AllStudentScreen = () => {
         barStyle={"dark-content"}
         animated
       />
-      <View className="flex-row items-center justify-between">
-        <View className="flex-row items-center ">
-          <BackBtn />
-          <SubheadingSemibold18 text="Students" customClassName="ml-5" />
-        </View>
+      <View className="flex-row items-center ">
+        <BackBtn />
+        <SubheadingSemibold18 text="Students" customClassName="ml-5" />
       </View>
       <InputWithFilter filterModalRef={filterStudentsByModalRef} />
       <View className="flex-1">
@@ -116,4 +114,4 @@ const AllStudentScreen = () => {
   );
 };
 
-export default AllStudentScreen;
+export default StudentAttendanceScreen;

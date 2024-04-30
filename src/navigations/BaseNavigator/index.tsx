@@ -6,7 +6,9 @@ import ClassViewScreen from "@/src/screens/ClassViewScreen";
 import AllCourseScreen from "@/src/screens/AllCourseScreen";
 import CourseViewScreen from "@/src/screens/CourseViewScreen";
 import AttendanceTakingScreen from "@/src/screens/AttendanceTakingScreen";
-import AllStudentScreen from "@/src/screens/AllStudentScreen";
+import StudentAttendanceScreen from "@/src/screens/StudentAttendanceScreen";
+import StudentViewScreen from "@/src/screens/StudentViewScreen";
+import ProfileScreen from "@/src/screens/ProfileScreen";
 
 const BaseNavigator = () => {
   const Stack = createStackNavigator();
@@ -21,7 +23,12 @@ const BaseNavigator = () => {
         name="AttendanceTakingScreen"
         component={AttendanceTakingScreen}
       />
-      <Stack.Screen name="AllStudentScreen" component={AllStudentScreen} />
+      <Stack.Screen
+        name="StudentAttendanceScreen"
+        component={StudentAttendanceScreen}
+      />
+      <Stack.Screen name="StudentViewScreen" component={StudentViewScreen} />
+      <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
     </Stack.Navigator>
   );
 };

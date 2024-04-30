@@ -39,7 +39,12 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
             title="Login"
             onPress={() => navigation.navigate("BaseNavigator")}
           />
-          <Text className="text-center">Don't have an account? Signup</Text>
+          <Text className="text-center">
+            Don't have an account?{" "}
+            <Text onPress={() => navigation.navigate("SignUpScreen")}>
+              Signup
+            </Text>
+          </Text>
         </View>
       </View>
     </View>

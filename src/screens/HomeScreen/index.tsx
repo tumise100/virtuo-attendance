@@ -30,13 +30,16 @@ const HomeScreen = ({
           <TextMedium14 text="2022/2023 Session" />
           <InputLabelMedium12 text="semester 1" customClassName="font-normal" />
         </View>
-        <View className="w-[48px] h-[48px]">
+        <TouchableOpacity
+          onPress={() => navigation.navigate("ProfileScreen")}
+          className="w-[48px] h-[48px]"
+        >
           <Image
             source={UserAvatarImg}
             resizeMode="contain"
             className="w-full h-full"
           />
-        </View>
+        </TouchableOpacity>
       </View>
       <View className="mt-4">
         <CustomPaperTextInputWithIcons

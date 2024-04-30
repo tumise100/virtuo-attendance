@@ -29,6 +29,7 @@ export const COLORS = {
     100: "#DEF1FF",
   },
   success: {
+    700: "#27AE60",
     600: "#6FCF97",
     500: "#5ED792",
     400: "#75DEA2",

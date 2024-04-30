@@ -8,7 +8,10 @@ import {
 import { TextFontType } from "@/src/theme/typography/typography";
 import { BodyRegular } from "@/src/theme/typography/BodyText";
 import { OverviewAttendanceStatus } from "../ClassCardOverview";
-import { AttendanceStatusType } from "@/src/shared";
+import { AttendanceStatusType, StudentAttendance } from "@/src/shared";
+import { Ionicons } from "@expo/vector-icons";
+import { COLORS } from "@/src/theme/colors";
+import { useNavigation } from "@react-navigation/native";
 
 const StudentOverviewCard = ({
   hideStatsShowOnlyAttendanceStat,
@@ -19,8 +22,13 @@ const StudentOverviewCard = ({
   hideStatsShowOnlyAttendanceAverage?: boolean;
   attendanceStatusType?: AttendanceStatusType;
 }) => {
+  const navigation = useNavigation<any>();
+
   return (
-    <TouchableOpacity className="flex-row items-center justify-between mb-3 rounded-md border border-borderColor p-3">
+    <TouchableOpacity
+      onPress={() => navigation.navigate("StudentViewScreen")}
+      className="flex-row items-center justify-between mb-3 rounded-md border border-borderColor p-3"
+    >
       <View className="flex-row items-center">
         <View className="w-[32px] h-[32px]">
           <Image
@@ -76,3 +84,38 @@ const StudentOverviewCard = ({
 };
 
 export default StudentOverviewCard;
+
+export const StudentAttendanceMarked = ({
+  name,
+  matric_no,
+  course,
+  level,
+}: StudentAttendance) => {
+  return (
+    <TouchableOpacity className="flex-row items-center justify-between mb-3 rounded-md border border-borderColor p-3">
+      <View className="flex-row items-center">
+        <View className="w-[32px] h-[32px]">
+          <Image
+            source={UserAvatarImg}
+            resizeMode="contain"
+            className="w-full h-full"
+          />
+        </View>
+        <View className="ml-3">
+          <Overline1Text
+            text={name}
+            // text="Salako Mary Jane"
+            type={TextFontType.Bold}
+          />
+          <DescriptionText
+            text={`${course}. ${level}Level`}
+            // text="Computer Sci. 100Level"
+            type={TextFontType.Bold}
+            customClassName="normal-case"
+          />
+        </View>
+      </View>
+      <Ionicons name="checkmark-circle" size={23} color={COLORS.success[700]} />
+    </TouchableOpacity>
+  );
+};

@@ -33,7 +33,11 @@ const OnboardingScreen = ({ navigation }: StackNavigationProps) => {
             title="Signup"
             onPress={() => navigation.navigate("SignUpScreen")}
           />
-          <CustomButton title="Signin" outline />
+          <CustomButton
+            title="Signin"
+            onPress={() => navigation.navigate("SignInScreen")}
+            outline
+          />
         </View>
       </View>
       <View></View>

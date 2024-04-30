@@ -15,7 +15,7 @@ import {
   Ionicons,
   Octicons,
   MaterialCommunityIcons,
-  AntDesign
+  AntDesign,
 } from "@expo/vector-icons";
 import { COLORS } from "@/src/theme/colors";
 import { BodyRegular } from "@/src/theme/typography/BodyText";
@@ -30,7 +30,6 @@ const DrawerNavigator = () => {
       drawerContent={(props) => <CustomDrawerContent {...props} />}
     >
       <Drawer.Screen name="HomeScreen" component={HomeScreen} />
-      <Drawer.Screen name="HomeScreen1" component={HomeScreen} />
     </Drawer.Navigator>
   );
 };
@@ -91,7 +90,11 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
       <View className="justify-center items-center mt-[75%]">
         <TouchableOpacity className="flex-row items-center p-3 bg-danger-600 rounded-md">
           <AntDesign name="logout" size={15} color={COLORS.white} />
-          <BodyRegular text="Logout" type={TextFontType.Regular} customClassName="text-white ml-3" />
+          <BodyRegular
+            text="Logout"
+            type={TextFontType.Regular}
+            customClassName="text-white ml-3"
+          />
         </TouchableOpacity>
       </View>
     </View>
