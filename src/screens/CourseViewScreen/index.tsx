@@ -4,8 +4,9 @@ import {
   StatusBar,
   ScrollView,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { COLORS } from "@/src/theme/colors";
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
 import { SubheadingSemibold18 } from "@/src/theme/typography";
@@ -18,9 +19,44 @@ import FloatingButton from "@/src/components/UI/Buttons/FloatingButton";
 import { ModalProp, StackNavigationProps } from "@/src/shared";
 import Modal from "@/src/components/UI/Modal";
 import CourseSettingsModalContent from "./components/CourseSettingsModalContent";
+import { ICourse } from "@/src/contracts/course";
+import { GetACourse } from "@/src/services/auth";
+import LoadingComponent from "@/src/components/UI/LoadingComponent";
 
 const CourseViewScreen = ({ navigation }: StackNavigationProps) => {
   const courseSettingsModalRef = useRef<ModalProp>(null);
+  const [course, setCourse] = useState<ICourse | null>(null);
+  const [loading, setLoading] = useState(false);
+  // const { user } = combineStore();
+
+  useEffect(() => {
+    fetchCourse();
+  }, []);
+
+  const fetchCourse = async () => {
+    setLoading(true);
+    await GetACourse("BIO101")
+      .then(({ responseData, responseStatus }) => {
+        console.log(responseData, responseStatus, "my course");
+        if (responseStatus === 200) {
+          setCourse(responseData);
+        } else {
+          console.log(responseData, "some data 2");
+        }
+      })
+      .catch((err) => {
+        console.log(err, "err");
+      })
+      .finally(() => setLoading(false));
+  };
+
+  if (loading) {
+    return (
+      <View className="flex-1 px-4 py-7">
+        <LoadingComponent />
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 bg-white px-4 pt-7">
@@ -48,6 +84,7 @@ const CourseViewScreen = ({ navigation }: StackNavigationProps) => {
         <View className="flex-row justify-between items-center mt-7">
           <AttendanceCard
             title="Total Students"
+            // subtitle="120"
             subtitle="120"
             borderColor="border-primary-500"
           />
@@ -64,9 +101,19 @@ const CourseViewScreen = ({ navigation }: StackNavigationProps) => {
             customClassName="my-4"
           />
           <ScrollView className="flex-1">
-            {[1, 2, 3, 4, 5, 5, 6, 7, 3, 2, 2].map((i, _) => (
+            {course && course.classes.length ? (
+              course.classes.map((courseClass) => (
+                <ClassCardOverview
+                  key={courseClass.id}
+                  title={`Introduction to ${course.title} ${courseClass.id}`}
+                />
+              ))
+            ) : (
+              <Text>No Data</Text>
+            )}
+            {/* {[1, 2, 3, 4, 5, 5, 6, 7, 3, 2, 2].map((i, _) => (
               <ClassCardOverview key={_} />
-            ))}
+            ))} */}
           </ScrollView>
         </View>
       </View>
@@ -80,6 +127,7 @@ const CourseViewScreen = ({ navigation }: StackNavigationProps) => {
         onCancel={() => {
           courseSettingsModalRef.current?.setVisible(false);
         }}
+        customStyle={{ height: Dimensions.get("screen").height * 0.4 }}
       >
         <CourseSettingsModalContent modalRef={courseSettingsModalRef} />
       </Modal>

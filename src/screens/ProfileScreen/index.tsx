@@ -14,8 +14,12 @@ import ProfileAvatarImg from "@/assets/images/profileAvatar.jpg";
 import { Feather, Entypo } from "@expo/vector-icons";
 import { BodyText } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
+import CustomAvatar from "@/src/components/UI/CustomAvatar";
+import { combineStore } from "@/src/store";
 
 const ProfileScreen = () => {
+  const { user } = combineStore();
+
   return (
     <ScrollView className="flex-1 bg-white px-4 pt-7">
       <StatusBar
@@ -28,7 +32,11 @@ const ProfileScreen = () => {
         <SubheadingSemibold18 text="Profile" customClassName="ml-5" />
       </View>
       <View className="items-center my-6">
-        <View className="w-[105px] h-[105px] rounded-full border-[3px] border-black">
+        <CustomAvatar
+          name={`${user?.firstName} ${user?.lastName}`}
+          size={105}
+        />
+        {/* <View className="w-[105px] h-[105px] rounded-full border-[3px] border-black">
           <Image
             source={ProfileAvatarImg}
             className="h-full w-full rounded-full"
@@ -36,13 +44,12 @@ const ProfileScreen = () => {
           <View className="absolute p-2 rounded-full bg-borderColor bottom-0 right-0">
             <Feather name="camera" size={17} />
           </View>
-        </View>
+        </View> */}
       </View>
       <View className="mt-6">
-        <ProfileScreenItem title="Micheal James" />
+        <ProfileScreenItem title={`${user?.firstName} ${user?.lastName}`} />
         <ProfileScreenItem title="Nigeria" />
-        <ProfileScreenItem title="@michael123" />
-        <ProfileScreenItem title="info@virtuo.com" />
+        <ProfileScreenItem title={`${user?.email}`} />
         <ProfileScreenItem title="+234 810 123 4567" />
       </View>
     </ScrollView>

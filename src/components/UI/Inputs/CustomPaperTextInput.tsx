@@ -27,7 +27,7 @@ const CustomPaperTextInput = ({
   isDarkMode,
 }: {
   label: string;
-  error?: boolean;
+  error?: string;
   value?: string;
   onChangeText?: (((text: string) => void) & Function) | undefined;
   isDarkMode?: boolean;
@@ -40,29 +40,34 @@ const CustomPaperTextInput = ({
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <TextInput
-      className={`bg-white border text-sm border-gray-400 rounded-md mb-4`}
-      label={label}
-      keyboardType={keyboardType || "default"}
-      underlineColor="transparent"
-      activeUnderlineColor={"#000"}
-      secureTextEntry={
-        (label === "Password" && !showPassword) ||
-        (label === "Confirm Password" && !showPassword)
-      }
-      textColor={isDarkMode ? COLORS.white : COLORS.textColor}
-      value={value}
-      error={error}
-      onChangeText={onChangeText}
-      right={
-        (label === "Password" || label === "Confirm Password") && (
-          <TextInput.Icon
-            icon={showPassword ? "eye-off" : "eye"}
-            onPress={() => setShowPassword((show) => !show)}
-          />
-        )
-      }
-    />
+    <View className="mb-4">
+      <TextInput
+        className={`bg-white border text-sm border-gray-400 rounded-md`}
+        label={label}
+        keyboardType={keyboardType || "default"}
+        underlineColor="transparent"
+        activeUnderlineColor={"#000"}
+        secureTextEntry={
+          (label === "Password" && !showPassword) ||
+          (label === "Confirm Password" && !showPassword)
+        }
+        textColor={isDarkMode ? COLORS.white : COLORS.textColor}
+        value={value}
+        error={!!error}
+        onChangeText={onChangeText}
+        right={
+          (label === "Password" || label === "Confirm Password") && (
+            <TextInput.Icon
+              icon={showPassword ? "eye-off" : "eye"}
+              onPress={() => setShowPassword((show) => !show)}
+            />
+          )
+        }
+      />
+      {error && (
+        <Text className="text-[11px] mt-1 text-danger-600">{error}</Text>
+      )}
+    </View>
   );
 };
 

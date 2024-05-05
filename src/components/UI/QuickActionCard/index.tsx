@@ -46,7 +46,7 @@ const QuickActionCard = ({
       break;
   }
 
-  console.log(color100, color200, color300);
+  // console.log(color100, color200, color300);
 
   return (
     <TouchableOpacity

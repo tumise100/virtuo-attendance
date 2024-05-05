@@ -14,10 +14,14 @@ import { COLORS } from "@/src/theme/colors";
 import { useNavigation } from "@react-navigation/native";
 
 const StudentOverviewCard = ({
+  fullName,
+  level,
   hideStatsShowOnlyAttendanceStat,
   hideStatsShowOnlyAttendanceAverage,
   attendanceStatusType,
 }: {
+  fullName?: string;
+  level?: string;
   hideStatsShowOnlyAttendanceStat?: boolean;
   hideStatsShowOnlyAttendanceAverage?: boolean;
   attendanceStatusType?: AttendanceStatusType;
@@ -38,9 +42,12 @@ const StudentOverviewCard = ({
           />
         </View>
         <View className="ml-3">
-          <Overline1Text text="Salako Mary Jane" type={TextFontType.Bold} />
+          <Overline1Text
+            text={fullName || "Salako Mary Jane"}
+            type={TextFontType.Bold}
+          />
           <DescriptionText
-            text="Computer Sci. 100Level"
+            text={`Computer Sci. ${level || "100"}Level`}
             type={TextFontType.Bold}
             customClassName="normal-case"
           />

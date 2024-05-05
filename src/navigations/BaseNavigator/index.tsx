@@ -1,5 +1,5 @@
 // ClassViewScreen
-import React from "react";
+import React, { useEffect } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import DrawerNavigator from "../DrawerNavigator";
 import ClassViewScreen from "@/src/screens/ClassViewScreen";
@@ -9,9 +9,36 @@ import AttendanceTakingScreen from "@/src/screens/AttendanceTakingScreen";
 import StudentAttendanceScreen from "@/src/screens/StudentAttendanceScreen";
 import StudentViewScreen from "@/src/screens/StudentViewScreen";
 import ProfileScreen from "@/src/screens/ProfileScreen";
+import { GetMe } from "@/src/services/auth";
+import { showToast } from "@/src/components/UI/showToast";
+import { combineStore } from "@/src/store";
 
 const BaseNavigator = () => {
   const Stack = createStackNavigator();
+  const combinedStore = combineStore();
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  const fetchUser = () => {
+    GetMe()
+      .then(({ responseData, responseStatus }) => {
+        console.log(responseData, responseStatus, "ee");
+        if (responseStatus !== 200) {
+          console.log(responseData, "responseData");
+          showToast(responseData.message);
+        } else if (responseData.account) {
+          console.log("if here");
+
+          combinedStore.updateUser(responseData);
+        }
+      })
+      .catch((err) => {
+        // showToast("Wrong Credentials!");
+        console.log(err, "err");
+      });
+  };
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>

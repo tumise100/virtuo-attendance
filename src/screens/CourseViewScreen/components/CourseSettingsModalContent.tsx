@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View, Text, ScrollView } from "react-native";
 import React from "react";
 import { BodyText } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
@@ -28,7 +28,7 @@ const CourseSettingsModalContent = ({
   modalRef: React.RefObject<ModalProp>;
 }) => {
   return (
-    <View className="px-4 py-6">
+    <ScrollView className="px-4 py-6">
       <BodyText text="Course Settings" type={TextFontType.Medium} />
       <View>
         <CustomDropdown placeholder="Holding day" data={holdingDayData} />
@@ -38,7 +38,7 @@ const CourseSettingsModalContent = ({
           onPress={() => modalRef.current?.setVisible(false)}
         />
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

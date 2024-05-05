@@ -1,5 +1,5 @@
 enum AccountType {
-  STUDENT = "STUDENT",
+  STUDENT = AccountType.STUDENT,
   ADMIN = "ADMIN",
   LECTURER = "LECTURER",
   BUSINESS_OWNER = "BUSINESS_OWNER",
@@ -57,4 +57,70 @@ interface COURSE {
   title: string;
   code: string;
   level: Level;
+}
+
+interface Account {
+  admin: any;
+  createdAt: string;
+  id: number;
+  type: AccountType;
+  updatedAt: string;
+}
+export interface ILecturer {
+  account: { id: number; type: AccountType.LECTURER };
+  accounts: Account[];
+  createdAt: string;
+  deletedAt: null;
+  email: string;
+  firstName: string;
+  id: number;
+  isActivated: true;
+  isFirstLogin: false;
+  isTermsAccepted: false;
+  lastLogin: string;
+  lastName: string;
+  updatedAt: string;
+}
+
+export interface IStudent {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  type: AccountType.STUDENT;
+  users: [
+    {
+      id: number;
+      createdAt: string;
+      updatedAt: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      password: string;
+      isFirstLogin: false;
+      lastLogin: null;
+      deletedAt: null;
+      hashedRt: null;
+      isActivated: true;
+      isTermsAccepted: false;
+    }
+  ];
+  student: {
+    accountId: number;
+    lastName: string;
+    firstName: string;
+    localGovernment: string;
+    stateOfOrigin: string;
+    sex: Sex;
+    phone: string;
+    email: string;
+    facultyId: number;
+    departmentId: number;
+    schoolId: number;
+    level: Level;
+    yearOfAdmission: number;
+    matricNumber: string;
+    dateOfBirth: string;
+    createdAt: string;
+    updatedAt: string;
+  };
 }

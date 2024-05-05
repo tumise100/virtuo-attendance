@@ -9,19 +9,27 @@ import { TextFontType } from "@/src/theme/typography/typography";
 import { BodyRegular } from "@/src/theme/typography/BodyText";
 import { COLORS } from "@/src/theme/colors";
 import { AttendanceStatusType } from "@/src/shared";
+import { useNavigation } from "@react-navigation/native";
 
 const ClassCardOverview = ({
   onPress,
   customclassName,
   showAttendanceStats = true,
+  title,
 }: {
+  title?: string;
   onPress?: () => void;
   customclassName?: string;
   showAttendanceStats?: boolean;
 }) => {
+  const navigation = useNavigation<any>();
+
   return (
     <TouchableOpacity
-      onPress={onPress}
+      onPress={() => {
+        navigation.navigate("ClassViewScreen");
+      }}
+      // onPress={onPress}
       className={`flex-row rounded-md items-center justify-between bg-info-500 p-3 mb-3 ${customclassName}`}
     >
       <View className="bg-white p-[10px] rounded-full">
@@ -29,7 +37,7 @@ const ClassCardOverview = ({
       </View>
       <View className="mr-2">
         <Overline1Text
-          text="Intro. to Computer Science"
+          text={title || "Intro. to Computer Science"}
           type={TextFontType.Bold}
           customClassName="text-white"
         />
@@ -106,7 +114,9 @@ export const AttendanceStatusText = ({
   return (
     <View className="flex-row">
       <Text
-        className={`text-[12px] text-white px-[7px] py-[3px] rounded-full ${isPresent ? "bg-success-600" : "bg-danger-600"}`}
+        className={`text-[12px] text-white px-[7px] py-[3px] rounded-full ${
+          isPresent ? "bg-success-600" : "bg-danger-600"
+        }`}
       >
         {isPresent ? "P" : "A"}
       </Text>

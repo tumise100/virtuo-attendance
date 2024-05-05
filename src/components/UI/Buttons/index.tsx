@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import React from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { COLORS } from "@/src/theme/colors";
@@ -10,12 +10,14 @@ export const CustomButton = ({
   outline,
   onPress,
   customClassName,
+  loading,
 }: {
   title: string;
   outline?: boolean;
   disabled?: boolean;
   onPress?: () => void;
   customClassName?: string;
+  loading?: boolean;
 }) => {
   return (
     <TouchableOpacity disabled={disabled} onPress={onPress}>
@@ -27,15 +29,21 @@ export const CustomButton = ({
         }
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
-        className={`px-7 py-4 items-center mb-4 rounded-md border border-transparent ${
+        className={`flex-row justify-center px-7 py-4 items-center mb-4 rounded-md border border-transparent ${
           outline && "border-primary-500"
         } ${customClassName}`}
       >
-        <Text
-          className={`text-white font-medium ${outline && "text-primary-500"}`}
-        >
-          {title}
-        </Text>
+        {loading ? (
+          <ActivityIndicator color={COLORS.white} />
+        ) : (
+          <Text
+            className={`text-white font-medium ${
+              outline && "text-primary-500"
+            }`}
+          >
+            {title}
+          </Text>
+        )}
       </LinearGradient>
     </TouchableOpacity>
   );

@@ -1,5 +1,5 @@
 import { View, Text, StatusBar } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
 import {
   HeadingsSemibold24,
@@ -10,8 +10,16 @@ import CustomPaperTextInput from "@/src/components/UI/Inputs/CustomPaperTextInpu
 import { CustomButton } from "@/src/components/UI/Buttons";
 import { COLORS } from "@/src/theme/colors";
 import { StackNavigationProps } from "@/src/shared";
+import { Formik } from "formik";
+import { Login } from "@/src/services/auth";
+import { showToast } from "@/src/components/UI/showToast";
+import { combineStore } from "@/src/store";
 
 const SignInScreen = ({ navigation }: StackNavigationProps) => {
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const combinedStore = combineStore();
+
   return (
     <View className="flex-1 bg-white px-4 pt-7">
       <StatusBar
@@ -23,28 +31,103 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
       <View className="my-6">
         <HeadingsSemibold24 text="Login to Virtuo Attendance" />
         <TextMedium14
-          text="Login with your phone number and password"
+          text="Login with your email and password"
           customClassName="text-gray3 font-normal"
         />
         <View className="mt-10">
-          <CustomPaperTextInput label="Phone Number" keyboardType="phone-pad" />
-          <CustomPaperTextInput label="Password" />
-          <InputAssistive
-            text="Forgot Password?"
-            customClassName="p-0 text-right"
-          />
-        </View>
-        <View className="mt-20">
-          <CustomButton
-            title="Login"
-            onPress={() => navigation.navigate("BaseNavigator")}
-          />
-          <Text className="text-center">
-            Don't have an account?{" "}
-            <Text onPress={() => navigation.navigate("SignUpScreen")}>
-              Signup
-            </Text>
-          </Text>
+          <Formik
+            initialValues={{
+              email: "",
+              password: "",
+            }}
+            onSubmit={(values) => {
+              setLoading(true);
+              setError("");
+              Login(values)
+                .then(({ responseData, responseStatus }) => {
+                  console.log(responseData, responseStatus, "ee");
+                  if (responseStatus !== 201) {
+                    console.log(responseData, "responseData");
+                    showToast(responseData.message);
+                  } else {
+                    if (responseData.accessToken) {
+                      // console.log(responseData, "some data");
+                      combinedStore.updateUserToken(responseData.accessToken);
+                      showToast("Log In Successfull");
+                      navigation.navigate("BaseNavigator");
+                    }
+                  }
+                })
+                .catch((err) => {
+                  showToast("Wrong Credentials!");
+                  console.log(err, "err");
+                })
+                .finally(() => setLoading(false));
+            }}
+            validate={(values) => {
+              const errors: {
+                email?: string;
+                password?: string;
+              } = {};
+              if (!values.email.trim().length) {
+                errors.email = "Email is required";
+              }
+              // if (
+              //   !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
+              // ) {
+              //   errors.email = "Invalid email address";
+              // }
+              if (!values.password.trim().length) {
+                errors.password = "Password is required";
+              } else if (values.password.trim().length <= 5) {
+                errors.password = "Password should at least be 6 characters";
+              }
+              return errors;
+            }}
+          >
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              errors,
+              touched,
+            }) => (
+              <>
+                <CustomPaperTextInput
+                  label="Email"
+                  onChangeText={handleChange("email")}
+                  onBlur={handleBlur("email")}
+                  value={values.email}
+                  error={touched.email ? errors.email : undefined}
+                />
+                <CustomPaperTextInput
+                  label="Password"
+                  onChangeText={handleChange("password")}
+                  onBlur={handleBlur("password")}
+                  value={values.password}
+                  error={touched.password ? errors.password : undefined}
+                />
+                <InputAssistive
+                  text="Forgot Password?"
+                  customClassName="p-0 text-right"
+                />
+                <View className="mt-20">
+                  <CustomButton
+                    title="Login"
+                    onPress={handleSubmit}
+                    loading={loading}
+                  />
+                  <Text className="text-center">
+                    Don't have an account?{" "}
+                    <Text onPress={() => navigation.navigate("SignUpScreen")}>
+                      Signup
+                    </Text>
+                  </Text>
+                </View>
+              </>
+            )}
+          </Formik>
         </View>
       </View>
     </View>

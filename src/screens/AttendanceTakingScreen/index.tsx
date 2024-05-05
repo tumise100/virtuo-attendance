@@ -50,28 +50,33 @@ const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
   const handleTagReading = useCallback(
     (tag: any) => {
       setCurrentStudentAttendance(null);
-      const data = JSON.parse(
-        Ndef.uri.decodePayload(tag.ndefMessage[0].payload)
-      ) as StudentAttendance;
-      // console.log(data, "data");
+      try {
+        const data = JSON.parse(
+          Ndef.uri.decodePayload(tag.ndefMessage[0].payload)
+        ) as StudentAttendance;
+        // console.log(data, "data");
 
-      console.log(studentAttendance);
+        console.log(studentAttendance);
 
-      if (
-        studentAttendance &&
-        studentAttendance.find((sA) => sA.matric_no === data.matric_no)
-      ) {
-        showToast("User has been registered already!");
-      } else {
-        const a = [...(studentAttendance || []), data];
+        if (
+          studentAttendance &&
+          studentAttendance.find((sA) => sA.matric_no === data.matric_no)
+        ) {
+          showToast("User has been registered already!");
+        } else {
+          const a = [...(studentAttendance || []), data];
 
-        setStudentAttendance(a);
-        setCurrentStudentAttendance(data);
+          setStudentAttendance(a);
+          setCurrentStudentAttendance(data);
+        }
+        // console.log(
+        //   Ndef.uri.decodePayload(tag.ndefMessage[0].payload),
+        //   "tag found"
+        // );
+      } catch (error) {
+        showToast("Invalid Tag!");
+        console.log(error, "error");
       }
-      // console.log(
-      //   Ndef.uri.decodePayload(tag.ndefMessage[0].payload),
-      //   "tag found"
-      // );
     },
     [studentAttendance, currentStudentAttendance]
   );

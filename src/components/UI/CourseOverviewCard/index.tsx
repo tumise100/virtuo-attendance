@@ -11,15 +11,19 @@ import { Entypo } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 const CourseOverviewCard = ({
-  onPress,
+  title,
+  code,
   customclassName,
 }: {
-  onPress?: () => void;
+  title?: string;
+  code?: string;
   customclassName?: string;
 }) => {
+  const navigation = useNavigation<any>();
+
   return (
     <TouchableOpacity
-      onPress={onPress}
+      onPress={() => navigation.navigate("CourseViewScreen")}
       className={`flex-row rounded-md items-center justify-between bg-info-300 p-3 mb-3 ${customclassName}`}
     >
       <View className="flex-row items-center">
@@ -28,11 +32,11 @@ const CourseOverviewCard = ({
         </View>
         <View className="ml-2">
           <Overline1Text
-            text="Intro. to Computer Science"
+            text={`Intro. to ${title || "Computer Science"}`}
             type={TextFontType.Bold}
           />
           <DescriptionText
-            text="CMP101 Tuesday (9AM - 12PM)"
+            text={`${code || "CMP101"} Tuesday (9AM - 12PM)`}
             type={TextFontType.Regular}
             customClassName="normal-case"
           />
