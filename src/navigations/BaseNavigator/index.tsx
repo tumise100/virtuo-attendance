@@ -12,6 +12,7 @@ import ProfileScreen from "@/src/screens/ProfileScreen";
 import { GetMe } from "@/src/services/auth";
 import { showToast } from "@/src/components/UI/showToast";
 import { combineStore } from "@/src/store";
+import CreateNewStudentTagScreen from "@/src/screens/CreateNewStudentTagScreen";
 
 const BaseNavigator = () => {
   const Stack = createStackNavigator();
@@ -56,6 +57,10 @@ const BaseNavigator = () => {
       />
       <Stack.Screen name="StudentViewScreen" component={StudentViewScreen} />
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+      <Stack.Screen
+        name="CreateNewStudentTagScreen"
+        component={CreateNewStudentTagScreen}
+      />
     </Stack.Navigator>
   );
 };

@@ -1,10 +1,14 @@
 import { View, Text, StatusBar, ScrollView } from "react-native";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { COLORS } from "@/src/theme/colors";
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
 import { SubheadingSemibold18 } from "@/src/theme/typography";
 import InputWithFilter from "@/src/components/UI/InputWithFilter";
-import { AttendanceStatusType, ModalProp } from "@/src/shared";
+import {
+  AttendanceStatusType,
+  ModalProp,
+  StudentAttendance,
+} from "@/src/shared";
 import StudentOverviewCard from "@/src/components/UI/StudentOverviewCard";
 import { BodyText } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
@@ -14,10 +18,12 @@ import FilterStudentsBy from "./components/FilterStudentsBy";
 import FilterStudentsByPercentage from "./components/FilterStudentsByPercentage";
 import FilterStudentsByLevel from "./components/FilterStudentsByLevel";
 
-const StudentAttendanceScreen = () => {
+const StudentAttendanceScreen = ({}) => {
   const filterStudentsByModalRef = useRef<ModalProp>(null);
   const filterStudentsByPercentageModalRef = useRef<ModalProp>(null);
   const filterStudentsByLevelModalRef = useRef<ModalProp>(null);
+
+  const [students, setStudents] = useState<StudentAttendance[] | null>(null);
 
   return (
     <View className="flex-1 bg-white px-4 pt-7">

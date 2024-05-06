@@ -23,11 +23,14 @@ import { ICourse } from "@/src/contracts/course";
 import { GetACourse } from "@/src/services/auth";
 import LoadingComponent from "@/src/components/UI/LoadingComponent";
 
-const CourseViewScreen = ({ navigation }: StackNavigationProps) => {
+const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
   const courseSettingsModalRef = useRef<ModalProp>(null);
   const [course, setCourse] = useState<ICourse | null>(null);
   const [loading, setLoading] = useState(false);
-  // const { user } = combineStore();
+
+  useEffect(() => {
+    console.log(route);
+  }, [route]);
 
   useEffect(() => {
     fetchCourse();
@@ -69,7 +72,7 @@ const CourseViewScreen = ({ navigation }: StackNavigationProps) => {
         <View className="flex-row items-center ">
           <BackBtn />
           <SubheadingSemibold18
-            text="Intro to Computer Sci."
+            text={`Introduction to ${course?.title}`}
             customClassName="ml-5"
           />
         </View>

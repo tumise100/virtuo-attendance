@@ -1,22 +1,18 @@
 {
   "expo": {
     "name": "virtuo-attendance",
-    "slug": "virtuo-attendance",
+    "slug": "virtuoattendance",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "plugins": [
-      "react-native-nfc-manager"
-    ],
+    "plugins": ["react-native-nfc-manager"],
     "splash": {
       "image": "./assets/images/splashImg.png",
       "resizeMode": "contain",
       "backgroundColor": "#FF6B00"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.isolomon.virtuoattendance"
@@ -26,9 +22,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FF6B00"
       },
-      "permissions": [
-        "android.permission.NFC"
-      ],
+      "permissions": ["android.permission.NFC"],
       "package": "com.isolomon.virtuoattendance"
     },
     "web": {
@@ -36,14 +30,15 @@
     },
     "extra": {
       "eas": {
-        "projectId": "dc85a9c9-5e3e-4773-9b3d-c18ef2cda11d"
+        "projectId": "e3e63d97-58a6-49e0-be58-fee66aabf64e"
       }
     },
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/dc85a9c9-5e3e-4773-9b3d-c18ef2cda11d"
-    }
+      "url": "https://u.expo.dev/e3e63d97-58a6-49e0-be58-fee66aabf64e"
+    },
+    "owner": "virtuo-attendance"
   }
 }

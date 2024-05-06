@@ -161,6 +161,7 @@ const HomeScreen = ({
           <View className="flex-row justify-between items-center mt-4">
             <QuickActionCard
               title="Profile"
+              onPress={() => navigation.navigate("ProfileScreen")}
               subtitle="Update your profile and sessions"
               colorType="info"
             />

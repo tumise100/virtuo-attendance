@@ -25,10 +25,12 @@ const CustomPaperTextInput = ({
   onBlur,
   keyboardType,
   isDarkMode,
+  placeholder,
 }: {
   label: string;
   error?: string;
   value?: string;
+  placeholder?: string;
   onChangeText?: (((text: string) => void) & Function) | undefined;
   isDarkMode?: boolean;
   onBlur?:
@@ -51,6 +53,7 @@ const CustomPaperTextInput = ({
           (label === "Password" && !showPassword) ||
           (label === "Confirm Password" && !showPassword)
         }
+        placeholder={placeholder}
         textColor={isDarkMode ? COLORS.white : COLORS.textColor}
         value={value}
         error={!!error}

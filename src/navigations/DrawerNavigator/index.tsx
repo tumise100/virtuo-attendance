@@ -86,6 +86,13 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           label="Privacy policy"
           showMoreIcon={false}
         />
+        <CustomDrawerContentItem
+          iconName="people"
+          Icon={Octicons}
+          label="Create new Student  tag"
+          showMoreIcon={false}
+          onPress={() => props.navigation.navigate('CreateNewStudentTagScreen')}
+        />
       </View>
       <View className="justify-center items-center mt-[75%]">
         <TouchableOpacity className="flex-row items-center p-3 bg-danger-600 rounded-md">
@@ -106,14 +113,19 @@ const CustomDrawerContentItem = ({
   Icon,
   label,
   showMoreIcon = true,
+  onPress,
 }: {
   iconName: string;
   Icon: any;
   label: string;
   showMoreIcon?: boolean;
+  onPress?: () => void;
 }) => {
   return (
-    <TouchableOpacity className="flex-row items-center justify-between mb-7">
+    <TouchableOpacity
+      onPress={onPress}
+      className="flex-row items-center justify-between mb-7"
+    >
       <View className="flex-row items-center">
         <Icon name={iconName} size={18} color={COLORS.primary[500]} />
         <BodyRegular

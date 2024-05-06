@@ -11,6 +11,7 @@ export const CustomButton = ({
   onPress,
   customClassName,
   loading,
+  loadingWithText,
 }: {
   title: string;
   outline?: boolean;
@@ -18,6 +19,7 @@ export const CustomButton = ({
   onPress?: () => void;
   customClassName?: string;
   loading?: boolean;
+  loadingWithText?: boolean;
 }) => {
   return (
     <TouchableOpacity disabled={disabled} onPress={onPress}>
@@ -44,6 +46,7 @@ export const CustomButton = ({
             {title}
           </Text>
         )}
+        {loadingWithText ? <ActivityIndicator color={COLORS.white} /> : null}
       </LinearGradient>
     </TouchableOpacity>
   );

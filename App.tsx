@@ -21,3 +21,5 @@ export default function App() {
     </PaperProvider>
   );
 }
+
+// "url": "https://u.expo.dev/dc85a9c9-5e3e-4773-9b3d-c18ef2cda11d"

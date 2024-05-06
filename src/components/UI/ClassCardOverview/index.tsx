@@ -16,18 +16,20 @@ const ClassCardOverview = ({
   customclassName,
   showAttendanceStats = true,
   title,
+  classId = 1,
 }: {
   title?: string;
   onPress?: () => void;
   customclassName?: string;
   showAttendanceStats?: boolean;
+  classId?: number;
 }) => {
   const navigation = useNavigation<any>();
 
   return (
     <TouchableOpacity
       onPress={() => {
-        navigation.navigate("ClassViewScreen");
+        navigation.navigate("ClassViewScreen", { classId });
       }}
       // onPress={onPress}
       className={`flex-row rounded-md items-center justify-between bg-info-500 p-3 mb-3 ${customclassName}`}
