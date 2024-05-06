@@ -16,12 +16,14 @@ import { useNavigation } from "@react-navigation/native";
 const StudentOverviewCard = ({
   fullName,
   level,
+  course,
   hideStatsShowOnlyAttendanceStat,
   hideStatsShowOnlyAttendanceAverage,
   attendanceStatusType,
 }: {
   fullName?: string;
   level?: string;
+  course?: string;
   hideStatsShowOnlyAttendanceStat?: boolean;
   hideStatsShowOnlyAttendanceAverage?: boolean;
   attendanceStatusType?: AttendanceStatusType;
@@ -47,7 +49,7 @@ const StudentOverviewCard = ({
             type={TextFontType.Bold}
           />
           <DescriptionText
-            text={`Computer Sci. ${level || "100"}Level`}
+            text={`${course || "Computer Sci."} ${level || "100"}Level`}
             type={TextFontType.Bold}
             customClassName="normal-case"
           />

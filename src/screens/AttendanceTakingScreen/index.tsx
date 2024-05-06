@@ -159,7 +159,11 @@ const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
             />
             <CustomButton
               title="Done"
-              onPress={() => navigation.navigate("StudentAttendanceScreen")}
+              onPress={() =>
+                navigation.navigate("StudentAttendanceScreen", {
+                  students: studentAttendance,
+                })
+              }
               customClassName="my-5"
             />
           </View>
