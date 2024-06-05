@@ -25,7 +25,13 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.isolomon.virtuoattendance"
+      "bundleIdentifier": "com.isolomon.virtuoattendance",
+      "infoPlist": {
+        "com.apple.developer.nfc.readersession.iso7816.select-identifiers": [
+          "D2760000850100",
+          "D2760000850101"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {

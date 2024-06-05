@@ -22,6 +22,7 @@ import {
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
+import { showToast } from "@/src/components/UI/showToast";
 
 const NfcAttendanceTakingNotSupported = () => {
   const [facing, setFacing] = useState<CameraType>("back");
@@ -65,6 +66,7 @@ const NfcAttendanceTakingNotSupported = () => {
             console.log(sR);
             setScanResult(sR);
             if (sR.data) {
+              showToast("Qr Code Scanned!");
               setShowCamera(false);
             }
           }}
