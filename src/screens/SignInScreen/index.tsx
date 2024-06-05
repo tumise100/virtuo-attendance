@@ -41,6 +41,9 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
               password: "",
             }}
             onSubmit={(values) => {
+              if (1) {
+                navigation.navigate("BaseNavigator");
+              }
               setLoading(true);
               setError("");
               Login(values)
@@ -69,6 +72,9 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
                 email?: string;
                 password?: string;
               } = {};
+              if (1) {
+                return;
+              }
               if (!values.email.trim().length) {
                 errors.email = "Email is required";
               }

@@ -16,6 +16,7 @@ import { StackNavigationProps, StudentAttendance } from "@/src/shared";
 // import NfcManager, { Ndef, NfcEvents, NfcTech } from "react-native-nfc-manager";
 import { StudentAttendanceMarked } from "@/src/components/UI/StudentOverviewCard";
 import { showToast } from "@/src/components/UI/showToast";
+import NfcAttendanceTakingNotSupported from "./NfcAttendanceTakingNotSupported";
 
 const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
   const [hasNfc, setHasNFC] = useState(true);
@@ -38,7 +39,12 @@ const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
     };
 
     checkIsSupported();
+    readTag();
   }, []);
+
+  const readTag = async () => {
+    // await NfcManager.registerTagEvent();
+  };
 
   // useEffect(() => {
   //   NfcManager.setEventListener(NfcEvents.DiscoverTag, handleTagReading);
@@ -82,21 +88,11 @@ const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
   //   [studentAttendance, currentStudentAttendance]
   // );
 
+  // return <Text>Hello there {hasNfc ? 1: 2}</Text>;
+
   if (!hasNfc) {
-    return (
-      <View className="flex-1 bg-white items-center justify-center">
-        <Text>Your Device does not support Nfc</Text>
-      </View>
-    );
+    return <NfcAttendanceTakingNotSupported />;
   }
-
-  useEffect(() => {
-    readTag();
-  }, []);
-
-  const readTag = async () => {
-    // await NfcManager.registerTagEvent();
-  };
 
   return (
     <ScrollView className="flex-1 bg-white px-4 pt-7">
