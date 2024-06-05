@@ -1,5 +1,12 @@
-import { View, ScrollView, StatusBar, Image } from "react-native";
-import React from "react";
+import {
+  View,
+  ScrollView,
+  StatusBar,
+  Image,
+  Text,
+  TouchableOpacity,
+} from "react-native";
+import React, { useState } from "react";
 import { COLORS } from "@/src/theme/colors";
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
 import { SubheadingSemibold18 } from "@/src/theme/typography";
@@ -9,8 +16,69 @@ import { DescriptionText } from "@/src/theme/typography/OtherText";
 import { H5Text } from "@/src/theme/typography/HeaderText";
 import PhoneWithCardImg from "@/assets/images/phonewithcard.png";
 import { CustomButton } from "@/src/components/UI/Buttons";
+import {
+  BarcodeScanningResult,
+  CameraType,
+  CameraView,
+  useCameraPermissions,
+} from "expo-camera";
 
 const NfcAttendanceTakingNotSupported = () => {
+  const [facing, setFacing] = useState<CameraType>("back");
+  const [permission, requestPermission] = useCameraPermissions();
+  const [scanResult, setScanResult] = useState<BarcodeScanningResult>();
+  const [showCamera, setShowCamera] = useState<boolean>(false);
+
+  function toggleCameraFacing() {
+    console.log("clicked");
+
+    setFacing((current) => (current === "back" ? "front" : "back"));
+  }
+
+  if (showCamera) {
+    if (!permission) {
+      // Camera permissions are still loading.
+      return <View />;
+    }
+    if (!permission.granted) {
+      // Camera permissions are not granted yet.
+      return (
+        <View className="flex-1 bg-white justify-center items-center">
+          <Text style={{ textAlign: "center" }}>
+            We need your permission to show the camera
+          </Text>
+          <CustomButton
+            onPress={requestPermission}
+            title="Grant permission"
+            customClassName="mt-10"
+          />
+        </View>
+      );
+    }
+    return (
+      <View className="flex-1 justify-center">
+        <CameraView
+          className="flex-1"
+          facing={facing}
+          barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
+          onBarcodeScanned={(sR) => {
+            console.log(sR);
+            setScanResult(sR);
+            if (sR.data) {
+              setShowCamera(false);
+            }
+          }}
+        >
+          <View className="flex-1 flex-row bg-transparent m-[64px]">
+            <TouchableOpacity onPress={toggleCameraFacing}>
+              <Text>Flip Camera</Text>
+            </TouchableOpacity>
+          </View>
+        </CameraView>
+      </View>
+    );
+  }
+
   return (
     <ScrollView className="flex-1 bg-white px-4 pt-7">
       <StatusBar
@@ -49,13 +117,22 @@ const NfcAttendanceTakingNotSupported = () => {
             type={TextFontType.Bold}
             customClassName="w-[85%] text-center"
           />
+          <H5Text
+            text={JSON.stringify(scanResult?.data)}
+            type={TextFontType.Regular}
+            customClassName="w-[85%] text-sm text-center"
+          />
           <BodyRegular
             text="You can also mark attendance by scanning the QR CODE on your student’s card"
             type={TextFontType.Regular}
             customClassName="text-gray3 w-[99%] text-center mt-4"
           />
         </View>
-        <CustomButton title="SCAN QR CODE" customClassName="mt-7" />
+        <CustomButton
+          title="SCAN QR CODE"
+          onPress={() => setShowCamera(true)}
+          customClassName="mt-7"
+        />
       </View>
       <View className="h-24" />
     </ScrollView>

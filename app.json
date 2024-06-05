@@ -6,7 +6,17 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "plugins": ["react-native-nfc-manager"],
+    "plugins": [
+      "react-native-nfc-manager",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Virtuo-Attendance App to access your camera",
+          "microphonePermission": "Allow Virtuo-Attendance App to access your microphone",
+          "recordAudioAndroid": true
+        }
+      ]
+    ],
     "splash": {
       "image": "./assets/images/splashImg.png",
       "resizeMode": "contain",
