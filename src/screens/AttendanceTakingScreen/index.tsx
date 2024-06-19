@@ -13,7 +13,7 @@ import { DescriptionText } from "@/src/theme/typography/OtherText";
 import { H5Text } from "@/src/theme/typography/HeaderText";
 import { CustomButton } from "@/src/components/UI/Buttons";
 import { StackNavigationProps, StudentAttendance } from "@/src/shared";
-// import NfcManager, { Ndef, NfcEvents, NfcTech } from "react-native-nfc-manager";
+import NfcManager, { Ndef, NfcEvents, NfcTech } from "react-native-nfc-manager";
 import { StudentAttendanceMarked } from "@/src/components/UI/StudentOverviewCard";
 import { showToast } from "@/src/components/UI/showToast";
 import NfcAttendanceTakingNotSupported from "./NfcAttendanceTakingNotSupported";
@@ -29,12 +29,13 @@ const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
 
   useEffect(() => {
     const checkIsSupported = async () => {
-      // const deviceIsSupported = await NfcManager.isSupported();
-      const deviceIsSupported = false;
+      const deviceIsSupported = await NfcManager.isSupported();
+      // const deviceIsSupported = false;
+
 
       setHasNFC(deviceIsSupported);
       if (deviceIsSupported) {
-        // await NfcManager.start();
+        await NfcManager.start();
       }
     };
 
@@ -43,50 +44,50 @@ const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
   }, []);
 
   const readTag = async () => {
-    // await NfcManager.registerTagEvent();
+    await NfcManager.registerTagEvent();
   };
 
-  // useEffect(() => {
-  //   NfcManager.setEventListener(NfcEvents.DiscoverTag, handleTagReading);
+  useEffect(() => {
+    NfcManager.setEventListener(NfcEvents.DiscoverTag, handleTagReading);
 
-  //   return () => {
-  //     NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
-  //   };
-  // }, [currentStudentAttendance, studentAttendance]);
+    return () => {
+      NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
+    };
+  }, [currentStudentAttendance, studentAttendance]);
 
-  // const handleTagReading = useCallback(
-  //   (tag: any) => {
-  //     setCurrentStudentAttendance(null);
-  //     try {
-  //       const data = JSON.parse(
-  //         Ndef.uri.decodePayload(tag.ndefMessage[0].payload)
-  //       ) as StudentAttendance;
-  //       // console.log(data, "data");
+  const handleTagReading = useCallback(
+    (tag: any) => {
+      setCurrentStudentAttendance(null);
+      try {
+        const data = JSON.parse(
+          Ndef.uri.decodePayload(tag.ndefMessage[0].payload)
+        ) as StudentAttendance;
+        // console.log(data, "data");
 
-  //       console.log(studentAttendance);
+        console.log(studentAttendance);
 
-  //       if (
-  //         studentAttendance &&
-  //         studentAttendance.find((sA) => sA.matric_no === data.matric_no)
-  //       ) {
-  //         showToast("User has been registered already!");
-  //       } else {
-  //         const a = [...(studentAttendance || []), data];
+        if (
+          studentAttendance &&
+          studentAttendance.find((sA) => sA.matric_no === data.matric_no)
+        ) {
+          showToast("User has been registered already!");
+        } else {
+          const a = [...(studentAttendance || []), data];
 
-  //         setStudentAttendance(a);
-  //         setCurrentStudentAttendance(data);
-  //       }
-  //       // console.log(
-  //       //   Ndef.uri.decodePayload(tag.ndefMessage[0].payload),
-  //       //   "tag found"
-  //       // );
-  //     } catch (error) {
-  //       showToast("Invalid Tag!");
-  //       console.log(error, "error");
-  //     }
-  //   },
-  //   [studentAttendance, currentStudentAttendance]
-  // );
+          setStudentAttendance(a);
+          setCurrentStudentAttendance(data);
+        }
+        // console.log(
+        //   Ndef.uri.decodePayload(tag.ndefMessage[0].payload),
+        //   "tag found"
+        // );
+      } catch (error) {
+        showToast("Invalid Tag!");
+        console.log(error, "error");
+      }
+    },
+    [studentAttendance, currentStudentAttendance]
+  );
 
   // return <Text>Hello there {hasNfc ? 1: 2}</Text>;
 

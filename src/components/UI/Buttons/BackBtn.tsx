@@ -1,5 +1,5 @@
 import { TouchableOpacity, View } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 export const BackBtn = () => {
@@ -11,7 +11,7 @@ export const BackBtn = () => {
         onPress={() => navigation.goBack()}
         className="border border-neutral-300 rounded-full p-1 flex-row items-center"
       >
-        <Feather name="arrow-left" size={17} />
+        <Ionicons name="arrow-back" size={17} />
       </TouchableOpacity>
     </View>
   );

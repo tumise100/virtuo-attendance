@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import React from "react";
-import { Feather } from "@expo/vector-icons";
+import { AntDesign,Feather } from "@expo/vector-icons";
 import { COLORS } from "@/src/theme/colors";
 import { BodyRegular } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
@@ -56,7 +56,8 @@ const QuickActionCard = ({
       <View className="flex-row">
         <View className={`${color200} p-[5px] rounded-full`}>
           <View className={`${color300} p-[5px] rounded-full`}>
-            <Feather name="send" color={COLORS.white} />
+            {/* <Feather name="send" color={COLORS.white} /> */}
+            <AntDesign name="appstore-o" color={COLORS.white} />
           </View>
         </View>
       </View>

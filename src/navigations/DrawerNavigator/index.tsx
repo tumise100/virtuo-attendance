@@ -16,6 +16,7 @@ import {
   Octicons,
   MaterialCommunityIcons,
   AntDesign,
+  FontAwesome
 } from "@expo/vector-icons";
 import { COLORS } from "@/src/theme/colors";
 import { BodyRegular } from "@/src/theme/typography/BodyText";
@@ -51,17 +52,17 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
       <View className="mt-10">
         <CustomDrawerContentItem
           iconName="user"
-          Icon={Feather}
+          Icon={AntDesign}
           label="Profile"
         />
         <CustomDrawerContentItem
-          iconName="send"
-          Icon={Feather}
+          iconName="send-o"
+          Icon={FontAwesome}
           label="Sessions"
         />
         <CustomDrawerContentItem
-          iconName="send"
-          Icon={Feather}
+          iconName="send-o"
+          Icon={FontAwesome}
           label="Change Password"
         />
         <CustomDrawerContentItem

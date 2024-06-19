@@ -18,6 +18,7 @@ import PhoneWithCardImg from "@/assets/images/phonewithcard.png";
 import { CustomButton } from "@/src/components/UI/Buttons";
 import {
   BarcodeScanningResult,
+  Camera,
   CameraType,
   CameraView,
   useCameraPermissions,
@@ -36,6 +37,12 @@ const NfcAttendanceTakingNotSupported = () => {
     setFacing((current) => (current === "back" ? "front" : "back"));
   }
 
+  const permissionFunction = async () => {
+    const cameraPermission = await Camera.requestCameraPermissionsAsync();
+
+    console.log(cameraPermission);
+  };
+
   if (showCamera) {
     if (!permission) {
       // Camera permissions are still loading.
@@ -43,6 +50,7 @@ const NfcAttendanceTakingNotSupported = () => {
     }
     if (!permission.granted) {
       // Camera permissions are not granted yet.
+
       return (
         <View className="flex-1 bg-white justify-center items-center">
           <Text style={{ textAlign: "center" }}>
@@ -63,7 +71,6 @@ const NfcAttendanceTakingNotSupported = () => {
           facing={facing}
           barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
           onBarcodeScanned={(sR) => {
-            console.log(sR);
             setScanResult(sR);
             if (sR.data) {
               showToast("Qr Code Scanned!");
