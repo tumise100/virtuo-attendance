@@ -19,7 +19,7 @@ import { showToast } from "@/src/components/UI/showToast";
 import NfcAttendanceTakingNotSupported from "./NfcAttendanceTakingNotSupported";
 
 const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
-  const [hasNfc, setHasNFC] = useState(true);
+  const [hasNfc, setHasNFC] = useState(false);
 
   const [studentAttendance, setStudentAttendance] = useState<
     StudentAttendance[] | null
@@ -32,6 +32,7 @@ const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
       const deviceIsSupported = await NfcManager.isSupported();
       // const deviceIsSupported = false;
 
+      console.log(deviceIsSupported, "deviceIsSupported");
 
       setHasNFC(deviceIsSupported);
       if (deviceIsSupported) {
@@ -40,7 +41,7 @@ const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
     };
 
     checkIsSupported();
-    readTag();
+    // readTag();
   }, []);
 
   const readTag = async () => {
@@ -48,46 +49,47 @@ const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
   };
 
   useEffect(() => {
-    NfcManager.setEventListener(NfcEvents.DiscoverTag, handleTagReading);
+    // NfcManager.setEventListener(NfcEvents.DiscoverTag, handleTagReading);
 
     return () => {
       NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
     };
   }, [currentStudentAttendance, studentAttendance]);
 
-  const handleTagReading = useCallback(
-    (tag: any) => {
-      setCurrentStudentAttendance(null);
-      try {
-        const data = JSON.parse(
-          Ndef.uri.decodePayload(tag.ndefMessage[0].payload)
-        ) as StudentAttendance;
-        // console.log(data, "data");
+  // const handleTagReading = useCallback(
+  //   (tag: any) => {
+  //     setCurrentStudentAttendance(null);
+  //     try {
+  //       const data = JSON.parse(
+  //         Ndef.uri.decodePayload(tag.ndefMessage[0].payload)
+  //       ) as StudentAttendance;
 
-        console.log(studentAttendance);
+  //       // console.log(data, "data");
 
-        if (
-          studentAttendance &&
-          studentAttendance.find((sA) => sA.matric_no === data.matric_no)
-        ) {
-          showToast("User has been registered already!");
-        } else {
-          const a = [...(studentAttendance || []), data];
+  //       console.log(studentAttendance);
 
-          setStudentAttendance(a);
-          setCurrentStudentAttendance(data);
-        }
-        // console.log(
-        //   Ndef.uri.decodePayload(tag.ndefMessage[0].payload),
-        //   "tag found"
-        // );
-      } catch (error) {
-        showToast("Invalid Tag!");
-        console.log(error, "error");
-      }
-    },
-    [studentAttendance, currentStudentAttendance]
-  );
+  //       if (
+  //         studentAttendance &&
+  //         studentAttendance.find((sA) => sA.matric_no === data.matric_no)
+  //       ) {
+  //         showToast("User has been registered already!");
+  //       } else {
+  //         const a = [...(studentAttendance || []), data];
+
+  //         setStudentAttendance(a);
+  //         setCurrentStudentAttendance(data);
+  //       }
+  //       // console.log(
+  //       //   Ndef.uri.decodePayload(tag.ndefMessage[0].payload),
+  //       //   "tag found"
+  //       // );
+  //     } catch (error) {
+  //       showToast("Invalid Tag!");
+  //       console.log(error, "error");
+  //     }
+  //   },
+  //   [studentAttendance, currentStudentAttendance]
+  // );
 
   // return <Text>Hello there {hasNfc ? 1: 2}</Text>;
 
