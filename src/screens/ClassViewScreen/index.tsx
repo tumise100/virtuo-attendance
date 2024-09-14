@@ -18,26 +18,33 @@ import ClassViewFilterContent from "./components/ClassViewFilterContent";
 import FloatingButton from "@/src/components/UI/Buttons/FloatingButton";
 import InputWithFilter from "@/src/components/UI/InputWithFilter";
 import { ICourse } from "@/src/contracts/course";
-import { GetACourse } from "@/src/services/auth";
 import LoadingComponent from "@/src/components/UI/LoadingComponent";
+import { GetAClass } from "@/src/services/courses";
 
 const ClassViewScreen = ({ navigation, route }: StackNavigationProps) => {
   const classViewFilterModalRef = useRef<ModalProp>(null);
+  const [classId, setClassId] = useState<number | null>(null);
   const [course, setCourse] = useState<ICourse | null>(null);
   const [loading, setLoading] = useState(false);
   // const { user } = combineStore();
 
   useEffect(() => {
     console.log(route);
+    if (route && route.params && route.params.classId) {
+      const _classId = route.params.classId;
+      setClassId(_classId);
+    }
   }, [route]);
 
   useEffect(() => {
-    fetchCourse();
-  }, []);
+    if (classId) {
+      fetchCourse(classId);
+    }
+  }, [classId]);
 
-  const fetchCourse = async () => {
+  const fetchCourse = async (classId: number) => {
     setLoading(true);
-    await GetACourse("BIO101")
+    await GetAClass(classId)
       .then(({ responseData, responseStatus }) => {
         console.log(responseData, responseStatus, "my course");
         if (responseStatus === 200) {

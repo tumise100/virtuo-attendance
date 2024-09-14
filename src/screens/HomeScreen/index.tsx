@@ -1,24 +1,21 @@
-import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
-import React, { useEffect, useState } from "react";
-import { DrawerNavigationProp } from "@react-navigation/drawer";
-import { Ionicons } from "@expo/vector-icons";
-import UserAvatarImg from "@/assets/images/Avatar.png";
-import CustomPaperTextInputWithIcons from "@/src/components/UI/Inputs/CustomPaperTextInputWithIcons";
-import { TextInput } from "react-native-paper";
-import { COLORS } from "@/src/theme/colors";
-import { Sub2Text } from "@/src/theme/typography/SubtitleText";
-import { TextFontType } from "@/src/theme/typography/typography";
-import { InputLabelMedium12, TextMedium14 } from "@/src/theme/typography";
-import ClassCardOverview from "@/src/components/UI/ClassCardOverview";
-import QuickActionCard from "@/src/components/UI/QuickActionCard";
-import StudentOverviewCard from "@/src/components/UI/StudentOverviewCard";
-import { combineStore } from "@/src/store";
 import CustomAvatar from "@/src/components/UI/CustomAvatar";
-import { GetACourse, GetAllStudents } from "@/src/services/auth";
-import { IClass, ICourse } from "@/src/contracts/course";
+import CustomPaperTextInputWithIcons from "@/src/components/UI/Inputs/CustomPaperTextInputWithIcons";
 import { showToast } from "@/src/components/UI/showToast";
-import LoadingComponent from "@/src/components/UI/LoadingComponent";
+import { IClassHeader } from "@/src/contracts/course";
 import { IStudent } from "@/src/contracts/user";
+import { GetAllStudents } from "@/src/services/auth";
+import { GetLecturerClasses } from "@/src/services/courses";
+import { combineStore } from "@/src/store";
+import { COLORS } from "@/src/theme/colors";
+import { InputLabelMedium12, TextMedium14 } from "@/src/theme/typography";
+import { Ionicons } from "@expo/vector-icons";
+import { DrawerNavigationProp } from "@react-navigation/drawer";
+import React, { useEffect, useState } from "react";
+import { ScrollView, TouchableOpacity, View } from "react-native";
+import { TextInput } from "react-native-paper";
+import QuickAction from "./components/QuickAction";
+import RecentClasses from "./components/RecentClasses";
+import TopStudents from "./components/TopStudents";
 
 // "name": "virtuo-mobile-app"
 
@@ -27,34 +24,37 @@ const HomeScreen = ({
 }: {
   navigation: DrawerNavigationProp<any, any>;
 }) => {
-  const [recentClass, setRecentClass] = useState<IClass[] | null>(null);
+  const [recentClass, setRecentClass] = useState<IClassHeader[] | null>(null);
   const [allStudents, setAllStudents] = useState<IStudent[] | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loadingRecentClass, setLoadingRecentClass] = useState(false);
   const [loadingAllStudent, setLoadingAllStudent] = useState(false);
 
   const { user } = combineStore();
 
   useEffect(() => {
-    fetchSingleCourse();
-    fetchAllStudents();
-  }, []);
+    // fetchSingleCourse();
+    // fetchAllStudents();
+    if (user) {
+      getLecturerRecentClasses(user.accounts[0].id);
+    }
+  }, [user]);
 
   const fetchSingleCourse = async () => {
-    setLoading(true);
-    await GetACourse("BIO101")
-      .then(({ responseData, responseStatus }) => {
-        // console.log(responseData, responseStatus, "ee");
-        if (responseStatus === 200) {
-          setRecentClass(responseData.classes);
-          // console.log(responseData.classes, "here");
-        } else {
-          console.log(responseData, "some data 2");
-        }
-      })
-      .catch((err) => {
-        console.log(err, "err");
-      })
-      .finally(() => setLoading(false));
+    // setLoading(true);
+    // await GetACourse("BIO101")
+    //   .then(({ responseData, responseStatus }) => {
+    //     // console.log(responseData, responseStatus, "ee");
+    //     if (responseStatus === 200) {
+    //       setRecentClass(responseData.classes);
+    //       // console.log(responseData.classes, "here");
+    //     } else {
+    //       console.log(responseData, "some data 2");
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.log(err, "err");
+    //   })
+    //   .finally(() => setLoading(false));
   };
 
   const fetchAllStudents = async () => {
@@ -75,6 +75,27 @@ const HomeScreen = ({
       .finally(() => setLoadingAllStudent(false));
   };
 
+  const getLecturerRecentClasses = (lecturerId: number) => {
+    setLoadingRecentClass(true);
+    GetLecturerClasses({ lecturerId })
+      .then(({ responseData, responseStatus }) => {
+        console.log(responseData, responseStatus, "getLecturerRecentClasses");
+        if (responseStatus !== 200) {
+          console.log(responseData, "responseData");
+          showToast(responseData.message);
+        } else if (responseData.data) {
+          setRecentClass(responseData.data);
+        }
+      })
+      .catch((err) => {
+        // showToast("Wrong Credentials!");
+        console.log(err, "err");
+      })
+      .finally(() => {
+        setLoadingRecentClass(false);
+      });
+  };
+
   return (
     <ScrollView className="flex-1 bg-white px-3 pt-2">
       <View className="flex-row justify-between items-center">
@@ -90,16 +111,6 @@ const HomeScreen = ({
           name={`${user?.firstName} ${user?.lastName}`}
           onPress={() => navigation.navigate("ProfileScreen")}
         />
-        {/* <TouchableOpacity
-          onPress={() => navigation.navigate("ProfileScreen")}
-          className="w-[48px] h-[48px]"
-        >
-          <Image
-            source={UserAvatarImg}
-            resizeMode="contain"
-            className="w-full h-full"
-          />
-        </TouchableOpacity> */}
       </View>
       <View className="mt-4">
         <CustomPaperTextInputWithIcons
@@ -119,88 +130,15 @@ const HomeScreen = ({
           placeholder="Search for student"
         />
       </View>
-      <View className="mt-4">
-        <Sub2Text
-          type={TextFontType.Bold}
-          text="Last Class Overview"
-          customClassName="mb-2"
-        />
-        {loading ? (
-          <LoadingComponent />
-        ) : recentClass && recentClass.length ? (
-          recentClass.map((classItem) => (
-            <ClassCardOverview
-              key={classItem.id}
-              title={`Introduction to Biology ${classItem.id}`}
-            />
-          ))
-        ) : (
-          <Text>No Data</Text>
-        )}
-      </View>
-      <View className="mt-3">
-        <Sub2Text
-          type={TextFontType.Bold}
-          text="Quick Action"
-          customClassName="mb-2"
-        />
-        <>
-          <View className="flex-row justify-between items-center">
-            <QuickActionCard
-              onPress={() => navigation.navigate("AllCourseScreen")}
-              title="Courses"
-              subtitle="List of courses you take and attendance list"
-              colorType="danger"
-            />
-            <QuickActionCard
-              title="Students"
-              subtitle="List of student taking your course"
-              colorType="warning"
-            />
-          </View>
-          <View className="flex-row justify-between items-center mt-4">
-            <QuickActionCard
-              title="Profile"
-              onPress={() => navigation.navigate("ProfileScreen")}
-              subtitle="Update your profile and sessions"
-              colorType="info"
-            />
-            <QuickActionCard
-              title="Mark Sheet"
-              subtitle="Export mark sheets of students"
-              colorType="success"
-            />
-          </View>
-        </>
-      </View>
-
-      <View className="my-3">
-        <Sub2Text
-          type={TextFontType.Bold}
-          text="Top Students"
-          customClassName="mb-2"
-        />
-        <View>
-          {loadingAllStudent ? (
-            <LoadingComponent />
-          ) : allStudents && allStudents.length ? (
-            allStudents.map(
-              ({ id, student: { firstName, lastName, level } }) => (
-                <StudentOverviewCard
-                  key={id}
-                  fullName={`${firstName} ${lastName}`}
-                  // level={`${level}`}
-                />
-              )
-            )
-          ) : (
-            <Text>No Data</Text>
-          )}
-          {/* <StudentOverviewCard />
-          <StudentOverviewCard />
-          <StudentOverviewCard /> */}
-        </View>
-      </View>
+      <RecentClasses
+        loadingRecentClass={loadingRecentClass}
+        recentClass={recentClass}
+      />
+      <QuickAction />
+      <TopStudents
+        allStudents={allStudents}
+        loadingAllStudent={loadingAllStudent}
+      />
     </ScrollView>
   );
 };

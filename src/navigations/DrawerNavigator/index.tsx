@@ -16,7 +16,7 @@ import {
   Octicons,
   MaterialCommunityIcons,
   AntDesign,
-  FontAwesome
+  FontAwesome,
 } from "@expo/vector-icons";
 import { COLORS } from "@/src/theme/colors";
 import { BodyRegular } from "@/src/theme/typography/BodyText";
@@ -92,11 +92,18 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           Icon={Octicons}
           label="Create new Student  tag"
           showMoreIcon={false}
-          onPress={() => props.navigation.navigate('CreateNewStudentTagScreen')}
+          onPress={() => props.navigation.navigate("CreateNewStudentTagScreen")}
         />
       </View>
       <View className="justify-center items-center mt-[75%]">
-        <TouchableOpacity className="flex-row items-center p-3 bg-danger-600 rounded-md">
+        <TouchableOpacity
+          className="flex-row items-center p-3 bg-danger-600 rounded-md"
+          onPress={() =>
+            props.navigation.navigate("AuthNavigator", {
+              screen: "SignInScreen",
+            })
+          }
+        >
           <AntDesign name="logout" size={15} color={COLORS.white} />
           <BodyRegular
             text="Logout"

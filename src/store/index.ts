@@ -9,7 +9,7 @@ interface UserToken {
 }
 interface UserSlice {
   user: ILecturer | null;
-  updateUser: (u: any) => void;
+  updateUser: (u: ILecturer) => void;
 }
 
 export const createUserToken: StateCreator<UserToken> = (set, get) => ({
@@ -33,13 +33,18 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
 //   },
 // });
 
-export const combineStore = create<UserToken & UserSlice>()(
-  persist(
-    (...a) => ({
-      ...createUserToken(...a),
-      ...createUserSlice(...a),
-    }),
-    // { name: "new-store" }
-    { name: "new-store", storage: createJSONStorage(() => AsyncStorage) }
-  )
-);
+export const combineStore = create<UserToken & UserSlice>()((...a) => ({
+  ...createUserToken(...a),
+  ...createUserSlice(...a),
+}));
+
+// export const combineStore = create<UserToken & UserSlice>()(
+//   persist(
+//     (...a) => ({
+//       ...createUserToken(...a),
+//       ...createUserSlice(...a),
+//     }),
+//     // { name: "new-store" }
+//     { name: "new-store", storage: createJSONStorage(() => AsyncStorage) }
+//   )
+// );

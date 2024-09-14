@@ -1,4 +1,4 @@
-import { View, Text, StatusBar } from "react-native";
+import { View, Text, StatusBar, ScrollView } from "react-native";
 import React, { useState } from "react";
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
 import {
@@ -21,7 +21,7 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
   const combinedStore = combineStore();
 
   return (
-    <View className="flex-1 bg-white px-4 pt-7">
+    <ScrollView className="flex-1 bg-white px-4 pt-7">
       <StatusBar
         backgroundColor={COLORS.white}
         barStyle={"dark-content"}
@@ -40,10 +40,10 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
               email: "",
               password: "",
             }}
-            onSubmit={(values) => {
-              if (1) {
-                navigation.navigate("BaseNavigator");
-              }
+            onSubmit={(values, form) => {
+              // if (1) {
+              //   navigation.navigate("BaseNavigator");
+              // }
               setLoading(true);
               setError("");
               Login(values)
@@ -57,6 +57,7 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
                       // console.log(responseData, "some data");
                       combinedStore.updateUserToken(responseData.accessToken);
                       showToast("Log In Successfull");
+                      form.resetForm();
                       navigation.navigate("BaseNavigator");
                     }
                   }
@@ -136,7 +137,7 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
           </Formik>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

@@ -22,7 +22,7 @@ export const CustomButton = ({
   loadingWithText?: boolean;
 }) => {
   return (
-    <TouchableOpacity disabled={disabled} onPress={onPress}>
+    <TouchableOpacity disabled={loading || disabled} onPress={onPress}>
       <LinearGradient
         colors={
           outline

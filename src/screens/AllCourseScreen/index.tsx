@@ -8,9 +8,9 @@ import CourseOverviewCard from "@/src/components/UI/CourseOverviewCard";
 import { CustomButton } from "@/src/components/UI/Buttons";
 import { StackNavigationProps } from "@/src/shared";
 import { ILecturerCourseHeader } from "@/src/contracts/course";
-import { GetMyCourses } from "@/src/services/auth";
 import { combineStore } from "@/src/store";
 import LoadingComponent from "@/src/components/UI/LoadingComponent";
+import { GetMyCourses } from "@/src/services/courses";
 
 const AllCourseScreen = ({ navigation }: StackNavigationProps) => {
   const [allMyCourses, setAllMyCourses] = useState<
@@ -20,26 +20,26 @@ const AllCourseScreen = ({ navigation }: StackNavigationProps) => {
   const { user } = combineStore();
 
   useEffect(() => {
-    fetchAllMyCourses();
-  }, []);
-
-  const fetchAllMyCourses = async () => {
     if (user) {
-      setLoading(true);
-      await GetMyCourses(user.id)
-        .then(({ responseData, responseStatus }) => {
-          console.log(responseData, responseStatus, "all courses");
-          if (responseStatus === 200) {
-            setAllMyCourses(responseData);
-          } else {
-            console.log(responseData, "some data 2");
-          }
-        })
-        .catch((err) => {
-          console.log(err, "err");
-        })
-        .finally(() => setLoading(false));
+      fetchAllMyCourses(user.accounts[0].id);
     }
+  }, [user]);
+
+  const fetchAllMyCourses = async (courseId: number) => {
+    setLoading(true);
+    await GetMyCourses(courseId)
+      .then(({ responseData, responseStatus }) => {
+        console.log(responseData, responseStatus, "all courses");
+        if (responseStatus === 200) {
+          setAllMyCourses(responseData.data);
+        } else {
+          console.log(responseData, "some data 2");
+        }
+      })
+      .catch((err) => {
+        console.log(err, "err");
+      })
+      .finally(() => setLoading(false));
   };
 
   return (

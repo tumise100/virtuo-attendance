@@ -45,12 +45,25 @@ interface AdminUser {
   lastName: string;
 }
 
-interface LecturerUser {
-  accountType: AccountType.LECTURER;
-  email: string;
-  firstName: string;
+interface ILecturerUser {
+  accountId: number;
   lastName: string;
+  firstName: string;
   position: string;
+  dateOfBirth: string;
+  stateOfOrigin: string;
+  localGovernment: string;
+  sex: string;
+  bio: null;
+  phone: string;
+  email: string;
+  lecturerType: string;
+  facultyId: number;
+  departmentId: number;
+  schoolId: number;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: null;
 }
 
 interface COURSE {
@@ -59,18 +72,32 @@ interface COURSE {
   level: Level;
 }
 
-interface Account {
-  admin: any;
-  createdAt: string;
+interface IAccount<T> {
   id: number;
-  type: AccountType;
+  // type: AccountType;
+  type: T;
+  admin: any;
+  business_owner: any;
+  createdAt: string;
+  deletedAt: any;
+  identityCode: string;
+  lecturer: ILecturerUser[];
+  school?: any;
+  student?: any;
   updatedAt: string;
 }
+// interface Account {
+//   admin: any;
+//   createdAt: string;
+//   id: number;
+//   type: AccountType;
+//   updatedAt: string;
+// }
 export interface ILecturer {
-  account: { id: number; type: AccountType.LECTURER };
-  accounts: Account[];
+  accounts: IAccount<AccountType.LECTURER>[];
+  // accounts: Account[];
   createdAt: string;
-  deletedAt: null;
+  deletedAt: any;
   email: string;
   firstName: string;
   id: number;
@@ -97,9 +124,9 @@ export interface IStudent {
       email: string;
       password: string;
       isFirstLogin: false;
-      lastLogin: null;
-      deletedAt: null;
-      hashedRt: null;
+      lastLogin: any;
+      deletedAt: any;
+      hashedRt: any;
       isActivated: true;
       isTermsAccepted: false;
     }

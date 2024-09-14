@@ -20,8 +20,8 @@ import { ModalProp, StackNavigationProps } from "@/src/shared";
 import Modal from "@/src/components/UI/Modal";
 import CourseSettingsModalContent from "./components/CourseSettingsModalContent";
 import { ICourse } from "@/src/contracts/course";
-import { GetACourse } from "@/src/services/auth";
 import LoadingComponent from "@/src/components/UI/LoadingComponent";
+import { GetACourse } from "@/src/services/courses";
 
 const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
   const courseSettingsModalRef = useRef<ModalProp>(null);
@@ -105,12 +105,14 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
           />
           <ScrollView className="flex-1">
             {course && course.classes.length ? (
-              course.classes.map((courseClass) => (
-                <ClassCardOverview
-                  key={courseClass.id}
-                  title={`Introduction to ${course.title} ${courseClass.id}`}
-                />
-              ))
+              course.classes.map(
+                (courseClass) =>
+                  null
+                  // <ClassCardOverview
+                  //   key={courseClass.id}
+                  //   title={`Introduction to ${course.title} ${courseClass.id}`}
+                  // />
+              )
             ) : (
               <Text>No Data</Text>
             )}

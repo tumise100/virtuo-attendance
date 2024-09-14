@@ -1,18 +1,19 @@
 // ClassViewScreen
-import React, { useEffect } from "react";
-import { createStackNavigator } from "@react-navigation/stack";
-import DrawerNavigator from "../DrawerNavigator";
-import ClassViewScreen from "@/src/screens/ClassViewScreen";
+import { showToast } from "@/src/components/UI/showToast";
 import AllCourseScreen from "@/src/screens/AllCourseScreen";
-import CourseViewScreen from "@/src/screens/CourseViewScreen";
 import AttendanceTakingScreen from "@/src/screens/AttendanceTakingScreen";
+import ClassViewScreen from "@/src/screens/ClassViewScreen";
+import CourseViewScreen from "@/src/screens/CourseViewScreen";
+import CreateNewStudentTagScreen from "@/src/screens/CreateNewStudentTagScreen";
+import ProfileScreen from "@/src/screens/ProfileScreen";
 import StudentAttendanceScreen from "@/src/screens/StudentAttendanceScreen";
 import StudentViewScreen from "@/src/screens/StudentViewScreen";
-import ProfileScreen from "@/src/screens/ProfileScreen";
 import { GetMe } from "@/src/services/auth";
-import { showToast } from "@/src/components/UI/showToast";
+import { GetLecturerClasses } from "@/src/services/courses";
 import { combineStore } from "@/src/store";
-import CreateNewStudentTagScreen from "@/src/screens/CreateNewStudentTagScreen";
+import { createStackNavigator } from "@react-navigation/stack";
+import React, { useEffect } from "react";
+import DrawerNavigator from "../DrawerNavigator";
 
 const BaseNavigator = () => {
   const Stack = createStackNavigator();
@@ -29,9 +30,8 @@ const BaseNavigator = () => {
         if (responseStatus !== 200) {
           console.log(responseData, "responseData");
           showToast(responseData.message);
-        } else if (responseData.account) {
+        } else if (responseData.accounts) {
           console.log("if here");
-
           combinedStore.updateUser(responseData);
         }
       })

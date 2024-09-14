@@ -10,6 +10,7 @@ import { BodyRegular } from "@/src/theme/typography/BodyText";
 import { COLORS } from "@/src/theme/colors";
 import { AttendanceStatusType } from "@/src/shared";
 import { useNavigation } from "@react-navigation/native";
+import moment from "moment";
 
 const ClassCardOverview = ({
   onPress,
@@ -17,12 +18,18 @@ const ClassCardOverview = ({
   showAttendanceStats = true,
   title,
   classId = 1,
+  courseCode,
+  startTime,
+  endTime,
 }: {
   title?: string;
   onPress?: () => void;
   customclassName?: string;
   showAttendanceStats?: boolean;
   classId?: number;
+  courseCode: string;
+  startTime: string;
+  endTime: string;
 }) => {
   const navigation = useNavigation<any>();
 
@@ -37,14 +44,19 @@ const ClassCardOverview = ({
       <View className="bg-white p-[10px] rounded-full">
         <Ionicons name="trophy" size={19} color={COLORS.primary[500]} />
       </View>
-      <View className="mr-2">
+      <View className="mr-2 ml-1 flex-1">
         <Overline1Text
           text={title || "Intro. to Computer Science"}
           type={TextFontType.Bold}
           customClassName="text-white"
         />
         <DescriptionText
-          text="CMP101 Monday, 15th Mar. (9AM - 12PM)"
+          // text="CMP101 Monday, 15th Mar. (9AM - 12PM)"
+          text={`${courseCode} ${moment(startTime).format(
+            "dddd, Do MMM."
+          )} (${moment(startTime).format("hA")} - ${moment(endTime).format(
+            "hA"
+          )})`}
           type={TextFontType.Bold}
           customClassName="text-white normal-case text-[9px]"
         />
