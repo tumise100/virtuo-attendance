@@ -24,13 +24,16 @@ const TopStudents = ({
         {loadingAllStudent ? (
           <LoadingComponent />
         ) : allStudents && allStudents.length ? (
-          allStudents.map(({ id, student: { firstName, lastName, level } }) => (
-            <StudentOverviewCard
-              key={id}
-              fullName={`${firstName} ${lastName}`}
-              // level={`${level}`}
-            />
-          ))
+          allStudents.map(
+            ({ id, student: { firstName, lastName, level, accountId } }) => (
+              <StudentOverviewCard
+                key={id}
+                fullName={`${firstName} ${lastName}`}
+                studentId={accountId}
+                // level={`${level}`}
+              />
+            )
+          )
         ) : (
           <Text>No Data</Text>
         )}

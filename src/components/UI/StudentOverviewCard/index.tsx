@@ -20,6 +20,7 @@ const StudentOverviewCard = ({
   hideStatsShowOnlyAttendanceStat,
   hideStatsShowOnlyAttendanceAverage,
   attendanceStatusType,
+  studentId,
 }: {
   fullName?: string;
   level?: string;
@@ -27,12 +28,13 @@ const StudentOverviewCard = ({
   hideStatsShowOnlyAttendanceStat?: boolean;
   hideStatsShowOnlyAttendanceAverage?: boolean;
   attendanceStatusType?: AttendanceStatusType;
+  studentId: number;
 }) => {
   const navigation = useNavigation<any>();
 
   return (
     <TouchableOpacity
-      onPress={() => navigation.navigate("StudentViewScreen")}
+      onPress={() => navigation.navigate("StudentViewScreen", { studentId })}
       className="flex-row items-center justify-between mb-3 rounded-md border border-borderColor p-3"
     >
       <View className="flex-row items-center">
@@ -49,7 +51,7 @@ const StudentOverviewCard = ({
             type={TextFontType.Bold}
           />
           <DescriptionText
-            text={`${course || "Computer Sci."} ${level || "100"}Level`}
+            text={`${course} ${level} Level`}
             type={TextFontType.Bold}
             customClassName="normal-case"
           />

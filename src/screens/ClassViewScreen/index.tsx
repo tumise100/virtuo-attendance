@@ -1,4 +1,4 @@
-import { View, StatusBar, ScrollView } from "react-native";
+import { View, StatusBar, ScrollView, Text } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { COLORS } from "@/src/theme/colors";
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
@@ -17,15 +17,19 @@ import Modal from "@/src/components/UI/Modal";
 import ClassViewFilterContent from "./components/ClassViewFilterContent";
 import FloatingButton from "@/src/components/UI/Buttons/FloatingButton";
 import InputWithFilter from "@/src/components/UI/InputWithFilter";
-import { ICourse } from "@/src/contracts/course";
+import { IClassDetail, ICourse } from "@/src/contracts/course";
 import LoadingComponent from "@/src/components/UI/LoadingComponent";
 import { GetAClass } from "@/src/services/courses";
+import { convertLevelStringToNumber } from "@/src/utils";
 
 const ClassViewScreen = ({ navigation, route }: StackNavigationProps) => {
   const classViewFilterModalRef = useRef<ModalProp>(null);
   const [classId, setClassId] = useState<number | null>(null);
-  const [course, setCourse] = useState<ICourse | null>(null);
-  const [loading, setLoading] = useState(false);
+  // const [course, setCourse] = useState<ICourse | null>(null);
+  const [classViewDetail, setClassViewDetail] = useState<IClassDetail | null>(
+    null
+  );
+  const [loadingClassViewDetail, setLoadingClassViewDetail] = useState(false);
   // const { user } = combineStore();
 
   useEffect(() => {
@@ -38,17 +42,17 @@ const ClassViewScreen = ({ navigation, route }: StackNavigationProps) => {
 
   useEffect(() => {
     if (classId) {
-      fetchCourse(classId);
+      fetchClassViewDetail(classId);
     }
   }, [classId]);
 
-  const fetchCourse = async (classId: number) => {
-    setLoading(true);
+  const fetchClassViewDetail = async (classId: number) => {
+    setLoadingClassViewDetail(true);
     await GetAClass(classId)
       .then(({ responseData, responseStatus }) => {
         console.log(responseData, responseStatus, "my course");
         if (responseStatus === 200) {
-          setCourse(responseData);
+          setClassViewDetail(responseData);
         } else {
           console.log(responseData, "some data 2");
         }
@@ -56,10 +60,10 @@ const ClassViewScreen = ({ navigation, route }: StackNavigationProps) => {
       .catch((err) => {
         console.log(err, "err");
       })
-      .finally(() => setLoading(false));
+      .finally(() => setLoadingClassViewDetail(false));
   };
 
-  if (loading) {
+  if (loadingClassViewDetail) {
     return (
       <View className="flex-1 px-4 py-7">
         <LoadingComponent />
@@ -67,6 +71,12 @@ const ClassViewScreen = ({ navigation, route }: StackNavigationProps) => {
     );
   }
 
+  if (!classViewDetail)
+    return (
+      <View className="items-center justify-center flex-1">
+        <Text>No Data</Text>
+      </View>
+    );
   return (
     <View className="flex-1 bg-white px-4 pt-7">
       <StatusBar
@@ -77,22 +87,29 @@ const ClassViewScreen = ({ navigation, route }: StackNavigationProps) => {
       <View className="flex-row items-center">
         <BackBtn />
         <SubheadingSemibold18
-          text="Intro to Computer Sci."
+          text={classViewDetail.course.title}
           customClassName="ml-5"
         />
       </View>
       <View className="flex-1">
-        <ClassCardOverview showAttendanceStats={false} customclassName="mt-6" />
+        <ClassCardOverview
+          showAttendanceStats={false}
+          customclassName="mt-6"
+          title={classViewDetail.course.title}
+          courseCode={classViewDetail.course.code}
+          endTime={classViewDetail.startTime}
+          startTime={classViewDetail.endTime}
+        />
 
         <View className="flex-row justify-between items-center mt-2">
           <AttendanceCard
             title="Present"
-            subtitle="120 students"
+            subtitle={`${classViewDetail.course.students.length}`}
             borderColor="border-success-600"
           />
           <AttendanceCard
             title="Absent"
-            subtitle="20 students"
+            subtitle="0 students"
             borderColor="border-danger-500"
           />
         </View>
@@ -104,58 +121,17 @@ const ClassViewScreen = ({ navigation, route }: StackNavigationProps) => {
             <BodyText text="140" type={TextFontType.Bold} />
           </View>
           <ScrollView className="flex-1">
-            <StudentOverviewCard
-              hideStatsShowOnlyAttendanceStat={true}
-              attendanceStatusType={AttendanceStatusType.PRESENT}
-            />
-            <StudentOverviewCard
-              hideStatsShowOnlyAttendanceStat={true}
-              attendanceStatusType={AttendanceStatusType.ABSENT}
-            />
-            <StudentOverviewCard
-              hideStatsShowOnlyAttendanceStat={true}
-              attendanceStatusType={AttendanceStatusType.PRESENT}
-            />
-            <StudentOverviewCard
-              hideStatsShowOnlyAttendanceStat={true}
-              attendanceStatusType={AttendanceStatusType.ABSENT}
-            />
-            <StudentOverviewCard
-              hideStatsShowOnlyAttendanceStat={true}
-              attendanceStatusType={AttendanceStatusType.PRESENT}
-            />
-            <StudentOverviewCard
-              hideStatsShowOnlyAttendanceStat={true}
-              attendanceStatusType={AttendanceStatusType.PRESENT}
-            />
-            <StudentOverviewCard
-              hideStatsShowOnlyAttendanceStat={true}
-              attendanceStatusType={AttendanceStatusType.PRESENT}
-            />
-            <StudentOverviewCard
-              hideStatsShowOnlyAttendanceStat={true}
-              attendanceStatusType={AttendanceStatusType.PRESENT}
-            />
-            <StudentOverviewCard
-              hideStatsShowOnlyAttendanceStat={true}
-              attendanceStatusType={AttendanceStatusType.ABSENT}
-            />
-            <StudentOverviewCard
-              hideStatsShowOnlyAttendanceStat={true}
-              attendanceStatusType={AttendanceStatusType.PRESENT}
-            />
-            <StudentOverviewCard
-              hideStatsShowOnlyAttendanceStat={true}
-              attendanceStatusType={AttendanceStatusType.ABSENT}
-            />
-            <StudentOverviewCard
-              hideStatsShowOnlyAttendanceStat={true}
-              attendanceStatusType={AttendanceStatusType.PRESENT}
-            />
-            <StudentOverviewCard
-              hideStatsShowOnlyAttendanceStat={true}
-              attendanceStatusType={AttendanceStatusType.PRESENT}
-            />
+            {classViewDetail.course.students.map((student) => (
+              <StudentOverviewCard
+                hideStatsShowOnlyAttendanceStat={true}
+                attendanceStatusType={AttendanceStatusType.PRESENT}
+                key={student.id}
+                fullName={`${student.student.student.firstName} ${student.student.student.lastName}`}
+                course={classViewDetail.course.title}
+                level={convertLevelStringToNumber(classViewDetail.course.level)}
+                studentId={student.student.id}
+              />
+            ))}
             <View className="h-20" />
           </ScrollView>
         </View>

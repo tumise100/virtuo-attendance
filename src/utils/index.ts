@@ -1,4 +1,5 @@
 import { Buffer } from "buffer";
+import { ELevel } from "../contracts/course.d";
 
 export function toBase64(input: string) {
   return Buffer.from(input, "utf-8").toString("base64");
@@ -14,4 +15,19 @@ export const splitStringIntoTwoHalves = (inputString: string) => {
   const firstHalf = inputString.slice(0, midpoint);
   const secondHalf = inputString.slice(midpoint);
   return [firstHalf, secondHalf];
+};
+
+export const convertLevelStringToNumber = (level: ELevel) => {
+  switch (level) {
+    case ELevel.HUNDRED:
+      return "100";
+    case ELevel.TWOHUNDRED:
+      return "200";
+    case ELevel.THREEHUNDRED:
+      return "300";
+    case ELevel.FOURHUNDRED:
+      return "400";
+    case ELevel.FIVEHUNDRED:
+      return "500";
+  }
 };

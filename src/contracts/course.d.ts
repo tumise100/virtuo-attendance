@@ -1,7 +1,17 @@
+import { IStudentUser } from "./user";
+
+export enum ELevel {
+  HUNDRED = "HUNDRED",
+  TWOHUNDRED = "TWOHUNDRED",
+  THREEHUNDRED = "THREEHUNDRED",
+  FOURHUNDRED = "FOURHUNDRED",
+  FIVEHUNDRED = "FIVEHUNDRED",
+}
+
 export interface ICourse {
   code: string;
   title: string;
-  level: string;
+  level: ELevel;
   id: number;
   createdAt: string;
   updatedAt: string;
@@ -40,7 +50,7 @@ export interface ICourse {
   classes: IClass[];
 }
 
-interface IClass {
+interface IClassBase {
   id: number;
   createdAt: string;
   updatedAt: string;
@@ -48,29 +58,60 @@ interface IClass {
   startTime: string;
   endTime: string;
   day: string;
-  classAttendance: [];
 }
 
-interface IClassHeader {
+interface ICourseBase {
+  code: string;
+  title: string;
+  level: ELevel;
+  creditUnit: number;
+  departmentId: number;
+  facultyId: number;
   id: number;
   createdAt: string;
   updatedAt: string;
-  courseId: number;
-  startTime: string;
-  endTime: string;
-  day: string;
-  course: {
-    code: string;
-    title: string;
-    level: string;
-    creditUnit: number;
-    departmentId: number;
-    facultyId: number;
-    id: number;
-    createdAt: string;
-    updatedAt: string;
-  };
 }
+
+interface IClass extends IClassBase {
+  classAttendance: IClassAttendance[];
+}
+
+interface IClassAttendance {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  classId: number;
+  studentId: number;
+  attended: boolean;
+}
+
+export interface ICourseWithClasses extends ICourseBase {
+  classes: IClass[];
+}
+
+interface IClassHeader extends IClassBase {
+  course: ICourseBase;
+}
+// interface IClassHeader {
+//   id: number;
+//   createdAt: string;
+//   updatedAt: string;
+//   courseId: number;
+//   startTime: string;
+//   endTime: string;
+//   day: string;
+//   course: {
+//     code: string;
+//     title: string;
+//     level: ELevel;
+//     creditUnit: number;
+//     departmentId: number;
+//     facultyId: number;
+//     id: number;
+//     createdAt: string;
+//     updatedAt: string;
+//   };
+// }
 
 interface ILecturerCourseHeader {
   id: number;
@@ -87,52 +128,36 @@ interface ILecturerCourseHeader {
     type: string;
     identityCode: string;
   };
-  course: {
-    code: string;
-    title: string;
-    level: string;
-    creditUnit: null;
-    departmentId: number;
-    facultyId: null;
-    id: number;
-    createdAt: string;
-    updatedAt: string;
-  };
+  course: ICourseBase;
 }
 
-// interface ILecturerCourseHeader {
-//   id: number;
-//   createdAt: string;
-//   updatedAt: string;
-//   courseId: string;
-//   lecturerId: string;
-//   course: {
-//     code: string;
-//     title: string;
-//     level: string;
-//     id: number;
-//     createdAt: string;
-//     updatedAt: string;
-//   };
-// }
-
-// e = {
-//   id: number,
-//   createdAt: string,
-//   updatedAt: string,
-//   courseId: number,
-//   startTime: string,
-//   endTime: string,
-//   day: string,
-//   course: {
-//     code: string,
-//     title: string,
-//     level: string,
-//     creditUnit: number,
-//     departmentId: number,
-//     facultyId: number,
-//     id: number,
-//     createdAt: string,
-//     updatedAt: string,
-//   },
-// };
+interface IClassDetail extends IClassBase {
+  course: ICourseBase & {
+    // code: string;
+    // title: string;
+    // level: ELevel;
+    // creditUnit: number;
+    // departmentId: number;
+    // facultyId: number;
+    // id: number;
+    // createdAt: string;
+    // updatedAt: string;
+    students: {
+      id: number;
+      createdAt: string;
+      updatedAt: string;
+      courseId: number;
+      studentId: number;
+      studentAccountId: null;
+      student: {
+        id: number;
+        createdAt: string;
+        updatedAt: string;
+        deletedAt: null;
+        type: string;
+        identityCode: string;
+        student: IStudentUser;
+      };
+    }[];
+  };
+}

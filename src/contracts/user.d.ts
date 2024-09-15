@@ -1,3 +1,5 @@
+import { ELevel, ICourseWithClasses } from "./course";
+
 enum AccountType {
   STUDENT = AccountType.STUDENT,
   ADMIN = "ADMIN",
@@ -11,31 +13,33 @@ enum Sex {
   BINARY = "BINARY",
 }
 
-enum Level {
-  100 = "HUNDRED",
-  200 = "TWOHUNDRED",
-  300 = "THREEHUNDRED",
-  400 = "FOURHUNDRED",
-  500 = "FIVEHUNDRED",
-}
-
-interface StudentUser {
-  accountType: AccountType.STUDENT;
-  email: string;
-  firstName: string;
+interface IStudentUser {
+  accountId: number;
   lastName: string;
+  firstName: string;
   localGovernment: string;
   stateOfOrigin: string;
+  sex: string;
+  bio: string;
   phone: string;
-  sex: Sex;
-  level: Level;
-  facultyId: string;
-  departmentId: string;
+  email: string;
+  facultyId: number;
+  departmentId: number;
+  schoolId: number;
+  level: ELevel;
+  yearOfAdmission: number;
   matricNumber: string;
-  yearOfAdmission: string;
-  xUrl?: string;
-  linkedinUrl?: string;
-  facebookUrl?: string;
+  dateOfBirth: string;
+  guardianFullName: string;
+  linkedinUrl: string;
+  facebookUrl: string;
+  xUrl: string;
+  instagramUrl: string;
+  passport: null;
+  studentType: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: null;
 }
 
 interface AdminUser {
@@ -69,7 +73,7 @@ interface ILecturerUser {
 interface COURSE {
   title: string;
   code: string;
-  level: Level;
+  level: ELevel;
 }
 
 interface IAccount<T> {
@@ -83,16 +87,9 @@ interface IAccount<T> {
   identityCode: string;
   lecturer: ILecturerUser[];
   school?: any;
-  student?: any;
+  student?: IStudentUser[];
   updatedAt: string;
 }
-// interface Account {
-//   admin: any;
-//   createdAt: string;
-//   id: number;
-//   type: AccountType;
-//   updatedAt: string;
-// }
 export interface ILecturer {
   accounts: IAccount<AccountType.LECTURER>[];
   // accounts: Account[];
@@ -131,23 +128,10 @@ export interface IStudent {
       isTermsAccepted: false;
     }
   ];
-  student: {
-    accountId: number;
-    lastName: string;
-    firstName: string;
-    localGovernment: string;
-    stateOfOrigin: string;
-    sex: Sex;
-    phone: string;
-    email: string;
-    facultyId: number;
-    departmentId: number;
-    schoolId: number;
-    level: Level;
-    yearOfAdmission: number;
-    matricNumber: string;
-    dateOfBirth: string;
-    createdAt: string;
-    updatedAt: string;
-  };
+  student: IStudentUser;
+}
+
+export interface IStudentViewDetail {
+  student: IStudentUser;
+  courses: ICourseWithClasses[];
 }

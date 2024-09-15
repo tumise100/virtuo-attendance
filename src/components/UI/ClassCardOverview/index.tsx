@@ -21,22 +21,26 @@ const ClassCardOverview = ({
   courseCode,
   startTime,
   endTime,
+  attendanceRate,
 }: {
-  title?: string;
+  title: string;
   onPress?: () => void;
   customclassName?: string;
   showAttendanceStats?: boolean;
   classId?: number;
   courseCode: string;
-  startTime: string;
-  endTime: string;
+  startTime?: string;
+  endTime?: string;
+  attendanceRate?: string;
 }) => {
   const navigation = useNavigation<any>();
 
   return (
     <TouchableOpacity
       onPress={() => {
-        navigation.navigate("ClassViewScreen", { classId });
+        onPress
+          ? onPress()
+          : navigation.navigate("ClassViewScreen", { classId });
       }}
       // onPress={onPress}
       className={`flex-row rounded-md items-center justify-between bg-info-500 p-3 mb-3 ${customclassName}`}
@@ -46,24 +50,26 @@ const ClassCardOverview = ({
       </View>
       <View className="mr-2 ml-1 flex-1">
         <Overline1Text
-          text={title || "Intro. to Computer Science"}
+          text={title}
           type={TextFontType.Bold}
           customClassName="text-white"
         />
-        <DescriptionText
-          // text="CMP101 Monday, 15th Mar. (9AM - 12PM)"
-          text={`${courseCode} ${moment(startTime).format(
-            "dddd, Do MMM."
-          )} (${moment(startTime).format("hA")} - ${moment(endTime).format(
-            "hA"
-          )})`}
-          type={TextFontType.Bold}
-          customClassName="text-white normal-case text-[9px]"
-        />
+        {startTime && endTime && (
+          <DescriptionText
+            // text="CMP101 Monday, 15th Mar. (9AM - 12PM)"
+            text={`${courseCode} ${moment(startTime).format(
+              "dddd, Do MMM."
+            )} (${moment(startTime).format("hA")} - ${moment(endTime).format(
+              "hA"
+            )})`}
+            type={TextFontType.Bold}
+            customClassName="text-white normal-case text-[9px]"
+          />
+        )}
       </View>
       <View className="items-center">
         <BodyRegular
-          text="90% Avg."
+          text={`${attendanceRate}% Avg.`}
           type={TextFontType.Medium}
           customClassName="text-white mb-1"
         />

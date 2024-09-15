@@ -23,7 +23,9 @@ const CourseOverviewCard = ({
 
   return (
     <TouchableOpacity
-      onPress={() => navigation.navigate("CourseViewScreen")}
+      onPress={() =>
+        navigation.navigate("CourseViewScreen", { courseCode: code })
+      }
       className={`flex-row rounded-md items-center justify-between bg-info-300 p-3 mb-3 ${customclassName}`}
     >
       <View className="flex-row items-center">

@@ -25,20 +25,27 @@ import { GetACourse } from "@/src/services/courses";
 
 const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
   const courseSettingsModalRef = useRef<ModalProp>(null);
+  const [courseCode, setCourseCode] = useState<string | null>(null);
   const [course, setCourse] = useState<ICourse | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    console.log(route);
+    // console.log(route);
+    if (route && route.params && route.params.courseCode) {
+      const _courseCode = route.params.courseCode;
+      setCourseCode(_courseCode);
+    }
   }, [route]);
 
   useEffect(() => {
-    fetchCourse();
-  }, []);
+    if (courseCode) {
+      fetchCourseViewDetail(courseCode);
+    }
+  }, [courseCode]);
 
-  const fetchCourse = async () => {
+  const fetchCourseViewDetail = async (courseCode: string) => {
     setLoading(true);
-    await GetACourse("BIO101")
+    await GetACourse(courseCode)
       .then(({ responseData, responseStatus }) => {
         console.log(responseData, responseStatus, "my course");
         if (responseStatus === 200) {
@@ -60,6 +67,13 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
       </View>
     );
   }
+
+  if (!course)
+    return (
+      <View className="items-center justify-center flex-1">
+        <Text>No Data</Text>
+      </View>
+    );
 
   return (
     <View className="flex-1 bg-white px-4 pt-7">
@@ -108,6 +122,7 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
               course.classes.map(
                 (courseClass) =>
                   null
+                  // todo
                   // <ClassCardOverview
                   //   key={courseClass.id}
                   //   title={`Introduction to ${course.title} ${courseClass.id}`}
