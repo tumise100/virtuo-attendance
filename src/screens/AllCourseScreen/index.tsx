@@ -68,9 +68,10 @@ const AllCourseScreen = ({ navigation }: StackNavigationProps) => {
           <Text>No Data</Text>
         )}
       </View>
-      <View className="mt-[60%]">
+      {/* todo */}
+      {/* <View className="mt-[60%]">
         <CustomButton title="Add a Course" />
-      </View>
+      </View> */}
     </ScrollView>
   );
 };

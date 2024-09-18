@@ -94,6 +94,7 @@ const ClassViewScreen = ({ navigation, route }: StackNavigationProps) => {
       <View className="flex-1">
         <ClassCardOverview
           showAttendanceStats={false}
+          showAttendanceAvg={false}
           customclassName="mt-6"
           title={classViewDetail.course.title}
           courseCode={classViewDetail.course.code}
@@ -118,7 +119,7 @@ const ClassViewScreen = ({ navigation, route }: StackNavigationProps) => {
         <View className="flex-1">
           <View className="flex-row justify-between items-center">
             <BodyText text="Students" type={TextFontType.Bold} />
-            <BodyText text="140" type={TextFontType.Bold} />
+            <BodyText text={`${classViewDetail.course.students.length}`} type={TextFontType.Bold} />
           </View>
           <ScrollView className="flex-1">
             {classViewDetail.course.students.map((student) => (
@@ -127,7 +128,7 @@ const ClassViewScreen = ({ navigation, route }: StackNavigationProps) => {
                 attendanceStatusType={AttendanceStatusType.PRESENT}
                 key={student.id}
                 fullName={`${student.student.student.firstName} ${student.student.student.lastName}`}
-                course={classViewDetail.course.title}
+                title={classViewDetail.course.title}
                 level={convertLevelStringToNumber(classViewDetail.course.level)}
                 studentId={student.student.id}
               />

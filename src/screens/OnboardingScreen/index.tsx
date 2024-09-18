@@ -29,10 +29,10 @@ const OnboardingScreen = ({ navigation }: StackNavigationProps) => {
           </Text>
         </View>
         <View className="px-5">
-          <CustomButton
+          {/* <CustomButton
             title="Signup"
             onPress={() => navigation.navigate("SignUpScreen")}
-          />
+          /> */}
           <CustomButton
             title="Signin"
             onPress={() => navigation.navigate("SignInScreen")}

@@ -19,14 +19,18 @@ import FloatingButton from "@/src/components/UI/Buttons/FloatingButton";
 import { ModalProp, StackNavigationProps } from "@/src/shared";
 import Modal from "@/src/components/UI/Modal";
 import CourseSettingsModalContent from "./components/CourseSettingsModalContent";
-import { ICourse } from "@/src/contracts/course";
+import {
+  ICourse,
+  ICourseViewDetail,
+  ICourseViewDetailClass,
+} from "@/src/contracts/course";
 import LoadingComponent from "@/src/components/UI/LoadingComponent";
 import { GetACourse } from "@/src/services/courses";
 
 const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
   const courseSettingsModalRef = useRef<ModalProp>(null);
   const [courseCode, setCourseCode] = useState<string | null>(null);
-  const [course, setCourse] = useState<ICourse | null>(null);
+  const [course, setCourse] = useState<ICourseViewDetail | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -62,7 +66,7 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
 
   if (loading) {
     return (
-      <View className="flex-1 px-4 py-7">
+      <View className="flex-1 px-4 py-7 bg-white">
         <LoadingComponent />
       </View>
     );
@@ -102,12 +106,23 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
           <AttendanceCard
             title="Total Students"
             // subtitle="120"
-            subtitle="120"
+            subtitle={`${course.students.length}`}
             borderColor="border-primary-500"
           />
           <AttendanceCard
             title="Average attendance"
-            subtitle="89%"
+            // subtitle="89%"
+            // subtitle={extractEntireAttendanceFromCourse(course)}
+            subtitle={
+              !extractEntireAttendanceFromCourse(course).total ||
+              !extractEntireAttendanceFromCourse(course).present
+                ? "0"
+                : `${Math.floor(
+                    (extractEntireAttendanceFromCourse(course).present /
+                      extractEntireAttendanceFromCourse(course).total) *
+                      100
+                  )}%`
+            }
             borderColor="border-blue-500"
           />
         </View>
@@ -119,15 +134,24 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
           />
           <ScrollView className="flex-1">
             {course && course.classes.length ? (
-              course.classes.map(
-                (courseClass) =>
-                  null
-                  // todo
-                  // <ClassCardOverview
-                  //   key={courseClass.id}
-                  //   title={`Introduction to ${course.title} ${courseClass.id}`}
-                  // />
-              )
+              course.classes.map((courseClass) => (
+                <ClassCardOverview
+                  key={courseClass.id}
+                  title={`Introduction to ${course.title} ${courseClass.id}`}
+                  courseCode={course.code}
+                  showAttendanceStats={false}
+                  attendanceRate={
+                    !extractAttendanceRateFromClass(courseClass).total ||
+                    !extractAttendanceRateFromClass(courseClass).present
+                      ? "0"
+                      : `${Math.floor(
+                          (extractAttendanceRateFromClass(courseClass).present /
+                            extractAttendanceRateFromClass(courseClass).total) *
+                            100
+                        )}`
+                  }
+                />
+              ))
             ) : (
               <Text>No Data</Text>
             )}
@@ -139,7 +163,9 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
       </View>
       <FloatingButton
         title="New attendance"
-        onPress={() => navigation.navigate("AttendanceTakingScreen")}
+        onPress={() =>
+          navigation.navigate("AttendanceTakingScreen", { courseId: course.id })
+        }
       />
 
       <Modal
@@ -156,3 +182,28 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
 };
 
 export default CourseViewScreen;
+
+const extractAttendanceRateFromClass = (clasx: ICourseViewDetailClass) => {
+  const present = clasx.classAttendance.filter((cA) => cA.attended).length;
+  const total = clasx.classAttendance.length;
+
+  return { present, total };
+};
+
+const extractEntireAttendanceFromCourse = (course: ICourseViewDetail) => {
+  let _courseAttendanceRate: { total: number; present: number } = {
+    total: 0,
+    present: 0,
+  };
+
+  course.classes.forEach((clasx, indx, arr) => {
+    clasx.classAttendance.forEach((cA) => {
+      if (cA.attended) {
+        _courseAttendanceRate.present += 1;
+      }
+      _courseAttendanceRate.total += 1;
+    });
+  });
+
+  return _courseAttendanceRate;
+};

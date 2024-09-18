@@ -1,5 +1,12 @@
-import { View, Text, StatusBar, Image, ScrollView } from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StatusBar,
+  Image,
+  ScrollView,
+  BackHandler,
+} from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import PhoneWithCardImg from "@/assets/images/phonewithcard.png";
 import { COLORS } from "@/src/theme/colors";
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
@@ -12,11 +19,16 @@ import { TextFontType } from "@/src/theme/typography/typography";
 import { DescriptionText } from "@/src/theme/typography/OtherText";
 import { H5Text } from "@/src/theme/typography/HeaderText";
 import { CustomButton } from "@/src/components/UI/Buttons";
-import { StackNavigationProps, StudentAttendance } from "@/src/shared";
+import {
+  ModalProp,
+  StackNavigationProps,
+  StudentAttendance,
+} from "@/src/shared";
 import NfcManager, { Ndef, NfcEvents, NfcTech } from "react-native-nfc-manager";
 import { StudentAttendanceMarked } from "@/src/components/UI/StudentOverviewCard";
 import { showToast } from "@/src/components/UI/showToast";
 import NfcAttendanceTakingNotSupported from "./NfcAttendanceTakingNotSupported";
+import DeleteClassModal from "./components/DeleteClassModal";
 
 const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
   const [hasNfc, setHasNFC] = useState(false);
@@ -27,13 +39,14 @@ const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
   const [currentStudentAttendance, setCurrentStudentAttendance] =
     useState<StudentAttendance | null>(null);
 
+  const deleteModalRef = useRef<ModalProp>(null);
+
   useEffect(() => {
     const checkIsSupported = async () => {
       const deviceIsSupported = await NfcManager.isSupported();
       // const deviceIsSupported = false;
 
       console.log(deviceIsSupported, "deviceIsSupported");
-
       setHasNFC(deviceIsSupported);
       if (deviceIsSupported) {
         await NfcManager.start();
@@ -42,6 +55,13 @@ const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
 
     checkIsSupported();
     // readTag();
+  }, []);
+
+  useEffect(() => {
+    BackHandler.addEventListener("hardwareBackPress", () => {
+      deleteModalRef.current?.setVisible(true);
+      return true;
+    });
   }, []);
 
   const readTag = async () => {
@@ -169,6 +189,7 @@ const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
           </View>
         ) : null}
       </View>
+      <DeleteClassModal deleteModalRef={deleteModalRef} />
       <View className="h-24" />
     </ScrollView>
   );

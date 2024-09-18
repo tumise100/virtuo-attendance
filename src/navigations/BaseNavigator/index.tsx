@@ -14,6 +14,7 @@ import { combineStore } from "@/src/store";
 import { createStackNavigator } from "@react-navigation/stack";
 import React, { useEffect } from "react";
 import DrawerNavigator from "../DrawerNavigator";
+import AllStudentScreen from "@/src/screens/AllStudentScreen";
 
 const BaseNavigator = () => {
   const Stack = createStackNavigator();
@@ -46,6 +47,7 @@ const BaseNavigator = () => {
       <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
       <Stack.Screen name="ClassViewScreen" component={ClassViewScreen} />
       <Stack.Screen name="AllCourseScreen" component={AllCourseScreen} />
+      <Stack.Screen name="AllStudentScreen" component={AllStudentScreen} />
       <Stack.Screen name="CourseViewScreen" component={CourseViewScreen} />
       <Stack.Screen
         name="AttendanceTakingScreen"

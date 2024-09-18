@@ -146,7 +146,12 @@ const StudentViewScreen = ({ navigation, route }: StackNavigationProps) => {
     );
   }
 
-  if (!studentViewDetail || !studentAttendance)
+  if (
+    !studentViewDetail ||
+    !studentAttendance ||
+    !studentViewDetail.student ||
+    !studentViewDetail.courses.length
+  )
     return (
       <View className="items-center justify-center flex-1">
         <Text>No Data</Text>

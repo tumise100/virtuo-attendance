@@ -16,6 +16,7 @@ const ClassCardOverview = ({
   onPress,
   customclassName,
   showAttendanceStats = true,
+  showAttendanceAvg = true,
   title,
   classId = 1,
   courseCode,
@@ -27,6 +28,7 @@ const ClassCardOverview = ({
   onPress?: () => void;
   customclassName?: string;
   showAttendanceStats?: boolean;
+  showAttendanceAvg?: boolean;
   classId?: number;
   courseCode: string;
   startTime?: string;
@@ -68,11 +70,13 @@ const ClassCardOverview = ({
         )}
       </View>
       <View className="items-center">
-        <BodyRegular
-          text={`${attendanceRate}% Avg.`}
-          type={TextFontType.Medium}
-          customClassName="text-white mb-1"
-        />
+        {showAttendanceAvg && (
+          <BodyRegular
+            text={`${attendanceRate}% Avg.`}
+            type={TextFontType.Medium}
+            customClassName="text-white mb-1"
+          />
+        )}
         {showAttendanceStats ? (
           <View className="flex-row items-center">
             <OverviewAttendanceStatus />

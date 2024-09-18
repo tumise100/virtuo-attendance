@@ -9,20 +9,26 @@ export const CustomButton = ({
   disabled,
   outline,
   onPress,
-  customClassName,
   loading,
   loadingWithText,
+  customClassName,
+  containerClassName,
 }: {
   title: string;
   outline?: boolean;
   disabled?: boolean;
   onPress?: () => void;
-  customClassName?: string;
   loading?: boolean;
   loadingWithText?: boolean;
+  customClassName?: string;
+  containerClassName?: string;
 }) => {
   return (
-    <TouchableOpacity disabled={loading || disabled} onPress={onPress}>
+    <TouchableOpacity
+      disabled={loading || disabled}
+      onPress={onPress}
+      className={`${containerClassName}`}
+    >
       <LinearGradient
         colors={
           outline

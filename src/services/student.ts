@@ -11,3 +11,9 @@ export async function GetAStudent({
     endpoint: `/courses/lecturer/${lecturerId}/student/${studentId}/details`,
   });
 }
+
+export async function GetMyStudents(id: number) {
+  return FetchClient({
+    endpoint: `/courses/lecturer/students/${id}`,
+  });
+}

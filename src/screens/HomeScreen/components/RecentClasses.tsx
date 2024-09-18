@@ -30,6 +30,8 @@ const RecentClasses = ({
             courseCode={classItem.course.code}
             startTime={classItem.startTime}
             endTime={classItem.endTime}
+            showAttendanceStats={false}
+            showAttendanceAvg={false}
             // title={`Introduction to Biology ${classItem.id}`}
           />
         ))

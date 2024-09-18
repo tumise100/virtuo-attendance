@@ -27,6 +27,7 @@ const QuickAction = () => {
             title="Students"
             subtitle="List of student taking your course"
             colorType="warning"
+            onPress={() => navigation.navigate("AllStudentScreen")}
           />
         </View>
         <View className="flex-row justify-between items-center mt-4">

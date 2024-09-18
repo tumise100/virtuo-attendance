@@ -32,30 +32,10 @@ const HomeScreen = ({
   const { user } = combineStore();
 
   useEffect(() => {
-    // fetchSingleCourse();
-    // fetchAllStudents();
     if (user) {
       getLecturerRecentClasses(user.accounts[0].id);
     }
   }, [user]);
-
-  const fetchSingleCourse = async () => {
-    // setLoading(true);
-    // await GetACourse("BIO101")
-    //   .then(({ responseData, responseStatus }) => {
-    //     // console.log(responseData, responseStatus, "ee");
-    //     if (responseStatus === 200) {
-    //       setRecentClass(responseData.classes);
-    //       // console.log(responseData.classes, "here");
-    //     } else {
-    //       console.log(responseData, "some data 2");
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.log(err, "err");
-    //   })
-    //   .finally(() => setLoading(false));
-  };
 
   const fetchAllStudents = async () => {
     setLoadingAllStudent(true);
@@ -77,6 +57,8 @@ const HomeScreen = ({
 
   const getLecturerRecentClasses = (lecturerId: number) => {
     setLoadingRecentClass(true);
+    console.log(lecturerId,'lecturerId');
+
     GetLecturerClasses({ lecturerId })
       .then(({ responseData, responseStatus }) => {
         console.log(responseData, responseStatus, "getLecturerRecentClasses");
@@ -135,10 +117,10 @@ const HomeScreen = ({
         recentClass={recentClass}
       />
       <QuickAction />
-      <TopStudents
+      {/* <TopStudents
         allStudents={allStudents}
         loadingAllStudent={loadingAllStudent}
-      />
+      /> */}
     </ScrollView>
   );
 };

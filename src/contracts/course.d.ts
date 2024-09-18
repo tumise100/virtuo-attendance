@@ -92,26 +92,6 @@ export interface ICourseWithClasses extends ICourseBase {
 interface IClassHeader extends IClassBase {
   course: ICourseBase;
 }
-// interface IClassHeader {
-//   id: number;
-//   createdAt: string;
-//   updatedAt: string;
-//   courseId: number;
-//   startTime: string;
-//   endTime: string;
-//   day: string;
-//   course: {
-//     code: string;
-//     title: string;
-//     level: ELevel;
-//     creditUnit: number;
-//     departmentId: number;
-//     facultyId: number;
-//     id: number;
-//     createdAt: string;
-//     updatedAt: string;
-//   };
-// }
 
 interface ILecturerCourseHeader {
   id: number;
@@ -133,15 +113,6 @@ interface ILecturerCourseHeader {
 
 interface IClassDetail extends IClassBase {
   course: ICourseBase & {
-    // code: string;
-    // title: string;
-    // level: ELevel;
-    // creditUnit: number;
-    // departmentId: number;
-    // facultyId: number;
-    // id: number;
-    // createdAt: string;
-    // updatedAt: string;
     students: {
       id: number;
       createdAt: string;
@@ -160,4 +131,55 @@ interface IClassDetail extends IClassBase {
       };
     }[];
   };
+}
+
+interface ICourseViewDetailLecturer {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  courseId: number;
+  lecturerId: number;
+  lecturerAccountId: null;
+  lecturer: {
+    id: number;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: null;
+    type: string;
+    identityCode: string;
+    school: null;
+  };
+}
+interface ICourseViewDetailStudent {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  courseId: number;
+  studentId: number;
+  studentAccountId: null;
+}
+
+export interface ICourseViewDetailClass {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  courseId: number;
+  startTime: string;
+  endTime: string;
+  day: string;
+  classAttendance: {
+    id: number;
+    createdAt: string;
+    updatedAt: string;
+    classId: number;
+    studentId: number;
+    attended: boolean;
+    student: IStudentUser;
+  }[];
+}
+
+export interface ICourseViewDetail extends ICourseBase {
+  lecturer: ICourseViewDetailLecturer[];
+  students: ICourseViewDetailStudent[];
+  classes: ICourseViewDetailClass[];
 }

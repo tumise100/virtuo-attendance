@@ -15,24 +15,62 @@ import { BodyText } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
 import FloatingButton from "@/src/components/UI/Buttons/FloatingButton";
 import Modal from "@/src/components/UI/Modal";
+import { combineStore } from "@/src/store";
+import { GetMyStudents } from "@/src/services/student";
+import LoadingComponent from "@/src/components/UI/LoadingComponent";
 import FilterStudentsBy from "./components/FilterStudentsBy";
 import FilterStudentsByPercentage from "./components/FilterStudentsByPercentage";
 import FilterStudentsByLevel from "./components/FilterStudentsByLevel";
+import { IStudentItem } from "@/src/contracts/student";
+import { convertLevelStringToNumber } from "@/src/utils";
 
-const StudentAttendanceScreen = ({ route }: StackNavigationProps) => {
+const AllStudentScreen = ({ route }: StackNavigationProps) => {
   const filterStudentsByModalRef = useRef<ModalProp>(null);
   const filterStudentsByPercentageModalRef = useRef<ModalProp>(null);
   const filterStudentsByLevelModalRef = useRef<ModalProp>(null);
 
-  const [students, setStudents] = useState<StudentAttendance[] | null>(null);
+  const [allStudents, setAllStudents] = useState<IStudentItem[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const { user } = combineStore();
 
   useEffect(() => {
-    if (route?.params && route.params.students) {
-      setStudents(route.params.students);
-
-      console.log(route.params, "route");
+    if (user) {
+      fetchAllMyStudents(user.accounts[0].id);
+      console.log(user.accounts[0].id, "user.accounts[0].id");
     }
-  }, [route]);
+  }, [user]);
+
+  const fetchAllMyStudents = async (lecturerId: number) => {
+    setLoading(true);
+    await GetMyStudents(lecturerId)
+      .then(({ responseData, responseStatus }) => {
+        console.log(responseData, responseStatus, "all courses");
+        if (responseStatus === 200) {
+          setAllStudents(responseData.data);
+        } else {
+          console.log(responseData, "some data 2");
+        }
+      })
+      .catch((err) => {
+        console.log(err, "err");
+      })
+      .finally(() => setLoading(false));
+  };
+
+  if (loading) {
+    return (
+      <View className="flex-1 px-4 py-7 bg-white">
+        <LoadingComponent />
+      </View>
+    );
+  }
+
+  if (!allStudents)
+    return (
+      <View className="bg-white items-center justify-center flex-1">
+        <Text>No Data</Text>
+      </View>
+    );
 
   return (
     <View className="flex-1 bg-white px-4 pt-7">
@@ -51,20 +89,23 @@ const StudentAttendanceScreen = ({ route }: StackNavigationProps) => {
           <BodyText text="Students" type={TextFontType.Bold} />
           {/* <BodyText text="140" type={TextFontType.Bold} /> */}
           <BodyText
-            text={`${students?.length || 0}`}
+            text={`${allStudents.length || 0}`}
             type={TextFontType.Bold}
           />
         </View>
         <ScrollView className="flex-1 mt-2">
-          {students && students.length ? (
-            students.map((student) => (
+          {allStudents && allStudents.length ? (
+            allStudents.map((student) => (
               <StudentOverviewCard
                 hideStatsShowOnlyAttendanceAverage={true}
                 attendanceStatusType={AttendanceStatusType.PRESENT}
-                key={student.matric_no}
-                fullName={student.name}
-                level={student.level}
-                studentId={1}
+                key={student.id}
+                fullName={`${student.student.student.firstName} ${student.student.student.lastName}`}
+                // title={`${student.courseId}`}
+                studentId={student.student.id}
+                level={convertLevelStringToNumber(
+                  student.student.student.level
+                )}
               />
             ))
           ) : (
@@ -115,4 +156,4 @@ const StudentAttendanceScreen = ({ route }: StackNavigationProps) => {
   );
 };
 
-export default StudentAttendanceScreen;
+export default AllStudentScreen;
