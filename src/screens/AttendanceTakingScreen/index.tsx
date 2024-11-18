@@ -29,8 +29,13 @@ import { StudentAttendanceMarked } from "@/src/components/UI/StudentOverviewCard
 import { showToast } from "@/src/components/UI/showToast";
 import NfcAttendanceTakingNotSupported from "./NfcAttendanceTakingNotSupported";
 import DeleteClassModal from "./components/DeleteClassModal";
+import { CreateNewClass } from "@/src/services/courses";
+import moment from "moment";
 
-const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
+const AttendanceTakingScreen = ({
+  navigation,
+  route,
+}: StackNavigationProps) => {
   const [hasNfc, setHasNFC] = useState(false);
 
   const [studentAttendance, setStudentAttendance] = useState<
@@ -39,7 +44,16 @@ const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
   const [currentStudentAttendance, setCurrentStudentAttendance] =
     useState<StudentAttendance | null>(null);
 
+  const [loading, setLoading] = useState(false);
+
   const deleteModalRef = useRef<ModalProp>(null);
+
+  useEffect(() => {
+    if (route && route.params && route.params.courseId) {
+      // createNewClass(route.params.courseId);
+    }
+    // console.log(route, "route");
+  }, [route]);
 
   useEffect(() => {
     const checkIsSupported = async () => {
@@ -59,10 +73,37 @@ const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
 
   useEffect(() => {
     BackHandler.addEventListener("hardwareBackPress", () => {
-      deleteModalRef.current?.setVisible(true);
+      confirmNavigateBack();
       return true;
     });
   }, []);
+
+  const confirmNavigateBack = () => {
+    deleteModalRef.current?.setVisible(true);
+  };
+
+  const handleConfirmDeleteClass = () => {
+    navigation.goBack();
+  };
+
+  const createNewClass = (courseId: number) => {
+    const day = moment().format("dddd");
+    const startTime = moment().toISOString();
+    const endTime = moment().add(2, "h").toISOString();
+    const input = { courseId, day, endTime, startTime };
+    showToast(`A class was created for you ${courseId}`);
+
+    console.log(input);
+
+    setLoading(true);
+
+    CreateNewClass(input)
+      .then(({ responseData, responseStatus }) => {
+
+      })
+      .catch((err) => console.log("err"))
+      .finally(() => setLoading(false));
+  };
 
   const readTag = async () => {
     await NfcManager.registerTagEvent();
@@ -126,7 +167,7 @@ const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
       />
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center ">
-          <BackBtn />
+          <BackBtn onPress={confirmNavigateBack} />
           <SubheadingSemibold18 text="Attendance" customClassName="ml-5" />
         </View>
       </View>
@@ -189,7 +230,10 @@ const AttendanceTakingScreen = ({ navigation }: StackNavigationProps) => {
           </View>
         ) : null}
       </View>
-      <DeleteClassModal deleteModalRef={deleteModalRef} />
+      <DeleteClassModal
+        deleteModalRef={deleteModalRef}
+        handleConfirmBtnPress={handleConfirmDeleteClass}
+      />
       <View className="h-24" />
     </ScrollView>
   );

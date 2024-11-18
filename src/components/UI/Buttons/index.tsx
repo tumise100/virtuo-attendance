@@ -31,7 +31,9 @@ export const CustomButton = ({
     >
       <LinearGradient
         colors={
-          outline
+          disabled
+            ? [COLORS.gray3, COLORS.gray3]
+            : outline
             ? [COLORS.transparent, COLORS.transparent]
             : [COLORS.primary[500], COLORS.primary[450]]
         }

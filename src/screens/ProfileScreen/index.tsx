@@ -16,9 +16,12 @@ import { BodyText } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
 import CustomAvatar from "@/src/components/UI/CustomAvatar";
 import { combineStore } from "@/src/store";
+import { NoUserDataComponent } from "@/src/components/UI/NoData";
 
 const ProfileScreen = () => {
   const { user } = combineStore();
+
+  if (!user) return <NoUserDataComponent />;
 
   return (
     <ScrollView className="flex-1 bg-white px-4 pt-7">
@@ -48,6 +51,11 @@ const ProfileScreen = () => {
       </View>
       <View className="mt-6">
         <ProfileScreenItem title={`${user?.firstName} ${user?.lastName}`} />
+        <ProfileScreenItem
+          title={user.accounts[0].lecturer.position}
+          customTextClassName="uppercase"
+          hideArrowIcon
+        />
         <ProfileScreenItem title="Nigeria" />
         <ProfileScreenItem title={`${user?.email}`} />
         <ProfileScreenItem title="+234 810 123 4567" />
@@ -58,15 +66,23 @@ const ProfileScreen = () => {
 
 export default ProfileScreen;
 
-const ProfileScreenItem = ({ title }: { title: string }) => {
+const ProfileScreenItem = ({
+  title,
+  customTextClassName,
+  hideArrowIcon,
+}: {
+  title: string;
+  customTextClassName?: string;
+  hideArrowIcon?: boolean;
+}) => {
   return (
     <TouchableOpacity className="flex-row justify-between items-center mb-3">
       <BodyText
         text={title}
         type={TextFontType.Regular}
-        customClassName="text-[15px]"
+        customClassName={`text-[15px] normal-case ${customTextClassName}`}
       />
-      <Entypo name="chevron-right" size={22} />
+      {!hideArrowIcon && <Entypo name="chevron-right" size={22} />}
     </TouchableOpacity>
   );
 };

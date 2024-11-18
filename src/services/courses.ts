@@ -28,6 +28,19 @@ export async function GetAClass(id: number) {
   });
 }
 
+export async function CreateNewClass(input: {
+  courseId: number;
+  day: string;
+  startTime: string;
+  endTime: string;
+}) {
+  return FetchClient({
+    endpoint: `/courses/create-class`,
+    method: HttpMethod.POST,
+    body: input,
+  });
+}
+
 export async function MarkAttendance(input: {
   classId: number;
   studentId: number;

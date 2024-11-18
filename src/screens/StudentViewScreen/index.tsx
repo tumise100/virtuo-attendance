@@ -43,7 +43,7 @@ const StudentViewScreen = ({ navigation, route }: StackNavigationProps) => {
   const [studentId, setStudentId] = useState<number | null>(null);
   const [studentViewDetail, setStudentViewDetail] =
     useState<IStudentViewDetail | null>(null);
-  const [studentAttendance, setStudentAttendancw] = useState<
+  const [studentAttendance, setStudentAttendance] = useState<
     IStudentAttendance[] | null
   >(null);
   const [loadingStudentViewDetail, setLoadingStudentViewDetail] =
@@ -75,10 +75,14 @@ const StudentViewScreen = ({ navigation, route }: StackNavigationProps) => {
         console.log(responseData, responseStatus, "fetchStudentViewDetail");
         if (responseStatus === 200) {
           const data: IStudentViewDetail = responseData.data;
+          console.log(data, "IStudentViewDetail");
+
+          // return;
           const _attendance = extractEntireAttendanceFromCourses(data.courses);
-          setStudentAttendancw(_attendance);
+          setStudentAttendance(_attendance);
           setStudentViewDetail(data);
         } else {
+          showToast(responseData.message)
           // console.log(responseData, "some data 2");
         }
       })

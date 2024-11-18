@@ -78,32 +78,42 @@ interface COURSE {
 
 interface IAccount<T> {
   id: number;
-  // type: AccountType;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: null;
   type: T;
-  admin: any;
-  business_owner: any;
-  createdAt: string;
-  deletedAt: any;
   identityCode: string;
-  lecturer: ILecturerUser[];
-  school?: any;
+  admin: null;
+  school: null;
+  lecturer: ILecturerUser;
   student?: IStudentUser[];
-  updatedAt: string;
 }
+// interface IAccount<T> {
+//   id: number;
+//   type: T;
+//   admin: any;
+//   business_owner: any;
+//   createdAt: string;
+//   deletedAt: any;
+//   identityCode: string;
+//   lecturer: ILecturerUser[];
+//   school?: any;
+//   student?: IStudentUser[];
+//   updatedAt: string;
+// }
 export interface ILecturer {
-  accounts: IAccount<AccountType.LECTURER>[];
-  // accounts: Account[];
-  createdAt: string;
-  deletedAt: any;
-  email: string;
-  firstName: string;
   id: number;
-  isActivated: true;
-  isFirstLogin: false;
-  isTermsAccepted: false;
-  lastLogin: string;
-  lastName: string;
+  createdAt: string;
   updatedAt: string;
+  deletedAt: any;
+  firstName: string;
+  lastName: string;
+  email: string;
+  isFirstLogin: false;
+  lastLogin: string;
+  isActivated: true;
+  isTermsAccepted: false;
+  accounts: IAccount<AccountType.LECTURER>[];
 }
 
 export interface IStudent {

@@ -3,7 +3,7 @@ import CustomPaperTextInputWithIcons from "@/src/components/UI/Inputs/CustomPape
 import { showToast } from "@/src/components/UI/showToast";
 import { IClassHeader } from "@/src/contracts/course";
 import { IStudent } from "@/src/contracts/user";
-import { GetAllStudents } from "@/src/services/auth";
+import { GetAllStudents, GetMe } from "@/src/services/auth";
 import { GetLecturerClasses } from "@/src/services/courses";
 import { combineStore } from "@/src/store";
 import { COLORS } from "@/src/theme/colors";
@@ -16,6 +16,8 @@ import { TextInput } from "react-native-paper";
 import QuickAction from "./components/QuickAction";
 import RecentClasses from "./components/RecentClasses";
 import TopStudents from "./components/TopStudents";
+import { Text } from "react-native";
+import LoadingComponent from "@/src/components/UI/LoadingComponent";
 
 // "name": "virtuo-mobile-app"
 
@@ -26,16 +28,39 @@ const HomeScreen = ({
 }) => {
   const [recentClass, setRecentClass] = useState<IClassHeader[] | null>(null);
   const [allStudents, setAllStudents] = useState<IStudent[] | null>(null);
+
+  const [loadingUser, setLoadingUser] = useState(false);
+
   const [loadingRecentClass, setLoadingRecentClass] = useState(false);
   const [loadingAllStudent, setLoadingAllStudent] = useState(false);
 
-  const { user } = combineStore();
+  const { user, updateUser } = combineStore();
 
   useEffect(() => {
-    if (user) {
-      getLecturerRecentClasses(user.accounts[0].id);
-    }
-  }, [user]);
+    fetchUser();
+  }, []);
+
+  const fetchUser = () => {
+    setLoadingUser(true);
+    GetMe()
+      .then(({ responseData, responseStatus }) => {
+        console.log(responseData, responseStatus, "fetchUser");
+        if (responseStatus !== 200) {
+          console.log(responseData, "responseData");
+          showToast(responseData.message);
+        } else if (responseData.accounts) {
+          getLecturerRecentClasses(responseData.accounts[0].id);
+          updateUser(responseData);
+        }
+      })
+      .catch((err) => {
+        // showToast("Wrong Credentials!");
+        console.log(err, "err");
+      })
+      .finally(() => {
+        setLoadingUser(false);
+      });
+  };
 
   const fetchAllStudents = async () => {
     setLoadingAllStudent(true);
@@ -57,7 +82,7 @@ const HomeScreen = ({
 
   const getLecturerRecentClasses = (lecturerId: number) => {
     setLoadingRecentClass(true);
-    console.log(lecturerId,'lecturerId');
+    console.log(lecturerId, "lecturerId");
 
     GetLecturerClasses({ lecturerId })
       .then(({ responseData, responseStatus }) => {
@@ -77,6 +102,16 @@ const HomeScreen = ({
         setLoadingRecentClass(false);
       });
   };
+
+  if (loadingUser) {
+    return (
+      <View className="flex-1 bg-white p-3">
+        <LoadingComponent />
+        <LoadingComponent />
+        <LoadingComponent />
+      </View>
+    );
+  }
 
   return (
     <ScrollView className="flex-1 bg-white px-3 pt-2">

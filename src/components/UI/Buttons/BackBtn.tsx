@@ -2,13 +2,13 @@ import { TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-export const BackBtn = () => {
+export const BackBtn = ({ onPress }: { onPress?: () => void }) => {
   const navigation = useNavigation();
 
   return (
     <View className="items-start">
       <TouchableOpacity
-        onPress={() => navigation.goBack()}
+        onPress={() => (onPress ? onPress() : navigation.goBack())}
         className="border border-neutral-300 rounded-full p-1 flex-row items-center"
       >
         <Ionicons name="arrow-back" size={17} />

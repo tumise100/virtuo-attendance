@@ -7,8 +7,10 @@ import { Image, Text, View } from "react-native";
 
 const DeleteClassModal = ({
   deleteModalRef,
+  handleConfirmBtnPress,
 }: {
   deleteModalRef: React.RefObject<ModalProp>;
+  handleConfirmBtnPress: () => void;
 }) => {
   return (
     <Modal ref={deleteModalRef}>
@@ -28,7 +30,12 @@ const DeleteClassModal = ({
             onPress={() => deleteModalRef.current?.setVisible(false)}
             containerClassName="w-[45%]"
           />
-          <CustomButton title="Yes" outline containerClassName="w-[45%]" />
+          <CustomButton
+            title="Yes"
+            onPress={handleConfirmBtnPress}
+            outline
+            containerClassName="w-[45%]"
+          />
         </View>
       </View>
     </Modal>

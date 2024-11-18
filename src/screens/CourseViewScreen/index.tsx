@@ -155,9 +155,6 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
             ) : (
               <Text>No Data</Text>
             )}
-            {/* {[1, 2, 3, 4, 5, 5, 6, 7, 3, 2, 2].map((i, _) => (
-              <ClassCardOverview key={_} />
-            ))} */}
           </ScrollView>
         </View>
       </View>

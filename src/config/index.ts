@@ -1,7 +1,9 @@
 import { combineStore as Store } from "@/src/store/index";
 
 // export const API_URL = "http://161.97.118.183:2024";
-export const API_URL = "https://api.virtuobusiness.com";
+// export const _API_URL = "https://api.virtuobusiness.com";
+// export const API_URL = "https://staging.virtuobusiness.com";
+export const API_URL = "https://staging.virtuobusiness.com";
 export const _api_key = "YOUR_API_KEY";
 
 export enum HttpMethod {
@@ -23,8 +25,6 @@ export default async function FetchClient({
 }) {
   const { token } = Store.getState();
 
-  console.log(token, "Token");
-
   const config = {
     method: method ? method : HttpMethod.GET,
     headers: {
@@ -40,8 +40,6 @@ export default async function FetchClient({
 
     let data = await response.json();
     let responseStatus = response.status;
-
-    console.log(token, "in here!");
 
     return { responseData: data, responseStatus };
   } catch (error) {

@@ -47,11 +47,11 @@ const StudentOverviewCard = ({
         </View>
         <View className="ml-3">
           <Overline1Text
-            text={fullName || "Salako Mary Jane"}
+            text={fullName || "No Name"}
             type={TextFontType.Bold}
           />
           <DescriptionText
-            text={`${title} ${level} Level`}
+            text={`${title || ""} ${level} Level`}
             type={TextFontType.Bold}
             customClassName="normal-case"
           />
@@ -65,7 +65,8 @@ const StudentOverviewCard = ({
         />
       ) : hideStatsShowOnlyAttendanceAverage && attendanceStatusType ? (
         <BodyRegular
-          text="90% Avg."
+          // text="90% Avg."
+          text=""
           type={TextFontType.Medium}
           customClassName={`mb-1 ${
             attendanceStatusType === AttendanceStatusType.PRESENT

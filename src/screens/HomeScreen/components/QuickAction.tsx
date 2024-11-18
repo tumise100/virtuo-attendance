@@ -5,9 +5,16 @@ import { TextFontType } from "@/src/theme/typography/typography";
 import QuickActionCard from "@/src/components/UI/QuickActionCard";
 import { useNavigation } from "@react-navigation/native";
 import { DrawerNavigatorProp } from "@/src/shared";
+import { combineStore } from "@/src/store";
+import { NoUserDataComponent } from "@/src/components/UI/NoData";
 
 const QuickAction = () => {
   const navigation = useNavigation<DrawerNavigatorProp>();
+
+  const { user } = combineStore();
+
+  if (!user) return <NoUserDataComponent />;
+
   return (
     <View className="mt-3">
       <Sub2Text

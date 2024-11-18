@@ -47,11 +47,18 @@ const ClassViewScreen = ({ navigation, route }: StackNavigationProps) => {
   }, [classId]);
 
   const fetchClassViewDetail = async (classId: number) => {
+    console.log(classId, "classId");
+
     setLoadingClassViewDetail(true);
     await GetAClass(classId)
       .then(({ responseData, responseStatus }) => {
-        console.log(responseData, responseStatus, "my course");
+        console.log(
+          // JSON.stringify(responseData),
+          responseStatus,
+          "fetchClassViewDetail"
+        );
         if (responseStatus === 200) {
+          // return;
           setClassViewDetail(responseData);
         } else {
           console.log(responseData, "some data 2");
@@ -119,7 +126,10 @@ const ClassViewScreen = ({ navigation, route }: StackNavigationProps) => {
         <View className="flex-1">
           <View className="flex-row justify-between items-center">
             <BodyText text="Students" type={TextFontType.Bold} />
-            <BodyText text={`${classViewDetail.course.students.length}`} type={TextFontType.Bold} />
+            <BodyText
+              text={`${classViewDetail.course.students.length}`}
+              type={TextFontType.Bold}
+            />
           </View>
           <ScrollView className="flex-1">
             {classViewDetail.course.students.map((student) => (

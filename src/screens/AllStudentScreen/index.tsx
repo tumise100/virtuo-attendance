@@ -44,7 +44,12 @@ const AllStudentScreen = ({ route }: StackNavigationProps) => {
     setLoading(true);
     await GetMyStudents(lecturerId)
       .then(({ responseData, responseStatus }) => {
-        console.log(responseData, responseStatus, "all courses");
+        console.log(
+          JSON.stringify(responseData),
+          responseStatus,
+          "all students"
+        );
+        // return;
         if (responseStatus === 200) {
           setAllStudents(responseData.data);
         } else {

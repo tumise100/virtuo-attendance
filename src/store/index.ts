@@ -26,25 +26,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
   },
 });
 
-// export const createLecturerSlice: StateCreator<UserSlice> = (set, get) => ({
-//   user: null,
-//   updateUser: (user) => {
-//     set({ user });
-//   },
-// });
-
 export const combineStore = create<UserToken & UserSlice>()((...a) => ({
   ...createUserToken(...a),
   ...createUserSlice(...a),
 }));
-
-// export const combineStore = create<UserToken & UserSlice>()(
-//   persist(
-//     (...a) => ({
-//       ...createUserToken(...a),
-//       ...createUserSlice(...a),
-//     }),
-//     // { name: "new-store" }
-//     { name: "new-store", storage: createJSONStorage(() => AsyncStorage) }
-//   )
-// );

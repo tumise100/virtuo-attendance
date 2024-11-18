@@ -18,29 +18,6 @@ import AllStudentScreen from "@/src/screens/AllStudentScreen";
 
 const BaseNavigator = () => {
   const Stack = createStackNavigator();
-  const combinedStore = combineStore();
-
-  useEffect(() => {
-    fetchUser();
-  }, []);
-
-  const fetchUser = () => {
-    GetMe()
-      .then(({ responseData, responseStatus }) => {
-        console.log(responseData, responseStatus, "ee");
-        if (responseStatus !== 200) {
-          console.log(responseData, "responseData");
-          showToast(responseData.message);
-        } else if (responseData.accounts) {
-          console.log("if here");
-          combinedStore.updateUser(responseData);
-        }
-      })
-      .catch((err) => {
-        // showToast("Wrong Credentials!");
-        console.log(err, "err");
-      });
-  };
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>

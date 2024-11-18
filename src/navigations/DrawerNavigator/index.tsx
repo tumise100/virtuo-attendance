@@ -31,11 +31,20 @@ const DrawerNavigator = () => {
       drawerContent={(props) => <CustomDrawerContent {...props} />}
     >
       <Drawer.Screen name="HomeScreen" component={HomeScreen} />
+      {/* <Drawer.Screen name="HomeScreen" component={TestScreen} /> */}
     </Drawer.Navigator>
   );
 };
 
 export default DrawerNavigator;
+
+const TestScreen = () => {
+  return (
+    <View className="flex-1 bg-white items-center justify-center">
+      <Text>Hi there, Test Screen Here!</Text>
+    </View>
+  );
+};
 
 const CustomDrawerContent = (props: DrawerContentComponentProps) => {
   // console.log(Object.keys(props.descriptors));

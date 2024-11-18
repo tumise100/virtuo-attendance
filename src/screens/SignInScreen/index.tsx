@@ -37,20 +37,23 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
         <View className="mt-10">
           <Formik
             initialValues={{
-              email: "",
-              password: "",
+              email: "mary.johnson@example.com",
+              password: "password",
             }}
             onSubmit={(values, form) => {
               // if (1) {
               //   navigation.navigate("BaseNavigator");
               // }
+
+              // return;
+
               setLoading(true);
               setError("");
               Login(values)
                 .then(({ responseData, responseStatus }) => {
                   console.log(responseData, responseStatus, "ee");
                   if (responseStatus !== 201) {
-                    console.log(responseData, "responseData");
+                    // console.log(responseData, "responseData");
                     showToast(responseData.message);
                   } else {
                     if (responseData.accessToken) {
@@ -73,17 +76,14 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
                 email?: string;
                 password?: string;
               } = {};
-              if (1) {
-                return;
-              }
               if (!values.email.trim().length) {
                 errors.email = "Email is required";
               }
-              // if (
-              //   !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
-              // ) {
-              //   errors.email = "Invalid email address";
-              // }
+              if (
+                !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
+              ) {
+                errors.email = "Invalid email address";
+              }
               if (!values.password.trim().length) {
                 errors.password = "Password is required";
               } else if (values.password.trim().length <= 5) {
@@ -124,6 +124,7 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
                     title="Login"
                     onPress={handleSubmit}
                     loading={loading}
+                    disabled={!!Object.values(errors).length}
                   />
                   <Text className="text-center">
                     Don't have an account?{" "}

@@ -14,6 +14,7 @@ const AuthNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="OnboardingScreen" component={OnboardingScreen} />
+      <Stack.Screen name="SignInScreen" component={SignInScreen} />
       <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
       <Stack.Screen name="ConfirmEmailScreen" component={ConfirmEmailScreen} />
       <Stack.Screen
@@ -24,7 +25,6 @@ const AuthNavigator = () => {
         name="RegistrationCompleteScreen"
         component={RegistrationCompleteScreen}
       />
-      <Stack.Screen name="SignInScreen" component={SignInScreen} />
     </Stack.Navigator>
   );
 };
