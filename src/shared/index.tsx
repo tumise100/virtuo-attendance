@@ -35,4 +35,5 @@ export interface StudentAttendance {
   matric_no: string;
   course: string;
   level: string;
+  id: string;
 }

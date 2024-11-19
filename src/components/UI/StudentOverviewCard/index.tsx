@@ -12,6 +12,7 @@ import { AttendanceStatusType, StudentAttendance } from "@/src/shared";
 import { Ionicons } from "@expo/vector-icons";
 import { COLORS } from "@/src/theme/colors";
 import { useNavigation } from "@react-navigation/native";
+import CustomAvatar from "../CustomAvatar";
 
 const StudentOverviewCard = ({
   fullName,
@@ -102,16 +103,18 @@ export const StudentAttendanceMarked = ({
   matric_no,
   course,
   level,
+  id,
 }: StudentAttendance) => {
   return (
     <TouchableOpacity className="flex-row items-center justify-between mb-3 rounded-md border border-borderColor p-3">
       <View className="flex-row items-center">
         <View className="w-[32px] h-[32px]">
-          <Image
+          {/* <Image
             source={UserAvatarImg}
             resizeMode="contain"
             className="w-full h-full"
-          />
+          /> */}
+          <CustomAvatar name={name} size={32} />
         </View>
         <View className="ml-3">
           <Overline1Text

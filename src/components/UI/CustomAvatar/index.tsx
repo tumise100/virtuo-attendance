@@ -6,11 +6,13 @@ const CustomAvatar = ({
   textSize = 10,
   name,
   onPress,
+  abbrvLength = 3,
 }: {
   size?: number;
   textSize?: number;
   name: string;
   onPress?: () => void;
+  abbrvLength?: number;
 }) => {
   const getName = (name: string) => {
     if (name.trim().split(" ").length > 1) {
@@ -30,7 +32,7 @@ const CustomAvatar = ({
       className="bg-primary-450 rounded-full p-1 justify-center items-center"
     >
       <Text className="text-white" style={{ fontSize: size * 0.35 }}>
-        {name ? getName(name).toUpperCase() : "A"}
+        {name ? getName(name).toUpperCase().slice(0, abbrvLength) : "A"}
       </Text>
     </TouchableOpacity>
   );

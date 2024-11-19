@@ -12,14 +12,3 @@ export async function CreatNewClass(input: {
     method: HttpMethod.POST,
   });
 }
-
-export async function MarkAttencdancw(input: {
-  classId: number;
-  studentId: number;
-}) {
-  return FetchClient({
-    endpoint: `/courses/mark-attendance`,
-    body: JSON.stringify(input),
-    method: HttpMethod.POST,
-  });
-}

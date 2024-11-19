@@ -29,10 +29,17 @@ const CreateNewStudentTagScreen = () => {
       <View className="mt-10">
         <Formik
           initialValues={{
-            name: "",
-            matric_no: "",
-            course: "",
-            level: "",
+            // name: "",
+            // matric_no: "",
+            // course: "",
+            // level: "",
+            // id: "",
+
+            name: "Odebisi Idowu Solomon Soji",
+            matric_no: "Sci/18/19/0623",
+            course: "Computer Science",
+            level: "400",
+            id: "10",
           }}
           onSubmit={async (values) => {
             let result = false;
@@ -43,6 +50,7 @@ const CreateNewStudentTagScreen = () => {
             //   matric_no: "Sci/18/19/0623",
             //   course: "Computer Science",
             //   level: "400",
+            //   id: "",
             // };
 
             try {
@@ -55,12 +63,12 @@ const CreateNewStudentTagScreen = () => {
               if (bytes) {
                 await NfcManager.ndefHandler.writeNdefMessage(bytes);
                 result = true;
-                setReadyToWrite(false);
                 showToast("Student Tag Created!");
               }
             } catch (ex) {
-              console.warn(ex);
+              console.warn(JSON.stringify(ex));
             } finally {
+              setReadyToWrite(false);
               NfcManager.cancelTechnologyRequest();
             }
 
@@ -72,6 +80,7 @@ const CreateNewStudentTagScreen = () => {
               matric_no?: string;
               course?: string;
               level?: string;
+              id?: string;
             } = {};
             if (!values.name.trim().length) {
               errors.name = "Full Name is required";
@@ -84,6 +93,9 @@ const CreateNewStudentTagScreen = () => {
             }
             if (!values.level.trim().length) {
               errors.level = "Level is Required";
+            }
+            if (!values.id.trim().length) {
+              errors.id = "Level is Required";
             }
             return errors;
           }}
@@ -128,6 +140,14 @@ const CreateNewStudentTagScreen = () => {
                 value={values.level}
                 placeholder="400"
                 error={touched.level ? errors.level : undefined}
+              />
+              <CustomPaperTextInput
+                label="Student ID"
+                onChangeText={handleChange("id")}
+                onBlur={handleBlur("id")}
+                value={values.id}
+                placeholder="10"
+                error={touched.id ? errors.id : undefined}
               />
               <View className="mt-20">
                 <CustomButton

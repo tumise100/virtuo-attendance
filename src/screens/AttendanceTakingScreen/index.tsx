@@ -29,8 +29,12 @@ import { StudentAttendanceMarked } from "@/src/components/UI/StudentOverviewCard
 import { showToast } from "@/src/components/UI/showToast";
 import NfcAttendanceTakingNotSupported from "./NfcAttendanceTakingNotSupported";
 import DeleteClassModal from "./components/DeleteClassModal";
-import { CreateNewClass } from "@/src/services/courses";
+import { CreateNewClass, MarkAttendance } from "@/src/services/courses";
 import moment from "moment";
+import LoadingComponent, {
+  TextLoading,
+} from "@/src/components/UI/LoadingComponent";
+import { IClassBase } from "@/src/contracts/course";
 
 const AttendanceTakingScreen = ({
   navigation,
@@ -44,16 +48,29 @@ const AttendanceTakingScreen = ({
   const [currentStudentAttendance, setCurrentStudentAttendance] =
     useState<StudentAttendance | null>(null);
 
-  const [loading, setLoading] = useState(false);
+  const [loadingCreateClass, setLoadingCreateClass] = useState(false);
+
+  const [submitAttendanceloading, setSubmitAttendanceloading] = useState(false);
+
+  // const [createdClass, setCreatedClass] = useState<IClassBase | null>(null);
+  const [createdClass, setCreatedClass] = useState<IClassBase | null>({
+    courseId: 1,
+    createdAt: "2024-11-18T21:52:20.540Z",
+    day: "Monday",
+    endTime: "2024-11-18T23:52:17.748Z",
+    id: 3,
+    startTime: "2024-11-18T21:52:17.748Z",
+    updatedAt: "2024-11-18T21:52:20.540Z",
+  });
 
   const deleteModalRef = useRef<ModalProp>(null);
 
   useEffect(() => {
-    if (route && route.params && route.params.courseId) {
-      // createNewClass(route.params.courseId);
+    if (route && route.params && route.params.courseId && hasNfc) {
+      createNewClass(route.params.courseId);
     }
     // console.log(route, "route");
-  }, [route]);
+  }, [route, hasNfc]);
 
   useEffect(() => {
     const checkIsSupported = async () => {
@@ -64,25 +81,38 @@ const AttendanceTakingScreen = ({
       setHasNFC(deviceIsSupported);
       if (deviceIsSupported) {
         await NfcManager.start();
+        NfcManager.requestTechnology(NfcTech.Ndef);
+      }
+      if (deviceIsSupported) {
+        readTag();
       }
     };
 
     checkIsSupported();
-    // readTag();
   }, []);
 
   useEffect(() => {
-    BackHandler.addEventListener("hardwareBackPress", () => {
-      confirmNavigateBack();
-      return true;
-    });
-  }, []);
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        if (createdClass) {
+          confirmNavigateBack();
+          return true;
+        } else {
+          return false;
+        }
+      }
+    );
+
+    return () => backHandler.remove();
+  }, [createdClass]);
 
   const confirmNavigateBack = () => {
     deleteModalRef.current?.setVisible(true);
   };
 
   const handleConfirmDeleteClass = () => {
+    deleteModalRef.current?.setVisible(false);
     navigation.goBack();
   };
 
@@ -91,18 +121,26 @@ const AttendanceTakingScreen = ({
     const startTime = moment().toISOString();
     const endTime = moment().add(2, "h").toISOString();
     const input = { courseId, day, endTime, startTime };
-    showToast(`A class was created for you ${courseId}`);
 
-    console.log(input);
+    // console.log(input);
 
-    setLoading(true);
+    setLoadingCreateClass(true);
+    setTimeout(() => {
+      showToast(`A class was created for you ${courseId}`);
+      setLoadingCreateClass(false);
+    }, 1000);
 
-    CreateNewClass(input)
-      .then(({ responseData, responseStatus }) => {
-
-      })
-      .catch((err) => console.log("err"))
-      .finally(() => setLoading(false));
+    // CreateNewClass(input)
+    //   .then(({ responseData, responseStatus }) => {
+    //     if (responseData.courseId) {
+    //       setCreatedClass(responseData);
+    //     } else {
+    //       showToast("Something went wrong");
+    //     }
+    //     console.log(responseData, "CreateNewClass");
+    //   })
+    //   .catch((err) => console.log("err"))
+    //   .finally(() => setLoadingCreateClass(false));
   };
 
   const readTag = async () => {
@@ -110,55 +148,99 @@ const AttendanceTakingScreen = ({
   };
 
   useEffect(() => {
-    // NfcManager.setEventListener(NfcEvents.DiscoverTag, handleTagReading);
-
     return () => {
-      NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
+      NfcManager.setEventListener(NfcEvents.DiscoverTag, handleTagReading);
+      // NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
     };
   }, [currentStudentAttendance, studentAttendance]);
 
-  // const handleTagReading = useCallback(
-  //   (tag: any) => {
-  //     setCurrentStudentAttendance(null);
-  //     try {
-  //       const data = JSON.parse(
-  //         Ndef.uri.decodePayload(tag.ndefMessage[0].payload)
-  //       ) as StudentAttendance;
+  const handleTagReading = useCallback(
+    (tag: any) => {
+      try {
+        const data = JSON.parse(
+          Ndef.uri.decodePayload(tag.ndefMessage[0].payload)
+        ) as StudentAttendance;
 
-  //       // console.log(data, "data");
+        setCurrentStudentAttendance(data);
+        if (
+          studentAttendance &&
+          studentAttendance.find((sA) => sA.matric_no === data.matric_no)
+        ) {
+          showToast("User has been registered already!");
+        } else {
+          const a = [...(studentAttendance || []), data];
 
-  //       console.log(studentAttendance);
+          setStudentAttendance(a);
+          setCurrentStudentAttendance(data);
+          console.log(
+            data,
+            studentAttendance,
+            "tag data in here",
+            "studentAttendance"
+          );
+        }
+        // console.log(
+        //   Ndef.uri.decodePayload(tag.ndefMessage[0].payload),
+        //   "tag found"
+        // );
+      } catch (error) {
+        showToast("Invalid Tag!");
+        console.log(error, "error");
+      }
+    },
+    [studentAttendance, currentStudentAttendance]
+  );
 
-  //       if (
-  //         studentAttendance &&
-  //         studentAttendance.find((sA) => sA.matric_no === data.matric_no)
-  //       ) {
-  //         showToast("User has been registered already!");
-  //       } else {
-  //         const a = [...(studentAttendance || []), data];
+  const handleSubmitAttendanceToServer = ({
+    classId,
+    studentId,
+  }: {
+    classId: number;
+    studentId: number[];
+  }) => {
+    console.log({ classId, studentId: studentId[0] });
 
-  //         setStudentAttendance(a);
-  //         setCurrentStudentAttendance(data);
-  //       }
-  //       // console.log(
-  //       //   Ndef.uri.decodePayload(tag.ndefMessage[0].payload),
-  //       //   "tag found"
-  //       // );
-  //     } catch (error) {
-  //       showToast("Invalid Tag!");
-  //       console.log(error, "error");
-  //     }
-  //   },
-  //   [studentAttendance, currentStudentAttendance]
-  // );
+    setSubmitAttendanceloading(true);
+    // setTimeout(() => {
+    //   showToast(`Attendance Sumbitted`);
+    //   setSubmitAttendanceloading(false);
+    // }, 1000);
 
-  // return <Text>Hello there {hasNfc ? 1: 2}</Text>;
+    // MarkAttencdance({ classId, studentId: studentId[0] })
+    MarkAttendance({ classId, studentId: 4 })
+      .then(({ responseData, responseStatus }) => {
+        console.log(responseData, "handleSubmitAttendanceToServer");
+        if (!responseData.success) {
+          showToast(responseData?.message);
+        } else {
+          console.log(responseData, "handleSubmitAttendanceToServer");
+          // navigation.navigate("StudentAttendanceScreen", {
+          //   students: studentAttendance,
+          // });
+        }
+      })
+      .catch((err) => {
+        console.log(err, "handleSubmitAttendanceToServer");
+      })
+      .finally(() => {
+        setSubmitAttendanceloading(false);
+      });
+  };
 
   if (!hasNfc) {
     return <NfcAttendanceTakingNotSupported />;
   }
 
-  return (
+  if (loadingCreateClass) {
+    return (
+      <View className="flex-1 bg-white p-3 justify-center">
+        <Text className="mb-3">Creating A Class for you, Please Wait...</Text>
+        <LoadingComponent />
+      </View>
+    );
+  }
+
+  return createdClass ? (
     <ScrollView className="flex-1 bg-white px-4 pt-7">
       <StatusBar
         backgroundColor={COLORS.white}
@@ -180,7 +262,11 @@ const AttendanceTakingScreen = ({
         <View className="justify-center items-center">
           <SubheadingSemibold18 text="Intro to Computer Sci." />
           <DescriptionText
-            text="Monday, 15th Mar. (9AM - 12PM)"
+            text={`${moment(createdClass.startTime).format(
+              "dddd, Do MMM."
+            )} (${moment(createdClass.startTime).format("hha")} - ${moment(
+              createdClass.endTime
+            ).format("hha")})`}
             type={TextFontType.Medium}
             customClassName="my-2"
           />
@@ -206,26 +292,28 @@ const AttendanceTakingScreen = ({
             </>
           ) : null}
         </View>
-        {currentStudentAttendance ? (
+        <Text>{JSON.stringify(currentStudentAttendance)}</Text>
+        {currentStudentAttendance && studentAttendance ? (
           <View className="my-6">
             <StudentAttendanceMarked
               name={currentStudentAttendance.name}
               matric_no={currentStudentAttendance.matric_no}
               level={currentStudentAttendance.level}
               course={currentStudentAttendance.course}
+              id={currentStudentAttendance.id}
             />
             <HeadingsSemibold24
               text="Thank you"
               customClassName="text-center"
             />
             <CustomButton
-              title="Done"
-              onPress={() =>
-                navigation.navigate("StudentAttendanceScreen", {
-                  students: studentAttendance,
-                })
-              }
+              title={`Done. Upload to server (${studentAttendance.length})`}
+              onPress={handleSubmitAttendanceToServer.bind(this, {
+                classId: createdClass.id,
+                studentId: studentAttendance.map((sA) => +sA.id),
+              })}
               customClassName="my-5"
+              loading={submitAttendanceloading}
             />
           </View>
         ) : null}
@@ -236,6 +324,10 @@ const AttendanceTakingScreen = ({
       />
       <View className="h-24" />
     </ScrollView>
+  ) : (
+    <View className="flex-1 bg-white items-center justify-center">
+      <Text>Something went wrong, No class created.</Text>
+    </View>
   );
 };
 
