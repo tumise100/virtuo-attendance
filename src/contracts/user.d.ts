@@ -40,6 +40,34 @@ interface IStudentUser {
   createdAt: string;
   updatedAt: string;
   deletedAt: null;
+
+  class?: {
+    name: string;
+    id: number;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: null;
+  };
+
+  department?: {
+    createdAt: string;
+    deletedAt: null;
+    facultyId: number;
+    id: number;
+    name: string;
+    slug: string;
+    updatedAt: string;
+  };
+
+  faculty?: {
+    createdAt: string;
+    deletedAt: null;
+    id: number;
+    name: string;
+    schoolAccountId: null;
+    slug: string;
+    updatedAt: string;
+  };
 }
 
 interface AdminUser {

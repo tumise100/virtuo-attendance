@@ -17,3 +17,9 @@ export async function GetMyStudents(id: number) {
     endpoint: `/courses/lecturer/students/${id}`,
   });
 }
+
+export async function GetTeacherStudents(id: number) {
+  return FetchClient({
+    endpoint: `/students-attendance/lecturer/students/${id}`,
+  });
+}

@@ -99,10 +99,17 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
         <CustomDrawerContentItem
           iconName="people"
           Icon={Octicons}
+          label="Write Student Info into tag"
+          showMoreIcon={false}
+          onPress={() => props.navigation.navigate("WriteStudentInfoTagScreen")}
+        />
+        {/* <CustomDrawerContentItem
+          iconName="people"
+          Icon={Octicons}
           label="Create new Student  tag"
           showMoreIcon={false}
           onPress={() => props.navigation.navigate("CreateNewStudentTagScreen")}
-        />
+        /> */}
       </View>
       <View className="justify-center items-center mt-[75%]">
         <TouchableOpacity

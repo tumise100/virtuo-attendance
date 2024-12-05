@@ -55,6 +55,10 @@ const StudentViewScreen = ({ navigation, route }: StackNavigationProps) => {
     // console.log(route);
     if (route && route.params && route.params.studentId) {
       const _studentId = route.params.studentId;
+
+      console.log(_studentId,'_studentId');
+
+
       setStudentId(_studentId);
     }
   }, [route]);

@@ -22,6 +22,7 @@ const StudentOverviewCard = ({
   hideStatsShowOnlyAttendanceAverage,
   attendanceStatusType,
   studentId,
+  subtitle,
 }: {
   fullName?: string;
   level?: string;
@@ -30,6 +31,7 @@ const StudentOverviewCard = ({
   hideStatsShowOnlyAttendanceAverage?: boolean;
   attendanceStatusType?: AttendanceStatusType;
   studentId: number;
+  subtitle?: string;
 }) => {
   const navigation = useNavigation<any>();
 
@@ -51,11 +53,20 @@ const StudentOverviewCard = ({
             text={fullName || "No Name"}
             type={TextFontType.Bold}
           />
-          <DescriptionText
-            text={`${title || ""} ${level} Level`}
-            type={TextFontType.Bold}
-            customClassName="normal-case"
-          />
+          {(level || title) && (
+            <DescriptionText
+              text={`${title || ""} ${level} Level`}
+              type={TextFontType.Bold}
+              customClassName="normal-case"
+            />
+          )}
+          {subtitle && (
+            <DescriptionText
+              text={`${subtitle}`}
+              type={TextFontType.Bold}
+              customClassName="normal-case"
+            />
+          )}
         </View>
       </View>
       {hideStatsShowOnlyAttendanceStat && attendanceStatusType ? (

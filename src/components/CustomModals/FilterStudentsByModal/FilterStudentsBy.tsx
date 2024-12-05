@@ -1,12 +1,40 @@
 import { View, Text } from "react-native";
-import React from "react";
+import React, { useContext } from "react";
 import { BodyText } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
 import {
   FilterContentMoreItem,
   FilterContentRadioItem,
 } from "@/src/components/UI/FilterContentItem/FilterContentItem";
-import { AttendanceStatusType } from "@/src/shared";
+import { AttendanceStatusType, ModalProp } from "@/src/shared";
+import Modal from "../../UI/Modal";
+import { FilterModalContext } from "@/src/contexts/modals.context";
+
+const FilterStudentsByModal = () => {
+  const {
+    filterStudentsByLevelModalRef,
+    filterStudentsByModalRef,
+    filterStudentsByPercentageModalRef,
+  } = useContext(FilterModalContext);
+
+  return (
+    <Modal
+      ref={filterStudentsByModalRef}
+      onCancel={() => filterStudentsByModalRef.current?.setVisible(false)}
+    >
+      <FilterStudentsBy
+        onPercentagePress={() => {
+          filterStudentsByPercentageModalRef.current?.setVisible(true);
+          filterStudentsByModalRef.current?.setVisible(false);
+        }}
+        onLevelPress={() => {
+          filterStudentsByLevelModalRef.current?.setVisible(true);
+          filterStudentsByModalRef.current?.setVisible(false);
+        }}
+      />
+    </Modal>
+  );
+};
 
 const FilterStudentsBy = ({
   onPercentagePress,
@@ -34,4 +62,4 @@ const FilterStudentsBy = ({
   );
 };
 
-export default FilterStudentsBy;
+export default FilterStudentsByModal;

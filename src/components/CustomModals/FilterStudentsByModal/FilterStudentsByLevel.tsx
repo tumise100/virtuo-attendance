@@ -1,5 +1,5 @@
 import { View, Text } from "react-native";
-import React from "react";
+import React, { useContext } from "react";
 import { BodyText } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
 import {
@@ -7,7 +7,24 @@ import {
   FilterContentMoreItem,
   FilterContentRadioItem,
 } from "@/src/components/UI/FilterContentItem/FilterContentItem";
-import { AttendanceStatusType } from "@/src/shared";
+import { AttendanceStatusType, ModalProp } from "@/src/shared";
+import Modal from "../../UI/Modal";
+import { FilterModalContext } from "@/src/contexts/modals.context";
+
+const FilterStudentsByLevelModal = () => {
+  const { filterStudentsByLevelModalRef } = useContext(FilterModalContext);
+
+  return (
+    <Modal
+      ref={filterStudentsByLevelModalRef}
+      onCancel={() => {
+        filterStudentsByLevelModalRef.current?.setVisible(false);
+      }}
+    >
+      <FilterStudentsByLevel />
+    </Modal>
+  );
+};
 
 const FilterStudentsByLevel = () => {
   return (
@@ -24,4 +41,4 @@ const FilterStudentsByLevel = () => {
   );
 };
 
-export default FilterStudentsByLevel;
+export default FilterStudentsByLevelModal;
