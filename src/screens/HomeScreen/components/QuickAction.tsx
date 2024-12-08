@@ -28,7 +28,7 @@ const QuickAction = () => {
         customClassName="mb-2"
       />
       <>
-        {handleUserType("SECONDARY", navigation).map((outerArr) => (
+        {handleUserType("SECONDARY", navigation).map((outerArr, _outer) => (
           <View className="flex-row justify-between items-center mb-3">
             {outerArr.map((item, _) => (
               <QuickActionCard
@@ -36,39 +36,11 @@ const QuickAction = () => {
                 title={item.title}
                 subtitle={item.subtitle}
                 colorType={item.colorType}
-                key={_}
+                key={item.title}
               />
             ))}
           </View>
         ))}
-
-        {/* <View className="flex-row justify-between items-center">
-          <QuickActionCard
-            onPress={() => navigation.navigate("AllCourseScreen")}
-            title={isSecondaryInstructor ? "Classes" : "Courses"}
-            subtitle="List of courses you take and attendance list"
-            colorType="danger"
-          />
-          <QuickActionCard
-            title="Students"
-            subtitle="List of student taking your course"
-            colorType="warning"
-            onPress={() => navigation.navigate("AllStudentScreen")}
-          />
-        </View>
-        <View className="flex-row justify-between items-center mt-4">
-          <QuickActionCard
-            title="Profile"
-            onPress={() => navigation.navigate("ProfileScreen")}
-            subtitle="Update your profile and sessions"
-            colorType="info"
-          />
-          <QuickActionCard
-            title="Mark Sheet"
-            subtitle="Export mark sheets of students"
-            colorType="success"
-          />
-        </View> */}
       </>
     </View>
   );
@@ -98,7 +70,7 @@ const handleUserType = (type: string, navigation: DrawerNavigatorProp) => {
           {
             title: "Classes",
             subtitle: "Manage classes and students",
-            onPress: () => navigation.navigate(""),
+            onPress: () => navigation.navigate("AllClassScreen"),
             colorType: "info",
           },
           // {

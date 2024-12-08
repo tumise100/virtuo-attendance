@@ -1,11 +1,27 @@
-import { Text, TouchableOpacity, View } from "react-native";
-import { Ionicons, Entypo } from "@expo/vector-icons";
-import { COLORS } from "@/src/theme/colors";
 import { EAttendanceHistoryCardStatus } from "@/src/contracts";
+import { IStudentAttendanceHeader } from "@/src/contracts/attendance";
+import { COLORS } from "@/src/theme/colors";
+import { Entypo, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import moment from "moment";
+import { Text, TouchableOpacity, View } from "react-native";
 
-export const AttendanceHistoryCard = () => {
+export const AttendanceHistoryCard = ({
+  item,
+  avgPercentage,
+  noPresent,
+  noAbsent,
+  morningAttendance,
+  afternoonAttendance,
+}: {
+  item: IStudentAttendanceHeader;
+  avgPercentage?: string;
+  noPresent?: string;
+  noAbsent?: string;
+  morningAttendance?: boolean;
+  afternoonAttendance?: boolean;
+}) => {
   const navigation = useNavigation<StackNavigationProp<any>>();
 
   return (
@@ -21,17 +37,25 @@ export const AttendanceHistoryCard = () => {
       <View className="flex-row items-center justify-between flex-1 ml-2">
         <View>
           <Text className="text-white font-normal mb-2">
-            Monday, 16th March, 2024
+            {moment(item.createdAt).format("dddd, Do MMMM, YYYY")}
+            {/* Monday, 16th March, 2024 */}
           </Text>
-          <Text className="text-white text-[12px]">Morning Attendance</Text>
+          <Text className="text-white text-[12px]">
+            {morningAttendance ? "Morning" : afternoonAttendance && "Afternoon"}{" "}
+            Attendance
+          </Text>
         </View>
         <View>
-          <Text className="text-white text-[13px]">90% Avg</Text>
+          {avgPercentage && (
+            <Text className="text-white text-[13px]">90% Avg</Text>
+          )}
           <View className="flex-row items-center justify-between mt-2">
-            <AttendanceHistoryCardStatus />
-            <AttendanceHistoryCardStatus
-              status={EAttendanceHistoryCardStatus.ABSENT}
-            />
+            {noPresent && <AttendanceHistoryCardStatus />}
+            {noAbsent && (
+              <AttendanceHistoryCardStatus
+                status={EAttendanceHistoryCardStatus.ABSENT}
+              />
+            )}
           </View>
         </View>
       </View>
@@ -57,5 +81,43 @@ const AttendanceHistoryCardStatus = ({
       </Text>
       <Text className="text-[9px] text-white ml-[3px]">120</Text>
     </View>
+  );
+};
+
+export const AttendanceHistoryButton = ({
+  title,
+  leftText,
+  customClassName,
+  titleClassName,
+  leftTextClassName,
+  onPress,
+}: {
+  title: string;
+  leftText?: string;
+  customClassName?: string;
+  titleClassName?: string;
+  leftTextClassName?: string;
+  onPress?: () => void;
+}) => {
+  const navigation = useNavigation<StackNavigationProp<any>>();
+
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      className={`bg-info-200 p-3 rounded-md flex-row items-center justify-between mb-3 ${customClassName}`}
+    >
+      <View className="flex-row items-center">
+        <View className="bg-white p-2 rounded-full">
+          <Ionicons name="trophy" size={18} color={COLORS.primary[400]} />
+        </View>
+        <Text className={`ml-3 font-medium ${titleClassName}`}>{title}</Text>
+      </View>
+
+      {leftText ? (
+        <Text className={`${leftTextClassName}`}>{leftText}</Text>
+      ) : (
+        <Entypo name="chevron-thin-right" size={20} />
+      )}
+    </TouchableOpacity>
   );
 };

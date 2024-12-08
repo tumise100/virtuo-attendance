@@ -7,8 +7,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { ModalProp } from "@/src/shared";
 
 const InputWithFilter = ({
+  placeHolder,
   filterModalRef,
 }: {
+  placeHolder?: string;
   filterModalRef: React.RefObject<ModalProp>;
 }) => {
   return (
@@ -25,7 +27,7 @@ const InputWithFilter = ({
             )}
           />
         }
-        placeholder="Search for student"
+        placeholder={placeHolder || "Search for student"}
       />
       <TouchableOpacity
         onPress={() => filterModalRef.current?.setVisible(true)}

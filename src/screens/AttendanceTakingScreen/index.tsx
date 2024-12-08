@@ -1,40 +1,38 @@
-import {
-  View,
-  Text,
-  StatusBar,
-  Image,
-  ScrollView,
-  BackHandler,
-} from "react-native";
-import React, { useCallback, useEffect, useRef, useState } from "react";
 import PhoneWithCardImg from "@/assets/images/phonewithcard.png";
-import { COLORS } from "@/src/theme/colors";
-import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
-import {
-  HeadingsSemibold24,
-  SubheadingSemibold18,
-} from "@/src/theme/typography";
-import { BodyRegular } from "@/src/theme/typography/BodyText";
-import { TextFontType } from "@/src/theme/typography/typography";
-import { DescriptionText } from "@/src/theme/typography/OtherText";
-import { H5Text } from "@/src/theme/typography/HeaderText";
 import { CustomButton } from "@/src/components/UI/Buttons";
+import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
+import LoadingComponent from "@/src/components/UI/LoadingComponent";
+import { StudentAttendanceMarked } from "@/src/components/UI/StudentOverviewCard";
+import { showToast } from "@/src/components/UI/showToast";
+import { IClassBase } from "@/src/contracts/course";
+import { MarkAttendance } from "@/src/services/courses";
 import {
   ModalProp,
   StackNavigationProps,
   StudentAttendance,
 } from "@/src/shared";
+import { COLORS } from "@/src/theme/colors";
+import {
+  HeadingsSemibold24,
+  SubheadingSemibold18,
+} from "@/src/theme/typography";
+import { BodyRegular } from "@/src/theme/typography/BodyText";
+import { H5Text } from "@/src/theme/typography/HeaderText";
+import { DescriptionText } from "@/src/theme/typography/OtherText";
+import { TextFontType } from "@/src/theme/typography/typography";
+import moment from "moment";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  BackHandler,
+  Image,
+  ScrollView,
+  StatusBar,
+  Text,
+  View,
+} from "react-native";
 import NfcManager, { Ndef, NfcEvents, NfcTech } from "react-native-nfc-manager";
-import { StudentAttendanceMarked } from "@/src/components/UI/StudentOverviewCard";
-import { showToast } from "@/src/components/UI/showToast";
 import NfcAttendanceTakingNotSupported from "./NfcAttendanceTakingNotSupported";
 import DeleteClassModal from "./components/DeleteClassModal";
-import { CreateNewClass, MarkAttendance } from "@/src/services/courses";
-import moment from "moment";
-import LoadingComponent, {
-  TextLoading,
-} from "@/src/components/UI/LoadingComponent";
-import { IClassBase } from "@/src/contracts/course";
 
 const AttendanceTakingScreen = ({
   navigation,
@@ -147,10 +145,15 @@ const AttendanceTakingScreen = ({
     await NfcManager.registerTagEvent();
   };
 
+  const disableTagReading = async () => {
+    await NfcManager.unregisterTagEvent();
+  };
+
   useEffect(() => {
+    NfcManager.setEventListener(NfcEvents.DiscoverTag, handleTagReading);
+    // NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
     return () => {
-      NfcManager.setEventListener(NfcEvents.DiscoverTag, handleTagReading);
-      // NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
+      NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
     };
   }, [currentStudentAttendance, studentAttendance]);
 

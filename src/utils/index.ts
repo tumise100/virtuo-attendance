@@ -31,3 +31,8 @@ export const convertLevelStringToNumber = (level: ELevel) => {
       return "500";
   }
 };
+
+export const extractStudentId = (url: string): number | null => {
+  const match = url.match(/\/(\d+);?$/);
+  return match ? parseInt(match[1], 10) : null;
+};

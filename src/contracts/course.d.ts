@@ -183,3 +183,19 @@ export interface ICourseViewDetail extends ICourseBase {
   students: ICourseViewDetailStudent[];
   classes: ICourseViewDetailClass[];
 }
+
+export interface ISecondaryClass {
+  class: {
+    createdAt: string;
+    deletedAt: null;
+    id: number;
+    name: string;
+    updatedAt: string;
+  };
+  classId: number;
+  createdAt: string;
+  deletedAt: null;
+  id: number;
+  schoolId: 4;
+  updatedAt: string;
+}

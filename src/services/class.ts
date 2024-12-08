@@ -12,3 +12,13 @@ export async function CreatNewClass(input: {
     method: HttpMethod.POST,
   });
 }
+
+export async function GetClassesOfSecondarySchool({
+  schoolId,
+}: {
+  schoolId: number;
+}) {
+  return FetchClient({
+    endpoint: `/school/all-school-class/${schoolId}`,
+  });
+}

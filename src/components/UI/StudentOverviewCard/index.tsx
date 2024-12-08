@@ -23,12 +23,14 @@ const StudentOverviewCard = ({
   attendanceStatusType,
   studentId,
   subtitle,
+  hideTextStats,
 }: {
   fullName?: string;
   level?: string;
   title?: string;
   hideStatsShowOnlyAttendanceStat?: boolean;
   hideStatsShowOnlyAttendanceAverage?: boolean;
+  hideTextStats?: boolean;
   attendanceStatusType?: AttendanceStatusType;
   studentId: number;
   subtitle?: string;
@@ -77,8 +79,8 @@ const StudentOverviewCard = ({
         />
       ) : hideStatsShowOnlyAttendanceAverage && attendanceStatusType ? (
         <BodyRegular
-          // text="90% Avg."
-          text=""
+          text="90% Avg."
+          // text=""
           type={TextFontType.Medium}
           customClassName={`mb-1 ${
             attendanceStatusType === AttendanceStatusType.PRESENT
@@ -86,7 +88,7 @@ const StudentOverviewCard = ({
               : "text-danger-600"
           }`}
         />
-      ) : (
+      ) : hideTextStats ? null : (
         <View className="">
           <BodyRegular
             text="90% Avg."

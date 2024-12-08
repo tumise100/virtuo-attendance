@@ -1,35 +1,36 @@
 import {
-  View,
-  Text,
-  StatusBar,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { COLORS } from "@/src/theme/colors";
-import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
-import { SubheadingSemibold18 } from "@/src/theme/typography";
-import InputWithFilter from "@/src/components/UI/InputWithFilter";
-import {
-  AttendanceStatusType,
-  ModalProp,
-  StackNavigationProps,
-  StudentAttendance,
-} from "@/src/shared";
-import StudentOverviewCard from "@/src/components/UI/StudentOverviewCard";
-import { BodyText } from "@/src/theme/typography/BodyText";
-import { TextFontType } from "@/src/theme/typography/typography";
-import FloatingButton from "@/src/components/UI/Buttons/FloatingButton";
-import Modal from "@/src/components/UI/Modal";
-import { combineStore } from "@/src/store";
-import { GetMyStudents, GetTeacherStudents } from "@/src/services/student";
-import LoadingComponent from "@/src/components/UI/LoadingComponent";
-import { IStudentItem } from "@/src/contracts/student";
-import { convertLevelStringToNumber } from "@/src/utils";
-import { FilterModalContext } from "@/src/contexts/modals.context";
-import { AttendanceHistoryButton } from "../AttendanceHistoryScreen/components";
+    View,
+    Text,
+    StatusBar,
+    ScrollView,
+    TouchableOpacity,
+  } from "react-native";
+  import React, { useContext, useEffect, useRef, useState } from "react";
+  import { COLORS } from "@/src/theme/colors";
+  import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
+  import { SubheadingSemibold18 } from "@/src/theme/typography";
+  import InputWithFilter from "@/src/components/UI/InputWithFilter";
+  import {
+    AttendanceStatusType,
+    ModalProp,
+    StackNavigationProps,
+    StudentAttendance,
+  } from "@/src/shared";
+  import StudentOverviewCard from "@/src/components/UI/StudentOverviewCard";
+  import { BodyText } from "@/src/theme/typography/BodyText";
+  import { TextFontType } from "@/src/theme/typography/typography";
+  import FloatingButton from "@/src/components/UI/Buttons/FloatingButton";
+  import Modal from "@/src/components/UI/Modal";
+  import { combineStore } from "@/src/store";
+  import { GetMyStudents, GetTeacherStudents } from "@/src/services/student";
+  import LoadingComponent from "@/src/components/UI/LoadingComponent";
+  import { IStudentItem } from "@/src/contracts/student";
+  import { convertLevelStringToNumber } from "@/src/utils";
+  import { FilterModalContext } from "@/src/contexts/modals.context";
+  import { AttendanceHistoryButton } from "../AttendanceHistoryScreen/components";
 
-const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
+
+const AllTeacherScreen = ({ navigation, route }: StackNavigationProps) => {
   const [allStudents, setAllStudents] = useState<IStudentItem[] | null>(null);
   const [loading, setLoading] = useState(false);
   const { user } = combineStore();
@@ -97,16 +98,16 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
       />
       <View className="flex-row items-center ">
         <BackBtn />
-        <SubheadingSemibold18 text="Students" customClassName="ml-5" />
+        <SubheadingSemibold18 text="Teachers" customClassName="ml-5" />
       </View>
-      <InputWithFilter filterModalRef={filterStudentsByModalRef} />
+      <InputWithFilter placeHolder="Search for teachers" filterModalRef={filterStudentsByModalRef} />
       <View className="flex-1">
         <AttendanceHistoryButton
           title="Attendance history"
           onPress={() => navigation.navigate("AttendanceHistoryScreen")}
         />
         <View className="flex-row justify-between items-center">
-          <BodyText text="Students" type={TextFontType.Bold} />
+          <BodyText text="Teachers" type={TextFontType.Bold} />
           <BodyText
             text={`${allStudents.length || 0}`}
             type={TextFontType.Bold}
@@ -118,7 +119,7 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
               <StudentOverviewCard
                 hideStatsShowOnlyAttendanceAverage={true}
                 hideStatsShowOnlyAttendanceStat={true}
-                hideTextStats={true}
+                attendanceStatusType={AttendanceStatusType.PRESENT}
                 key={student.id}
                 fullName={`${student.student.student.firstName} ${student.student.student.lastName}`}
                 // title={`${student.courseId}`}
@@ -147,4 +148,4 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
   );
 };
 
-export default AllStudentScreen;
+export default AllTeacherScreen;
