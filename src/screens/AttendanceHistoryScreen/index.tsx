@@ -6,10 +6,15 @@ import { SubheadingSemibold18 } from "@/src/theme/typography";
 import AttendanceCard from "@/src/components/UI/AttendanceCard";
 import { AttendanceHistoryCard } from "./components";
 import FloatingButton from "@/src/components/UI/Buttons/FloatingButton";
-import { GetSecondaryStudentAttedance } from "@/src/services/attendance";
+import {
+  GetSecondaryStudentAttedance,
+  GetSecondaryTeacherAttendance,
+} from "@/src/services/attendance";
 import { IStudentAttendanceHeader } from "@/src/contracts/attendance";
 import LoadingComponent from "@/src/components/UI/LoadingComponent";
 import { StackNavigationProps } from "@/src/shared";
+import { combineStore } from "@/src/store";
+import moment from "moment";
 
 const AttendanceHistoryScreen = ({ navigation }: StackNavigationProps) => {
   const [attendanceHistory, setAttendanceHistory] = useState<
@@ -17,13 +22,27 @@ const AttendanceHistoryScreen = ({ navigation }: StackNavigationProps) => {
   >(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    handleFetchAttendanceHistory();
-  }, []);
+  const { user } = combineStore();
+  const isSecondaryInstructor =
+    user?.accounts[0].lecturer?.lecturerType === "SECONDARY";
+  const isSchool = user?.accounts[0].school?.accountId;
 
-  const handleFetchAttendanceHistory = () => {
+  useEffect(() => {
+    if (isSecondaryInstructor) {
+      handleFetchAttendanceHistory(`${user.accounts[0].id}`);
+    } else if (isSchool) {
+      handleFetchAttendanceHistory(`${user.accounts[0].id}`, true);
+    }
+  }, [user, isSecondaryInstructor, isSchool]);
+
+  const handleFetchAttendanceHistory = (id: string, isSchoolUser?: boolean) => {
+    console.log(id, "lecturerId");
+
     setIsLoading(true);
-    GetSecondaryStudentAttedance()
+    (isSchoolUser
+      ? GetSecondaryTeacherAttendance({ schoolId: id })
+      : GetSecondaryStudentAttedance({ lecturerId: id })
+    )
       .then(({ responseData, responseStatus }) => {
         console.log(JSON.stringify(responseData), "classes of school");
         if (responseData.data) {
@@ -63,7 +82,7 @@ const AttendanceHistoryScreen = ({ navigation }: StackNavigationProps) => {
         <>
           <View className="flex-row justify-between items-center mt-7">
             <AttendanceCard
-              title="Total Students"
+              title={`Total ${isSchool ? "Teacher" : "School"}`}
               subtitle={"740"}
               borderColor="border-primary-500"
             />
@@ -78,36 +97,29 @@ const AttendanceHistoryScreen = ({ navigation }: StackNavigationProps) => {
           {attendanceHistory ? (
             <ScrollView>
               {attendanceHistory.map((item) => {
-                if (item.morningAttendance && item.afternoonAttendance) {
-                  return (
-                    <>
+                if (item.date.split("T")[0] === moment().format("YYYY-MM-D")) {
+                  if (moment().hour() >= 12) {
+                    return (
+                      <View key={item.date}>
+                        <AttendanceHistoryCard item={item} isMorningType />
+                        <AttendanceHistoryCard item={item} isAfternoonType />
+                      </View>
+                    );
+                  } else {
+                    return (
                       <AttendanceHistoryCard
-                        key={item.id}
+                        key={item.date + "3"}
                         item={item}
-                        morningAttendance={item.morningAttendance}
+                        isMorningType
                       />
-                      <AttendanceHistoryCard
-                        key={item.id}
-                        item={item}
-                        afternoonAttendance={item.afternoonAttendance}
-                      />
-                    </>
-                  );
-                } else if (item.morningAttendance) {
+                    );
+                  }
+                } else if (moment(item.date).isBefore()) {
                   return (
-                    <AttendanceHistoryCard
-                      key={item.id}
-                      item={item}
-                      morningAttendance={item.morningAttendance}
-                    />
-                  );
-                } else if (item.afternoonAttendance) {
-                  return (
-                    <AttendanceHistoryCard
-                      key={item.id}
-                      item={item}
-                      afternoonAttendance={item.afternoonAttendance}
-                    />
+                    <View key={item.date}>
+                      <AttendanceHistoryCard item={item} isMorningType />
+                      <AttendanceHistoryCard item={item} isAfternoonType />
+                    </View>
                   );
                 }
               })}
@@ -118,7 +130,7 @@ const AttendanceHistoryScreen = ({ navigation }: StackNavigationProps) => {
           <FloatingButton
             title={"Mark Attendance"}
             onPress={() =>
-              navigation.navigate("SecondaryAttendanceTakingScreen")
+              navigation.navigate("AttendanceTakingForSecondaryScreen")
             }
           />
         </>

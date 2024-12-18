@@ -1,70 +1,53 @@
-import {
-  View,
-  Text,
-  StatusBar,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { View, Text, StatusBar } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { GetAllSchoolTeacher } from "@/src/services/teacher";
+import { combineStore } from "@/src/store";
+import { ILecturerUser } from "@/src/contracts/user";
+import LoadingComponent from "@/src/components/UI/LoadingComponent";
 import { COLORS } from "@/src/theme/colors";
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
 import { SubheadingSemibold18 } from "@/src/theme/typography";
 import InputWithFilter from "@/src/components/UI/InputWithFilter";
-import {
-  AttendanceStatusType,
-  ModalProp,
-  StackNavigationProps,
-  StudentAttendance,
-} from "@/src/shared";
-import StudentOverviewCard from "@/src/components/UI/StudentOverviewCard";
+import { AttendanceHistoryButton } from "../AttendanceHistoryScreen/components";
+import { FilterModalContext } from "@/src/contexts/modals.context";
+import { StackNavigationProps } from "@/src/shared";
 import { BodyText } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
+import { ScrollView } from "react-native";
+import StudentOverviewCard from "@/src/components/UI/StudentOverviewCard";
 import FloatingButton from "@/src/components/UI/Buttons/FloatingButton";
-import Modal from "@/src/components/UI/Modal";
-import { combineStore } from "@/src/store";
-import { GetMyStudents, GetTeacherStudents } from "@/src/services/student";
-import LoadingComponent from "@/src/components/UI/LoadingComponent";
-import { IStudentItem } from "@/src/contracts/student";
-import { convertLevelStringToNumber } from "@/src/utils";
-import { FilterModalContext } from "@/src/contexts/modals.context";
-import { AttendanceHistoryButton } from "../AttendanceHistoryScreen/components";
-import { IStudentUser } from "@/src/contracts/user";
 
-const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
-  // const [allStudents, setAllStudents] = useState<IStudentItem[] | null>(null);
-  const [allStudents, setAllStudents] = useState<IStudentUser[] | null>(null);
+const SecondaryAllTeacherScreen = ({
+  navigation,
+  route,
+}: StackNavigationProps) => {
+  const [allTeachers, setAllTeachers] = useState<ILecturerUser[] | null>(null);
   const [loading, setLoading] = useState(false);
   const { user } = combineStore();
 
   const { filterStudentsByModalRef } = useContext(FilterModalContext);
 
-  const isSecondaryInstructor =
-    user?.accounts[0].lecturer?.lecturerType === "SECONDARY";
-
   useEffect(() => {
-    if (user) {
-      fetchAllMyStudents(user.accounts[0].id);
+    if (user && user.accounts[0].school?.accountId) {
+      fetchAllSchoolTeachers(user.accounts[0].school?.accountId);
       console.log(user.accounts[0].id, "user.accounts[0].id");
     }
   }, [user]);
 
-  const fetchAllMyStudents = async (lecturerId: number) => {
+  const fetchAllSchoolTeachers = async (lecturerId: number) => {
     if (!user) return;
 
     setLoading(true);
-    await (isSecondaryInstructor
-      ? GetTeacherStudents(lecturerId)
-      : GetMyStudents(lecturerId)
-    )
+    GetAllSchoolTeacher(lecturerId)
       .then(({ responseData, responseStatus }) => {
         console.log(
           JSON.stringify(responseData),
           responseStatus,
-          "all teacher students"
+          "all teachers"
         );
         // return;
         if (responseStatus === 200) {
-          setAllStudents(responseData.data);
+          setAllTeachers(responseData.data);
         } else {
           console.log(responseData, "some data 2");
         }
@@ -79,11 +62,12 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
     return (
       <View className="flex-1 px-4 py-7 bg-white">
         <LoadingComponent />
+        <LoadingComponent />
       </View>
     );
   }
 
-  if (!allStudents)
+  if (!allTeachers)
     return (
       <View className="bg-white items-center justify-center flex-1">
         <Text>No Data</Text>
@@ -99,7 +83,7 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
       />
       <View className="flex-row items-center ">
         <BackBtn />
-        <SubheadingSemibold18 text="Students" customClassName="ml-5" />
+        <SubheadingSemibold18 text="Teachers" customClassName="ml-5" />
       </View>
       <InputWithFilter filterModalRef={filterStudentsByModalRef} />
       <View className="flex-1">
@@ -108,15 +92,15 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
           onPress={() => navigation.navigate("AttendanceHistoryScreen")}
         />
         <View className="flex-row justify-between items-center">
-          <BodyText text="Students" type={TextFontType.Bold} />
+          <BodyText text="Teachers" type={TextFontType.Bold} />
           <BodyText
-            text={`${allStudents.length || 0}`}
+            text={`${allTeachers.length || 0}`}
             type={TextFontType.Bold}
           />
         </View>
         <ScrollView className="flex-1 mt-2">
-          {allStudents && allStudents.length ? (
-            allStudents.map((student) => (
+          {allTeachers && allTeachers.length ? (
+            allTeachers.map((student) => (
               <StudentOverviewCard
                 hideStatsShowOnlyAttendanceAverage={true}
                 hideStatsShowOnlyAttendanceStat={true}
@@ -125,28 +109,28 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
                 fullName={`${student.firstName} ${student.lastName}`}
                 // title={`${student.courseId}`}
                 studentId={student.accountId}
-                level={
-                  isSecondaryInstructor
-                    ? ""
-                    : convertLevelStringToNumber(student.level)
-                }
-                subtitle={
-                  isSecondaryInstructor
-                    ? `${student.class?.name} (${student.department?.name})`
-                    : ""
-                }
+                // level={
+                //   isSecondaryInstructor
+                //     ? ""
+                //     : convertLevelStringToNumber(student.level)
+                // }
+                // subtitle={
+                //   isSecondaryInstructor
+                //     ? `${student.class?.name} (${student.department?.name})`
+                //     : ""
+                // }
               />
             ))
           ) : (
-            <Text>No Student</Text>
+            <Text>No Teacher</Text>
           )}
 
           <View className="h-20" />
         </ScrollView>
       </View>
-      <FloatingButton title={"Export Student"} />
+      <FloatingButton title={"Export Teacher"} />
     </View>
   );
 };
 
-export default AllStudentScreen;
+export default SecondaryAllTeacherScreen;

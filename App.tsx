@@ -15,7 +15,6 @@ export default function App() {
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="AuthNavigator" component={AuthNavigator} />
           <Stack.Screen name="BaseNavigator" component={BaseNavigator} />
-          {/* <Stack.Screen name="NfcScreen" component={NfcScreen} /> */}
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>

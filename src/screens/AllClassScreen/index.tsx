@@ -1,6 +1,7 @@
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
 import LoadingComponent from "@/src/components/UI/LoadingComponent";
 import { ISecondaryClass } from "@/src/contracts/course";
+import { AccountType } from "@/src/contracts/user.d";
 import { GetClassesOfSecondarySchool } from "@/src/services/class";
 import { StackNavigationProps, StackNavigatorProp } from "@/src/shared";
 import { combineStore } from "@/src/store";
@@ -26,10 +27,16 @@ const AllClassScreen = ({ navigation }: StackNavigationProps) => {
 
   useEffect(() => {
     const isSecondaryInstructor =
-      user?.accounts[0].lecturer.lecturerType === "SECONDARY";
-    if (isSecondaryInstructor) {
+      user?.accounts[0].lecturer?.lecturerType === "SECONDARY";
+    const isSchool = user?.accounts[0].type === AccountType.SCHOOL;
+
+    if (isSecondaryInstructor && user.accounts[0].lecturer) {
       handleFetchClassesOfSecondarySchool({
         schoolId: user.accounts[0].lecturer.schoolId,
+      });
+    } else if (isSchool && user.accounts[0].school) {
+      handleFetchClassesOfSecondarySchool({
+        schoolId: user.accounts[0].school.accountId,
       });
     }
   }, [user]);
@@ -42,7 +49,7 @@ const AllClassScreen = ({ navigation }: StackNavigationProps) => {
     setIsLoading(true);
     GetClassesOfSecondarySchool({ schoolId })
       .then(({ responseData, responseStatus }) => {
-        console.log(JSON.stringify(responseData), "classes of school");
+        // console.log(JSON.stringify(responseData), "classes of school");
         if (responseData.data) {
           const secondaryClasses = responseData.data;
           setSchoolClasses(secondaryClasses);
@@ -79,7 +86,11 @@ const AllClassScreen = ({ navigation }: StackNavigationProps) => {
             <ClassItem
               classItem={classItem}
               key={classItem.classId}
-              onPress={() => navigation.navigate("SecondaryClassDetailScreen")}
+              onPress={() =>
+                navigation.navigate("SecondaryClassDetailScreen", {
+                  classItem,
+                })
+              }
             />
           ))}
         </ScrollView>

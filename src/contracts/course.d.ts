@@ -199,3 +199,10 @@ export interface ISecondaryClass {
   schoolId: 4;
   updatedAt: string;
 }
+
+export interface ISecondaryClassDetailAttendance {
+  teacherSex: string[];
+  teacherLastName: string[];
+  classNames: string[];
+  attendance: { date: string }[];
+}

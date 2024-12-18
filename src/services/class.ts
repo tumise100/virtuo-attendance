@@ -22,3 +22,15 @@ export async function GetClassesOfSecondarySchool({
     endpoint: `/school/all-school-class/${schoolId}`,
   });
 }
+
+export async function GetClassDetailOfSecondarySchool({
+  schoolId,
+  classId,
+}: {
+  schoolId: number;
+  classId: number;
+}) {
+  return FetchClient({
+    endpoint: `/students-attendance/class-attendance/${classId}/${schoolId}`,
+  });
+}

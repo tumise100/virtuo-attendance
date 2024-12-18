@@ -25,9 +25,13 @@ const AllCourseScreen = ({ navigation }: StackNavigationProps) => {
     }
   }, [user]);
 
-  const fetchAllMyCourses = async (courseId: number) => {
+  const fetchAllMyCourses = async (lecturerId: number) => {
+
+    console.log(lecturerId,'lecturerId');
+
+
     setLoading(true);
-    await GetMyCourses(courseId)
+    await GetMyCourses(lecturerId)
       .then(({ responseData, responseStatus }) => {
         console.log(responseData, responseStatus, "all courses");
         if (responseStatus === 200) {

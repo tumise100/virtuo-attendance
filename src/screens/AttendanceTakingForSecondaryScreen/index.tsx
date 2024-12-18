@@ -26,7 +26,7 @@ import { MarkSecondaryStudentAttedance } from "@/src/services/attendance";
 import { showToast } from "@/src/components/UI/showToast";
 import { extractStudentId } from "@/src/utils";
 
-const SecondaryAttendanceTakingScreen = () => {
+const AttendanceTakingForSecondaryScreen = () => {
   const [loadingMarkingAttendance, setLoadingMarkingAttendance] =
     useState(false);
 
@@ -112,8 +112,9 @@ const SecondaryAttendanceTakingScreen = () => {
       MarkSecondaryStudentAttedance(studentId)
         .then(({ responseData, responseStatus }) => {
           console.log(responseData);
-          if (responseData.data) {
-          } else {
+          if (responseData.accountId) {
+            showToast("Attendance marked");
+          } else if (!responseData.success) {
             showToast(responseData.message);
           }
         })
@@ -184,21 +185,21 @@ const SecondaryAttendanceTakingScreen = () => {
         </View>
         <View className="my-6">
           {/* <StudentAttendanceMarked
-              name={currentStudentAttendance.name}
-              matric_no={currentStudentAttendance.matric_no}
-              level={currentStudentAttendance.level}
-              course={currentStudentAttendance.course}
-              id={currentStudentAttendance.id}
-            /> */}
+                name={currentStudentAttendance.name}
+                matric_no={currentStudentAttendance.matric_no}
+                level={currentStudentAttendance.level}
+                course={currentStudentAttendance.course}
+                id={currentStudentAttendance.id}
+              /> */}
           {/* <HeadingsSemibold24 text="Thank you" customClassName="text-center" /> */}
           {/* <CustomButton
-            title={`Done. Upload to server`}
-            customClassName="my-5"
-          /> */}
+              title={`Done. Upload to server`}
+              customClassName="my-5"
+            /> */}
         </View>
       </View>
     </ScrollView>
   );
 };
 
-export default SecondaryAttendanceTakingScreen;
+export default AttendanceTakingForSecondaryScreen;

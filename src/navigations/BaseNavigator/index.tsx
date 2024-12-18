@@ -27,7 +27,9 @@ import FilterStudentsByLevelModal from "@/src/components/CustomModals/FilterStud
 import WriteStudentInfoTagScreen from "@/src/screens/WriteStudentInfoTagScreen";
 import AllClassScreen from "../../screens/AllClassScreen";
 import SecondaryClassDetailScreen from "@/src/screens/SecondaryClassDetailScreen";
-import SecondaryAttendanceTakingScreen from "@/src/screens/SecondaryAttendanceTakingScreen";
+import AttendanceTakingForSecondaryScreen from "@/src/screens/AttendanceTakingForSecondaryScreen";
+import SecondaryStudentAttendanceViewScreen from "@/src/screens/SecondaryStudentAttendanceViewScreen";
+import SecondaryAllTeacherScreen from "@/src/screens/SecondaryAllTeacherScreen";
 
 const BaseNavigator = () => {
   const Stack = createStackNavigator();
@@ -82,8 +84,16 @@ const BaseNavigator = () => {
           component={SecondaryClassDetailScreen}
         />
         <Stack.Screen
-          name="SecondaryAttendanceTakingScreen"
-          component={SecondaryAttendanceTakingScreen}
+          name="AttendanceTakingForSecondaryScreen"
+          component={AttendanceTakingForSecondaryScreen}
+        />
+        <Stack.Screen
+          name="SecondaryStudentAttendanceViewScreen"
+          component={SecondaryStudentAttendanceViewScreen}
+        />
+        <Stack.Screen
+          name="SecondaryAllTeacherScreen"
+          component={SecondaryAllTeacherScreen}
         />
       </Stack.Navigator>
       <FilterStudentsByLevelModal />

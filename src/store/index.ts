@@ -1,15 +1,15 @@
 import { create, StateCreator } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ILecturer } from "../contracts/user";
+import { IUser } from "../contracts/user";
 
 interface UserToken {
   token: string | null;
   updateUserToken: (t: string) => void;
 }
 interface UserSlice {
-  user: ILecturer | null;
-  updateUser: (u: ILecturer) => void;
+  user: IUser | null;
+  updateUser: (u: IUser) => void;
 }
 
 export const createUserToken: StateCreator<UserToken> = (set, get) => ({

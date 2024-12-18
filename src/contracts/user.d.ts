@@ -1,16 +1,86 @@
 import { ELevel, ICourseWithClasses } from "./course";
 
-enum AccountType {
+export enum AccountType {
   STUDENT = AccountType.STUDENT,
   ADMIN = "ADMIN",
   LECTURER = "LECTURER",
   BUSINESS_OWNER = "BUSINESS_OWNER",
+  SCHOOL = "SCHOOL",
 }
 
 enum Sex {
   MALE = "MALE",
   FEMALE = "FEMALE",
   BINARY = "BINARY",
+}
+
+interface AdminUser {
+  accountType: AccountType.ADMIN;
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
+interface COURSE {
+  title: string;
+  code: string;
+  level: ELevel;
+}
+
+export interface IUser {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: any;
+  firstName: string;
+  lastName: string;
+  email: string;
+  isFirstLogin: false;
+  lastLogin: string;
+  isActivated: true;
+  isTermsAccepted: false;
+  // accounts: IAccount<AccountType.LECTURER>[];
+  accounts: IAccount[];
+}
+
+interface IAccount {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: null;
+  type: AccountType;
+  identityCode: string;
+  business_owner: null;
+  admin: null;
+  school?: ISchoolUser;
+  lecturer?: ILecturerUser;
+  student?: IStudentUser[];
+}
+
+interface ILecturerUser {
+  accountId: number;
+  lastName: string;
+  firstName: string;
+  position: string;
+  dateOfBirth: string;
+  stateOfOrigin: string;
+  localGovernment: string;
+  sex: string;
+  bio: null;
+  phone: string;
+  email: string;
+
+  classTeacher: boolean;
+  className: string;
+  passport: string;
+
+  lecturerType: string;
+  facultyId: number;
+  departmentId: number;
+  schoolId: number;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: null;
 }
 
 interface IStudentUser {
@@ -70,78 +140,24 @@ interface IStudentUser {
   };
 }
 
-interface AdminUser {
-  accountType: AccountType.ADMIN;
-  email: string;
-  firstName: string;
-  lastName: string;
-}
-
-interface ILecturerUser {
+interface ISchoolUser {
   accountId: number;
-  lastName: string;
-  firstName: string;
-  position: string;
-  dateOfBirth: string;
-  stateOfOrigin: string;
-  localGovernment: string;
-  sex: string;
-  bio: null;
-  phone: string;
-  email: string;
-  lecturerType: string;
-  facultyId: number;
-  departmentId: number;
-  schoolId: number;
+  address: string;
+  bio: string;
   createdAt: string;
-  updatedAt: string;
   deletedAt: null;
-}
-
-interface COURSE {
-  title: string;
-  code: string;
-  level: ELevel;
-}
-
-interface IAccount<T> {
-  id: number;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: null;
-  type: T;
-  identityCode: string;
-  admin: null;
-  school: null;
-  lecturer: ILecturerUser;
-  student?: IStudentUser[];
-}
-// interface IAccount<T> {
-//   id: number;
-//   type: T;
-//   admin: any;
-//   business_owner: any;
-//   createdAt: string;
-//   deletedAt: any;
-//   identityCode: string;
-//   lecturer: ILecturerUser[];
-//   school?: any;
-//   student?: IStudentUser[];
-//   updatedAt: string;
-// }
-export interface ILecturer {
-  id: number;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: any;
-  firstName: string;
-  lastName: string;
   email: string;
-  isFirstLogin: false;
-  lastLogin: string;
-  isActivated: true;
-  isTermsAccepted: false;
-  accounts: IAccount<AccountType.LECTURER>[];
+  logo: null;
+  name: string;
+  ownerFirstName: string;
+  ownerLastName: string;
+  phoneNumber: string;
+  regCode: string;
+  schoolType: string;
+  state: string;
+  status: boolean;
+  updatedAt: string;
+  yearOfEstablishment: number;
 }
 
 export interface IStudent {

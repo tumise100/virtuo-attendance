@@ -12,47 +12,93 @@ export const AttendanceHistoryCard = ({
   avgPercentage,
   noPresent,
   noAbsent,
-  morningAttendance,
-  afternoonAttendance,
+  isMorningType,
+  isAfternoonType,
+  attended,
+  alt,
+  showAttendanceStatus,
 }: {
   item: IStudentAttendanceHeader;
   avgPercentage?: string;
   noPresent?: string;
   noAbsent?: string;
-  morningAttendance?: boolean;
-  afternoonAttendance?: boolean;
+  isMorningType?: boolean;
+  isAfternoonType?: boolean;
+  attended?: boolean;
+  alt?: boolean;
+  showAttendanceStatus?: boolean;
 }) => {
   const navigation = useNavigation<StackNavigationProp<any>>();
 
   return (
     <TouchableOpacity
-      onPress={() => navigation.navigate("AttendanceHistoryDetailScreen")}
-      className="bg-info-500 flex-row items-center p-3 mb-3 rounded-md"
+      onPress={() =>
+        navigation.navigate("AttendanceHistoryDetailScreen", {
+          date: item.date,
+          attendancePeriod: isMorningType
+            ? "Morning"
+            : isAfternoonType
+            ? "Afternoon"
+            : "None",
+          // attendancePeriod: morningAttendance
+          //   ? "Morning"
+          //   : afternoonAttendance
+          //   ? "Afternoon"
+          //   : "None",
+        })
+      }
+      // className="bg-info-500 flex-row items-center p-3 mb-3 rounded-md"
+      className={`${
+        alt ? "bg-white" : "bg-info-500"
+      } flex-row items-center p-3 mb-3 rounded-md ${alt && 'border border-gray-300' }`}
     >
       <View>
-        <View className="bg-white p-2 rounded-full">
-          <Ionicons name="trophy" size={18} color={COLORS.primary[400]} />
+        <View
+          className={`${alt ? "bg-info-500" : "bg-white"} p-2 rounded-full`}
+        >
+          <Ionicons
+            name="trophy"
+            size={18}
+            color={alt ? COLORS.white : COLORS.primary[400]}
+          />
         </View>
       </View>
       <View className="flex-row items-center justify-between flex-1 ml-2">
         <View>
-          <Text className="text-white font-normal mb-2">
-            {moment(item.createdAt).format("dddd, Do MMMM, YYYY")}
+          <Text
+            className={`${alt ? "text-black" : "text-white"} font-normal mb-2`}
+          >
+            {moment(item.date).format("dddd, Do MMMM, YYYY")}
             {/* Monday, 16th March, 2024 */}
           </Text>
-          <Text className="text-white text-[12px]">
-            {morningAttendance ? "Morning" : afternoonAttendance && "Afternoon"}{" "}
+          <Text className={`${alt ? "text-black" : "text-white"} text-[12px]`}>
+            {isMorningType ? "Morning" : isAfternoonType && "Afternoon"}{" "}
             Attendance
           </Text>
         </View>
         <View>
           {avgPercentage && (
-            <Text className="text-white text-[13px]">90% Avg</Text>
+            <Text
+              className={`${alt ? "text-black" : "text-white"} text-[13px]`}
+            >
+              90% Avg
+            </Text>
+          )}
+          {showAttendanceStatus && (
+            <View className="flex-row items-center justify-between mt-2">
+              {attended ? (
+                <AttendanceHistoryCardStatus />
+              ) : (
+                <AttendanceHistoryCardStatus
+                  status={EAttendanceHistoryCardStatus.ABSENT}
+                />
+              )}
+            </View>
           )}
           <View className="flex-row items-center justify-between mt-2">
-            {noPresent && <AttendanceHistoryCardStatus />}
+            {noPresent && <AttendanceHistoryCardStatusWithNumbers />}
             {noAbsent && (
-              <AttendanceHistoryCardStatus
+              <AttendanceHistoryCardStatusWithNumbers
                 status={EAttendanceHistoryCardStatus.ABSENT}
               />
             )}
@@ -63,7 +109,7 @@ export const AttendanceHistoryCard = ({
   );
 };
 
-const AttendanceHistoryCardStatus = ({
+const AttendanceHistoryCardStatusWithNumbers = ({
   status = EAttendanceHistoryCardStatus.PRESENT,
 }: {
   status?: EAttendanceHistoryCardStatus;
@@ -119,5 +165,25 @@ export const AttendanceHistoryButton = ({
         <Entypo name="chevron-thin-right" size={20} />
       )}
     </TouchableOpacity>
+  );
+};
+
+const AttendanceHistoryCardStatus = ({
+  status = EAttendanceHistoryCardStatus.PRESENT,
+}: {
+  status?: EAttendanceHistoryCardStatus;
+}) => {
+  const isPresent = status === EAttendanceHistoryCardStatus.PRESENT;
+
+  return (
+    <View className="flex-row items-center mr-1">
+      <Text
+        className={`text-[9px] py-[3px] px-[6px] text-white rounded-full ${
+          isPresent ? "bg-success-700" : "bg-danger-500"
+        }`}
+      >
+        {isPresent ? "P" : "A"}
+      </Text>
+    </View>
   );
 };

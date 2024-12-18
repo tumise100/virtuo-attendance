@@ -19,8 +19,6 @@ import TopStudents from "./components/TopStudents";
 import { Text } from "react-native";
 import LoadingComponent from "@/src/components/UI/LoadingComponent";
 
-// "name": "virtuo-mobile-app"
-
 const HomeScreen = ({
   navigation,
 }: {
@@ -49,7 +47,7 @@ const HomeScreen = ({
           console.log(responseData, "responseData");
           showToast(responseData.message);
         } else if (responseData.accounts) {
-          getLecturerRecentClasses(responseData.accounts[0].id);
+          // getLecturerRecentClasses(responseData.accounts[0].id);
           updateUser(responseData);
         }
       })

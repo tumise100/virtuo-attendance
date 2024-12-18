@@ -8,6 +8,8 @@ import { DrawerNavigatorProp } from "@/src/shared";
 import { combineStore } from "@/src/store";
 import { NoUserDataComponent } from "@/src/components/UI/NoData";
 
+type TUserType = "SECONDARY" | "ADMIN" | "TERTIARY" | "SCHOOL";
+
 const QuickAction = () => {
   const navigation = useNavigation<DrawerNavigatorProp>();
 
@@ -15,10 +17,10 @@ const QuickAction = () => {
 
   if (!user) return <NoUserDataComponent />;
 
-  const isSecondaryInstructor =
-    user.accounts[0].lecturer.lecturerType === "SECONDARY";
+  // const isSecondaryInstructor =
+  //   user.accounts[0].lecturer.lecturerType === "SECONDARY";
 
-  // console.log(user.accounts[0].lecturer.lecturerType, "user");
+  console.log(user.accounts[0], "user");
 
   return (
     <View className="mt-3">
@@ -28,8 +30,19 @@ const QuickAction = () => {
         customClassName="mb-2"
       />
       <>
-        {handleUserType("SECONDARY", navigation).map((outerArr, _outer) => (
-          <View className="flex-row justify-between items-center mb-3">
+        {/* {handleUserType("SECONDARY", navigation).map((outerArr, _outer) => ( */}
+        {handleUserType(
+          (user.accounts[0].lecturer?.lecturerType as TUserType) ||
+            (user.accounts[0].type as TUserType),
+          // user.accounts[0].lecturer
+          //   ? (user.accounts[0].lecturer.lecturerType as TUserType)
+          //   : "ADMIN",
+          navigation
+        ).map((outerArr, _outer) => (
+          <View
+            className="flex-row justify-between items-center mb-3"
+            key={_outer}
+          >
             {outerArr.map((item, _) => (
               <QuickActionCard
                 onPress={item.onPress}
@@ -48,7 +61,7 @@ const QuickAction = () => {
 
 export default QuickAction;
 
-const handleUserType = (type: string, navigation: DrawerNavigatorProp) => {
+const handleUserType = (type: TUserType, navigation: DrawerNavigatorProp) => {
   switch (type) {
     case "SECONDARY":
       const secondaryInstructorsActions = [
@@ -83,7 +96,7 @@ const handleUserType = (type: string, navigation: DrawerNavigatorProp) => {
       ];
       return secondaryInstructorsActions;
 
-    case "Admin":
+    case "SCHOOL":
       const adminInstructorActions = [
         [
           {
@@ -95,7 +108,7 @@ const handleUserType = (type: string, navigation: DrawerNavigatorProp) => {
           {
             title: "Teachers",
             subtitle: "Manage and mark teachers attendance",
-            onPress: () => navigation.navigate(""),
+            onPress: () => navigation.navigate("SecondaryAllTeacherScreen"),
             colorType: "danger",
           },
         ],
@@ -103,7 +116,7 @@ const handleUserType = (type: string, navigation: DrawerNavigatorProp) => {
           {
             title: "Classes",
             subtitle: "Manage classes and students",
-            onPress: () => navigation.navigate(""),
+            onPress: () => navigation.navigate("AllClassScreen"),
             colorType: "info",
           },
           {
@@ -116,7 +129,7 @@ const handleUserType = (type: string, navigation: DrawerNavigatorProp) => {
       ];
       return adminInstructorActions;
 
-    default:
+    case "TERTIARY":
       const institutionInstructorsActions = [
         [
           {
@@ -148,5 +161,38 @@ const handleUserType = (type: string, navigation: DrawerNavigatorProp) => {
         ],
       ];
       return institutionInstructorsActions;
+
+    default:
+      const defaultInstitutionInstructorsActions = [
+        [
+          {
+            title: "Courses",
+            subtitle: "List of courses you take and attendance list",
+            onPress: () => navigation.navigate("AllCourseScreen"),
+            colorType: "danger",
+          },
+          {
+            title: "Students",
+            subtitle: "List of student taking your course",
+            onPress: () => navigation.navigate("AllStudentScreen"),
+            colorType: "warning",
+          },
+        ],
+        [
+          {
+            title: "Profile",
+            subtitle: "Manage classes and students",
+            onPress: () => navigation.navigate("ProfileScreen"),
+            colorType: "info",
+          },
+          {
+            title: "Mark Sheet",
+            subtitle: "Export mark sheets of students",
+            onPress: () => navigation.navigate(""),
+            colorType: "success",
+          },
+        ],
+      ];
+      return defaultInstitutionInstructorsActions;
   }
 };

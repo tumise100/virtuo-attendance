@@ -46,3 +46,8 @@ export default async function FetchClient({
     throw error;
   }
 }
+
+// contact.sunnyschool@example.com
+// james.doe@example.com
+// samuel.williams@example.com
+// p: password

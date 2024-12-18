@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { COLORS } from "@/src/theme/colors";
 import { useNavigation } from "@react-navigation/native";
 import CustomAvatar from "../CustomAvatar";
+import { combineStore } from "@/src/store";
 
 const StudentOverviewCard = ({
   fullName,
@@ -35,11 +36,23 @@ const StudentOverviewCard = ({
   studentId: number;
   subtitle?: string;
 }) => {
+  const { user } = combineStore();
+
+  const isSecondaryInstructor =
+    user?.accounts[0].lecturer?.lecturerType === "SECONDARY";
+
   const navigation = useNavigation<any>();
 
   return (
     <TouchableOpacity
-      onPress={() => navigation.navigate("StudentViewScreen", { studentId })}
+      onPress={() =>
+        navigation.navigate(
+          isSecondaryInstructor
+            ? "SecondaryStudentAttendanceViewScreen"
+            : "StudentViewScreen",
+          { studentId }
+        )
+      }
       className="flex-row items-center justify-between mb-3 rounded-md border border-borderColor p-3"
     >
       <View className="flex-row items-center">
