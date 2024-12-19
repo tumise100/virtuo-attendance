@@ -14,7 +14,13 @@ import { SubheadingSemibold18 } from "@/src/theme/typography";
 import { BodyText } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
 import React, { useEffect, useState } from "react";
-import { ScrollView, StatusBar, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StatusBar,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { AttendanceHistoryCard } from "../AttendanceHistoryScreen/components";
 import { Feather } from "@expo/vector-icons";
 
@@ -102,7 +108,11 @@ const SecondaryStudentAttendanceViewScreen = ({
           }
           className="p-1 ml-auto rounded-md border border-neutral-300"
         >
-          <Feather name="check" size={19} />
+          {loadingMarkingAttendance ? (
+            <ActivityIndicator size={"small"} color={COLORS.black} />
+          ) : (
+            <Feather name="check" size={19} />
+          )}
         </TouchableOpacity>
       </View>
       <View className="flex-row justify-between items-center mt-7">
