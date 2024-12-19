@@ -82,7 +82,7 @@ const AttendanceHistoryScreen = ({ navigation }: StackNavigationProps) => {
         <>
           <View className="flex-row justify-between items-center mt-7">
             <AttendanceCard
-              title={`Total ${isSchool ? "Teacher" : "School"}`}
+              title={`Total ${isSchool ? "Teacher" : "Student"}`}
               subtitle={"740"}
               borderColor="border-primary-500"
             />

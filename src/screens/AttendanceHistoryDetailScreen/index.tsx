@@ -41,11 +41,10 @@ const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
 
   const isSecondaryInstructor =
     user?.accounts[0].lecturer?.lecturerType === "SECONDARY";
+  const isSchool = user?.accounts[0].school?.accountId;
 
   useEffect(() => {
     if (route && route.params && route.params.date && user) {
-      const isSchool = user?.accounts[0].school?.accountId;
-
       const _date = route.params.date;
       setDate(_date);
       setAttendancePeriod(route.params.attendancePeriod);
@@ -63,7 +62,7 @@ const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
         });
       }
     }
-  }, [route, user, isSecondaryInstructor]);
+  }, [route, user, isSchool, isSecondaryInstructor]);
 
   const handleFetchAttendanceHistoryDetail = ({
     date,

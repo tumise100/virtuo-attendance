@@ -38,7 +38,8 @@ const CourseOverviewCard = ({
             type={TextFontType.Bold}
           />
           <DescriptionText
-            text={`${code || "CMP101"} Tuesday (9AM - 12PM)`}
+            // text={`${code || "CMP101"} Tuesday (9AM - 12PM)`}
+            text={`${code || "Hmm101"}`}
             type={TextFontType.Regular}
             customClassName="normal-case"
           />

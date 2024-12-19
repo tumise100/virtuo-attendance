@@ -26,9 +26,7 @@ const AllCourseScreen = ({ navigation }: StackNavigationProps) => {
   }, [user]);
 
   const fetchAllMyCourses = async (lecturerId: number) => {
-
-    console.log(lecturerId,'lecturerId');
-
+    console.log(lecturerId, "lecturerId");
 
     setLoading(true);
     await GetMyCourses(lecturerId)
@@ -59,7 +57,10 @@ const AllCourseScreen = ({ navigation }: StackNavigationProps) => {
       </View>
       <View className="mt-6">
         {loading ? (
-          <LoadingComponent />
+          <>
+            <LoadingComponent />
+            <LoadingComponent />
+          </>
         ) : allMyCourses && allMyCourses.length ? (
           allMyCourses.map((myCourse) => (
             <CourseOverviewCard

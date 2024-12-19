@@ -25,7 +25,7 @@ function LoadingComponent() {
 
   return (
     <Animated.View style={style}>
-      <View role="status" className="max-w-sm animate-pulse mr-3 mb-2">
+      <View role="status" className="max-w-sm animate-pulse mr-3 mb-3">
         <View className="h-2.5 bg-gray3 rounded-full dark:bg-veryLightBaseColor w-48 mb-4"></View>
         <View className="h-2 bg-gray3 rounded-full dark:bg-veryLightBaseColor max-w-[360px] mb-2.5"></View>
         <View className="h-2 bg-gray3 rounded-full dark:bg-veryLightBaseColor mb-2.5"></View>

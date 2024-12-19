@@ -1,23 +1,30 @@
-import { View, Text, ScrollView, StatusBar } from "react-native";
-import React, { useEffect, useState } from "react";
-import { COLORS } from "@/src/theme/colors";
-import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
-import { SubheadingSemibold18 } from "@/src/theme/typography";
 import AttendanceCard from "@/src/components/UI/AttendanceCard";
+import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
+import LoadingComponent from "@/src/components/UI/LoadingComponent";
+import NoDataComponent from "@/src/components/UI/NoData";
+import { showToast } from "@/src/components/UI/showToast";
+import { ISecondaryStudentAttendanceDetail } from "@/src/contracts/attendance";
+import {
+  GetASingleStudentAttendance,
+  MarkSecondaryStudentAttedance,
+} from "@/src/services/attendance";
+import { StackNavigationProps } from "@/src/shared";
+import { COLORS } from "@/src/theme/colors";
+import { SubheadingSemibold18 } from "@/src/theme/typography";
 import { BodyText } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
-import StudentOverviewCard from "@/src/components/UI/StudentOverviewCard";
+import React, { useEffect, useState } from "react";
+import { ScrollView, StatusBar, TouchableOpacity, View } from "react-native";
 import { AttendanceHistoryCard } from "../AttendanceHistoryScreen/components";
-import { GetASingleStudentAttendance } from "@/src/services/attendance";
-import { StackNavigationProps } from "@/src/shared";
-import LoadingComponent from "@/src/components/UI/LoadingComponent";
-import { ISecondaryStudentAttendanceDetail } from "@/src/contracts/attendance";
-import NoDataComponent from "@/src/components/UI/NoData";
+import { Feather } from "@expo/vector-icons";
 
 const SecondaryStudentAttendanceViewScreen = ({
   route,
 }: StackNavigationProps) => {
   const [loading, setLoading] = useState(false);
+  const [loadingMarkingAttendance, setLoadingMarkingAttendance] =
+    useState(false);
+
   const [studentAttendance, setStudentAttendance] =
     useState<ISecondaryStudentAttendanceDetail | null>(null);
 
@@ -26,6 +33,26 @@ const SecondaryStudentAttendanceViewScreen = ({
       handleFetchStudentAttendance(route.params.studentId);
     }
   }, [route]);
+
+  const handleMarkSecondaryStudentAttendance = (studentId: string) => {
+    setLoadingMarkingAttendance(true);
+    MarkSecondaryStudentAttedance(studentId)
+      .then(({ responseData, responseStatus }) => {
+        console.log(responseData);
+        if (responseData.accountId) {
+          showToast("Student Attendance marked");
+          handleFetchStudentAttendance(studentId);
+        } else if (!responseData.success) {
+          showToast(responseData.message);
+        }
+      })
+      .catch((err) => {
+        console.log(err, "mark secondary student");
+      })
+      .finally(() => {
+        setLoadingMarkingAttendance(false);
+      });
+  };
 
   const handleFetchStudentAttendance = (studentId: string) => {
     setLoading(true);
@@ -62,7 +89,21 @@ const SecondaryStudentAttendanceViewScreen = ({
       />
       <View className="flex-row items-center ">
         <BackBtn />
-        <SubheadingSemibold18 text={`JSS9`} customClassName="ml-5" />
+        <SubheadingSemibold18
+          text={`${studentAttendance.studentData.firstName} ${studentAttendance.studentData.lastName} (${studentAttendance.studentData.class.name})`}
+          customClassName="ml-5"
+        />
+        <TouchableOpacity
+          disabled={loadingMarkingAttendance}
+          onPress={() =>
+            handleMarkSecondaryStudentAttendance(
+              `${studentAttendance.studentData.accountId}`
+            )
+          }
+          className="p-1 ml-auto rounded-md border border-neutral-300"
+        >
+          <Feather name="check" size={19} />
+        </TouchableOpacity>
       </View>
       <View className="flex-row justify-between items-center mt-7">
         <AttendanceCard
@@ -85,7 +126,7 @@ const SecondaryStudentAttendanceViewScreen = ({
         />
         {studentAttendance.attendancedata.map((item) => {
           return (
-            <>
+            <View key={item.id}>
               <AttendanceHistoryCard
                 item={{ date: item.date }}
                 isMorningType={true}
@@ -93,7 +134,7 @@ const SecondaryStudentAttendanceViewScreen = ({
                 key={item.id + "1"}
                 showAttendanceStatus
                 alt
-                />
+              />
               <AttendanceHistoryCard
                 item={{ date: item.date }}
                 isAfternoonType={true}
@@ -102,7 +143,7 @@ const SecondaryStudentAttendanceViewScreen = ({
                 showAttendanceStatus
                 alt
               />
-            </>
+            </View>
           );
         })}
       </View>

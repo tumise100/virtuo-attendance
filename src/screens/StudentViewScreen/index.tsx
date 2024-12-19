@@ -29,6 +29,7 @@ import {
   IClassAttendance,
   ICourseWithClasses,
 } from "@/src/contracts/course";
+import CourseOverviewCard from "@/src/components/UI/CourseOverviewCard";
 
 interface IStudentAttendance extends IClassAttendance {
   startTime: string;
@@ -56,8 +57,7 @@ const StudentViewScreen = ({ navigation, route }: StackNavigationProps) => {
     if (route && route.params && route.params.studentId) {
       const _studentId = route.params.studentId;
 
-      console.log(_studentId,'_studentId');
-
+      console.log(_studentId, "_studentId");
 
       setStudentId(_studentId);
     }
@@ -86,7 +86,7 @@ const StudentViewScreen = ({ navigation, route }: StackNavigationProps) => {
           setStudentAttendance(_attendance);
           setStudentViewDetail(data);
         } else {
-          showToast(responseData.message)
+          showToast(responseData.message);
           // console.log(responseData, "some data 2");
         }
       })
@@ -209,21 +209,26 @@ const StudentViewScreen = ({ navigation, route }: StackNavigationProps) => {
           customClassName="my-4"
         />
         {studentViewDetail.courses.map((course) => (
-          <ClassCardOverview
-            showAttendanceStats={false}
-            key={course.id}
-            courseCode={course.code}
+          // <ClassCardOverview
+          //   showAttendanceStats={false}
+          //   key={course.id}
+          //   courseCode={course.code}
+          //   title={course.title}
+          //   attendanceRate={
+          //     !extractAttendanceRateFromCourse(course).total ||
+          //     !extractAttendanceRateFromCourse(course).present
+          //       ? "0"
+          //       : `${Math.floor(
+          //           (extractAttendanceRateFromCourse(course).present /
+          //             extractAttendanceRateFromCourse(course).total) *
+          //             100
+          //         )}`
+          //   }
+          // />
+          <CourseOverviewCard
+            code={course.code}
             title={course.title}
-            attendanceRate={
-              !extractAttendanceRateFromCourse(course).total ||
-              !extractAttendanceRateFromCourse(course).present
-                ? "0"
-                : `${Math.floor(
-                    (extractAttendanceRateFromCourse(course).present /
-                      extractAttendanceRateFromCourse(course).total) *
-                      100
-                  )}`
-            }
+            key={course.id}
           />
         ))}
       </View>

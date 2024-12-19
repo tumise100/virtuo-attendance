@@ -41,6 +41,11 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
   const isSecondaryInstructor =
     user?.accounts[0].lecturer?.lecturerType === "SECONDARY";
 
+  const isSchoolUser = user?.accounts[0].school?.accountId;
+
+  const isTertiaryInstructor =
+    user?.accounts[0].lecturer?.lecturerType === "TERTIARY";
+
   useEffect(() => {
     if (user) {
       fetchAllMyStudents(user.accounts[0].id);
@@ -64,7 +69,15 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
         );
         // return;
         if (responseStatus === 200) {
-          setAllStudents(responseData.data);
+          if (isTertiaryInstructor) {
+            setAllStudents(
+              responseData.data.map((item: any) => ({
+                ...item.student.student,
+              }))
+            );
+          } else {
+            setAllStudents(responseData.data);
+          }
         } else {
           console.log(responseData, "some data 2");
         }
@@ -78,6 +91,7 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
   if (loading) {
     return (
       <View className="flex-1 px-4 py-7 bg-white">
+        <LoadingComponent />
         <LoadingComponent />
       </View>
     );
@@ -103,10 +117,12 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
       </View>
       <InputWithFilter filterModalRef={filterStudentsByModalRef} />
       <View className="flex-1">
-        <AttendanceHistoryButton
-          title="Attendance history"
-          onPress={() => navigation.navigate("AttendanceHistoryScreen")}
-        />
+        {(isSecondaryInstructor || isSchoolUser) && (
+          <AttendanceHistoryButton
+            title="Attendance history"
+            onPress={() => navigation.navigate("AttendanceHistoryScreen")}
+          />
+        )}
         <View className="flex-row justify-between items-center">
           <BodyText text="Students" type={TextFontType.Bold} />
           <BodyText
