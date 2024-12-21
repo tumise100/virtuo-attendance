@@ -1,4 +1,4 @@
-import { IStudentUser } from "./user";
+import { ILecturerUser, IStudentUser } from "./user";
 
 export interface IStudentAttendanceHeader {
   date: string;
@@ -27,7 +27,7 @@ export interface IAttendanceHistoryDetail {
   createdAt: string;
   updatedAt: string;
   deletedAt: null;
-  student: {
+  student?: {
     id: number;
     createdAt: string;
     updatedAt: string;
@@ -35,6 +35,15 @@ export interface IAttendanceHistoryDetail {
     type: string;
     identityCode: string;
     student: IStudentUser;
+  };
+  lecturer?: {
+    id: number;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: null;
+    type: string;
+    identityCode: string;
+    lecturer: ILecturerUser;
   };
 }
 
@@ -58,6 +67,37 @@ export interface ISecondaryStudentAttendanceDetail {
     createdAt: string;
     updatedAt: string;
     deletedAt: null;
+  }[];
+  totalCount: number;
+  totalPresent: number;
+  totalAbsent: number;
+}
+
+export interface ISecondaryTeacherAttendanceDetail {
+  teacherData: {
+    accountId: number;
+    firstName: string;
+    lastName: string;
+  };
+  data: {
+    entryTime: null;
+    exitTime: string;
+    morningAttendance: boolean;
+    afternoonAttendance: boolean;
+    date: string;
+    accountId: number;
+    id: number;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: null;
+    lecturer: {
+      id: number;
+      createdAt: string;
+      updatedAt: string;
+      deletedAt: null;
+      type: string;
+      identityCode: string;
+    };
   }[];
   totalCount: number;
   totalPresent: number;

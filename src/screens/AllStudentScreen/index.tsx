@@ -1,34 +1,29 @@
-import {
-  View,
-  Text,
-  StatusBar,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { COLORS } from "@/src/theme/colors";
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
-import { SubheadingSemibold18 } from "@/src/theme/typography";
+import FloatingButton from "@/src/components/UI/Buttons/FloatingButton";
 import InputWithFilter from "@/src/components/UI/InputWithFilter";
-import {
-  AttendanceStatusType,
-  ModalProp,
-  StackNavigationProps,
-  StudentAttendance,
-} from "@/src/shared";
+import LoadingComponent from "@/src/components/UI/LoadingComponent";
 import StudentOverviewCard from "@/src/components/UI/StudentOverviewCard";
+import { FilterModalContext } from "@/src/contexts/modals.context";
+import { IStudentUser } from "@/src/contracts/user";
+import { GetSchoolStudents } from "@/src/services/school";
+import { GetMyStudents, GetTeacherStudents } from "@/src/services/student";
+import {
+  StackNavigationProps
+} from "@/src/shared";
+import { combineStore } from "@/src/store";
+import { COLORS } from "@/src/theme/colors";
+import { SubheadingSemibold18 } from "@/src/theme/typography";
 import { BodyText } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
-import FloatingButton from "@/src/components/UI/Buttons/FloatingButton";
-import Modal from "@/src/components/UI/Modal";
-import { combineStore } from "@/src/store";
-import { GetMyStudents, GetTeacherStudents } from "@/src/services/student";
-import LoadingComponent from "@/src/components/UI/LoadingComponent";
-import { IStudentItem } from "@/src/contracts/student";
 import { convertLevelStringToNumber } from "@/src/utils";
-import { FilterModalContext } from "@/src/contexts/modals.context";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  ScrollView,
+  StatusBar,
+  Text,
+  View
+} from "react-native";
 import { AttendanceHistoryButton } from "../AttendanceHistoryScreen/components";
-import { IStudentUser } from "@/src/contracts/user";
 
 const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
   // const [allStudents, setAllStudents] = useState<IStudentItem[] | null>(null);
@@ -53,13 +48,15 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
     }
   }, [user]);
 
-  const fetchAllMyStudents = async (lecturerId: number) => {
+  const fetchAllMyStudents = async (id: number) => {
     if (!user) return;
 
     setLoading(true);
     await (isSecondaryInstructor
-      ? GetTeacherStudents(lecturerId)
-      : GetMyStudents(lecturerId)
+      ? GetTeacherStudents(id)
+      : isTertiaryInstructor
+      ? GetMyStudents(id)
+      : GetSchoolStudents(id)
     )
       .then(({ responseData, responseStatus }) => {
         console.log(

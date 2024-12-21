@@ -37,8 +37,9 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
         <View className="mt-10">
           <Formik
             initialValues={{
-              // email: "mary.johnson@example.com",
-              email: "james.doe@example.com",
+              // email: "james.doe@example.com",
+              // email: "contact.sunnyschool@example.com",
+              email: "samuel.williams@example.com",
               password: "password",
             }}
             onSubmit={(values, form) => {

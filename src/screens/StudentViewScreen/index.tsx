@@ -54,8 +54,8 @@ const StudentViewScreen = ({ navigation, route }: StackNavigationProps) => {
 
   useEffect(() => {
     // console.log(route);
-    if (route && route.params && route.params.studentId) {
-      const _studentId = route.params.studentId;
+    if (route && route.params && route.params.id) {
+      const _studentId = route.params.id;
 
       console.log(_studentId, "_studentId");
 

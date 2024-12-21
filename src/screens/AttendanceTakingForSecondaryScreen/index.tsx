@@ -1,40 +1,47 @@
-import {
-  View,
-  Text,
-  StatusBar,
-  Image,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
-import { COLORS } from "@/src/theme/colors";
+import PhoneWithCardImg from "@/assets/images/phonewithcard.png";
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
+import { showToast } from "@/src/components/UI/showToast";
 import {
-  HeadingsSemibold24,
-  SubheadingSemibold18,
+  MarkSecondaryStudentAttedance,
+  MarkSecondaryTeacherAttedance,
+} from "@/src/services/attendance";
+import { combineStore } from "@/src/store";
+import { COLORS } from "@/src/theme/colors";
+import {
+  SubheadingSemibold18
 } from "@/src/theme/typography";
 import { BodyRegular } from "@/src/theme/typography/BodyText";
-import { TextFontType } from "@/src/theme/typography/typography";
-import { DescriptionText } from "@/src/theme/typography/OtherText";
-import moment from "moment";
 import { H5Text } from "@/src/theme/typography/HeaderText";
-import { CustomButton } from "@/src/components/UI/Buttons";
-import PhoneWithCardImg from "@/assets/images/phonewithcard.png";
-import NfcAttendanceTakingNotSupported from "../AttendanceTakingScreen/NfcAttendanceTakingNotSupported";
-import NfcManager, { Ndef, NfcEvents, NfcTech } from "react-native-nfc-manager";
-import { MarkSecondaryStudentAttedance } from "@/src/services/attendance";
-import { showToast } from "@/src/components/UI/showToast";
+import { DescriptionText } from "@/src/theme/typography/OtherText";
+import { TextFontType } from "@/src/theme/typography/typography";
 import { extractStudentId } from "@/src/utils";
+import moment from "moment";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  StatusBar,
+  View
+} from "react-native";
+import NfcManager, { Ndef, NfcEvents } from "react-native-nfc-manager";
+import NfcAttendanceTakingNotSupported from "../AttendanceTakingScreen/NfcAttendanceTakingNotSupported";
 
 const AttendanceTakingForSecondaryScreen = () => {
   const [loadingMarkingAttendance, setLoadingMarkingAttendance] =
     useState(false);
 
-  const [studentId, setStudentId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const [disableTagReading, setDisableTagReading] = useState(false);
 
   const [hasNfc, setHasNFC] = useState(false);
+
+  const { user } = combineStore();
+
+  const isSecondaryInstructor =
+    user?.accounts[0].lecturer?.lecturerType === "SECONDARY";
+  const isSchool = user?.accounts[0].school?.accountId;
 
   useEffect(() => {
     const checkIsSupported = async () => {
@@ -73,7 +80,7 @@ const AttendanceTakingForSecondaryScreen = () => {
 
   useEffect(() => {
     handleMarkSecondaryAttendance();
-  }, [studentId]);
+  }, [userId]);
 
   const handleTagReading = (tag: any) => {
     console.log(
@@ -87,17 +94,17 @@ const AttendanceTakingForSecondaryScreen = () => {
 
       if (!decodedPayload) return null;
 
-      const studentId = extractStudentId(decodedPayload);
+      const userId = extractStudentId(decodedPayload);
 
-      console.log(studentId, "studentId");
+      console.log(userId, "userId");
 
-      if (!studentId) {
+      if (!userId) {
         throw new Error("Bad ID");
       }
 
-      setStudentId(`${studentId}`);
+      setUserId(`${userId}`);
 
-      console.log(decodedPayload, studentId, "decoded");
+      console.log(decodedPayload, userId, "decoded");
     } catch (error) {
       showToast("Invalid Tag!");
       console.log(error, "error");
@@ -105,11 +112,14 @@ const AttendanceTakingForSecondaryScreen = () => {
   };
 
   const handleMarkSecondaryAttendance = useCallback(() => {
-    if (studentId) {
-      console.log(studentId, "handleMarkSecondaryAttendance");
+    if (userId) {
+      console.log(userId, "handleMarkSecondaryAttendance");
       setDisableTagReading(true);
       setLoadingMarkingAttendance(true);
-      MarkSecondaryStudentAttedance(studentId)
+      (isSchool
+        ? MarkSecondaryTeacherAttedance(userId)
+        : MarkSecondaryStudentAttedance(userId)
+      )
         .then(({ responseData, responseStatus }) => {
           console.log(responseData);
           if (responseData.accountId) {
@@ -122,12 +132,12 @@ const AttendanceTakingForSecondaryScreen = () => {
           console.log(err, "mark secondary student");
         })
         .finally(() => {
-          setStudentId(null);
+          setUserId(null);
           setLoadingMarkingAttendance(false);
           setDisableTagReading(false);
         });
     }
-  }, [studentId]);
+  }, [userId]);
 
   if (!hasNfc) {
     return <NfcAttendanceTakingNotSupported />;

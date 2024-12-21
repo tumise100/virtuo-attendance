@@ -158,21 +158,20 @@ const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
                       : (item += curr.afternoonAttendance ? 0 : 1),
                   0
                 )}`}
-                // subtitle={`${attendanceHistoryDetail.reduce(
-                //   (item, curr) =>
-                //     attendancePeriod === EAttendancePeriod.Morning
-                //       ? (item += curr.afternoonAttendance ? 1 : 0)
-                //       : (item += curr.morningAttendance ? 1 : 0),
-                //   0
-                // )}`}
                 borderColor="border-danger-500"
               />
             </View>
 
-            <InputWithFilter filterModalRef={filterStudentsByModalRef} />
+            <InputWithFilter
+              placeHolder={`Search for ${isSchool ? "Teachers" : "Students"}`}
+              filterModalRef={filterStudentsByModalRef}
+            />
 
             <View className="flex-row justify-between items-center">
-              <BodyText text="Students" type={TextFontType.Bold} />
+              <BodyText
+                text={isSchool ? "Teacher" : "Students"}
+                type={TextFontType.Bold}
+              />
               <BodyText
                 text={`${attendanceHistoryDetail.length}`}
                 type={TextFontType.Bold}
@@ -191,12 +190,24 @@ const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
                       ? AttendanceStatusType.PRESENT
                       : AttendanceStatusType.ABSENT
                   }
-                  fullName={`${item.student.student.firstName} ${item.student.student.lastName}`}
-                  studentId={item.student.id}
+                  fullName={
+                    isSchool && item.lecturer
+                      ? `${item.lecturer.lecturer.firstName} ${item.lecturer.lecturer.lastName}`
+                      : isSecondaryInstructor && item.student
+                      ? `${item.student.student.firstName} ${item.student.student.lastName}`
+                      : ""
+                  }
+                  studentId={item.accountId}
                   // subtitle={"Computer Sci. 100Level"}
                   subtitle={
-                    isSecondaryInstructor
-                      ? `${item.student.student.class?.name} (${item.student.student.department?.name})`
+                    isSchool && item.lecturer
+                      ? `${item.lecturer.lecturer.className || "N/A"} (${
+                          item.lecturer.lecturer.department?.name
+                        })`
+                      : isSecondaryInstructor && item.student
+                      ? `${item.student.student.class?.name || "N/A"} (${
+                          item.student.student.department?.name
+                        })`
                       : ""
                   }
                   key={item.id}

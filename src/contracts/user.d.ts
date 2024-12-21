@@ -81,6 +81,16 @@ interface ILecturerUser {
   createdAt: string;
   updatedAt: string;
   deletedAt: null;
+
+  department?: {
+    name: string;
+    slug: string;
+    facultyId: number;
+    id: number;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: null;
+  };
 }
 
 interface IStudentUser {

@@ -50,8 +50,20 @@ export async function MarkSecondaryStudentAttedance(studentId: string) {
   });
 }
 
+export async function MarkSecondaryTeacherAttedance(teacherId: string) {
+  return FetchClient({
+    endpoint: `/teachers-attendance/record?teacherId=${teacherId}`,
+  });
+}
+
 export async function GetASingleStudentAttendance(id: string) {
   return FetchClient({
     endpoint: `/students-attendance/${id}`,
+  });
+}
+
+export async function GetASingleTeacherAttendance(id: string) {
+  return FetchClient({
+    endpoint: `/teachers-attendance/${id}`,
   });
 }

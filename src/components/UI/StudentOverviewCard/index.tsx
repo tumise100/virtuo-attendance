@@ -41,16 +41,18 @@ const StudentOverviewCard = ({
   const isSecondaryInstructor =
     user?.accounts[0].lecturer?.lecturerType === "SECONDARY";
 
+  const isSchool = user?.accounts[0].school?.accountId;
+
   const navigation = useNavigation<any>();
 
   return (
     <TouchableOpacity
       onPress={() =>
         navigation.navigate(
-          isSecondaryInstructor
+          isSecondaryInstructor || isSchool
             ? "SecondaryStudentAttendanceViewScreen"
             : "StudentViewScreen",
-          { studentId }
+          { id: studentId }
         )
       }
       className="flex-row items-center justify-between mb-3 rounded-md border border-borderColor p-3"

@@ -3,10 +3,15 @@ import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
 import LoadingComponent from "@/src/components/UI/LoadingComponent";
 import NoDataComponent from "@/src/components/UI/NoData";
 import { showToast } from "@/src/components/UI/showToast";
-import { ISecondaryStudentAttendanceDetail } from "@/src/contracts/attendance";
+import {
+  ISecondaryStudentAttendanceDetail,
+  ISecondaryTeacherAttendanceDetail,
+} from "@/src/contracts/attendance";
 import {
   GetASingleStudentAttendance,
+  GetASingleTeacherAttendance,
   MarkSecondaryStudentAttedance,
+  MarkSecondaryTeacherAttedance,
 } from "@/src/services/attendance";
 import { StackNavigationProps } from "@/src/shared";
 import { COLORS } from "@/src/theme/colors";
@@ -23,6 +28,7 @@ import {
 } from "react-native";
 import { AttendanceHistoryCard } from "../AttendanceHistoryScreen/components";
 import { Feather } from "@expo/vector-icons";
+import { combineStore } from "@/src/store";
 
 const SecondaryStudentAttendanceViewScreen = ({
   route,
@@ -33,21 +39,33 @@ const SecondaryStudentAttendanceViewScreen = ({
 
   const [studentAttendance, setStudentAttendance] =
     useState<ISecondaryStudentAttendanceDetail | null>(null);
+  const [teacherAttendance, setTeacherAttendance] =
+    useState<ISecondaryTeacherAttendanceDetail | null>(null);
+
+  const { user } = combineStore();
+
+  const isSecondaryInstructor =
+    user?.accounts[0].lecturer?.lecturerType === "SECONDARY";
+
+  const isSchool = user?.accounts[0].school?.accountId;
 
   useEffect(() => {
-    if (route && route.params && route.params.studentId) {
-      handleFetchStudentAttendance(route.params.studentId);
+    if (route && route.params && route.params.id) {
+      handleFetchStudentAttendance(route.params.id);
     }
   }, [route]);
 
-  const handleMarkSecondaryStudentAttendance = (studentId: string) => {
+  const handleMarkSecondaryStudentAttendance = (id: string) => {
     setLoadingMarkingAttendance(true);
-    MarkSecondaryStudentAttedance(studentId)
+    (isSchool
+      ? MarkSecondaryTeacherAttedance(id)
+      : MarkSecondaryStudentAttedance(id)
+    )
       .then(({ responseData, responseStatus }) => {
         console.log(responseData);
         if (responseData.accountId) {
-          showToast("Student Attendance marked");
-          handleFetchStudentAttendance(studentId);
+          showToast(`${isSchool ? "Teacher" : "Student"} Attendance marked`);
+          handleFetchStudentAttendance(id);
         } else if (!responseData.success) {
           showToast(responseData.message);
         }
@@ -60,12 +78,21 @@ const SecondaryStudentAttendanceViewScreen = ({
       });
   };
 
-  const handleFetchStudentAttendance = (studentId: string) => {
+  const handleFetchStudentAttendance = (id: string) => {
     setLoading(true);
-    GetASingleStudentAttendance(studentId)
+    (isSchool
+      ? GetASingleTeacherAttendance(id)
+      : GetASingleStudentAttendance(id)
+    )
       .then(({ responseData, responseStatus }) => {
-        if (responseData.studentData) {
-          setStudentAttendance(responseData);
+        console.log(responseStatus, "responseStatus");
+
+        if (responseData.totalCount || responseStatus == 200) {
+          if (isSchool) {
+            setTeacherAttendance(responseData);
+          } else {
+            setStudentAttendance(responseData);
+          }
         }
         console.log(responseData, "studnet responseData");
       })
@@ -86,7 +113,8 @@ const SecondaryStudentAttendanceViewScreen = ({
     );
   }
 
-  return studentAttendance ? (
+  // return studentAttendance ? (
+  return studentAttendance || teacherAttendance ? (
     <ScrollView className="flex-1 bg-white px-4 pt-7">
       <StatusBar
         backgroundColor={COLORS.white}
@@ -96,14 +124,24 @@ const SecondaryStudentAttendanceViewScreen = ({
       <View className="flex-row items-center ">
         <BackBtn />
         <SubheadingSemibold18
-          text={`${studentAttendance.studentData.firstName} ${studentAttendance.studentData.lastName} (${studentAttendance.studentData.class.name})`}
+          text={
+            studentAttendance
+              ? `${studentAttendance.studentData.firstName} ${studentAttendance.studentData.lastName} (${studentAttendance.studentData.class.name})`
+              : teacherAttendance
+              ? `${teacherAttendance.teacherData.firstName} ${teacherAttendance.teacherData.lastName}`
+              : ""
+          }
           customClassName="ml-5"
         />
         <TouchableOpacity
           disabled={loadingMarkingAttendance}
           onPress={() =>
             handleMarkSecondaryStudentAttendance(
-              `${studentAttendance.studentData.accountId}`
+              `${
+                isSchool
+                  ? teacherAttendance?.teacherData.accountId
+                  : studentAttendance?.studentData.accountId
+              }`
             )
           }
           className="p-1 ml-auto rounded-md border border-neutral-300"
@@ -118,12 +156,18 @@ const SecondaryStudentAttendanceViewScreen = ({
       <View className="flex-row justify-between items-center mt-7">
         <AttendanceCard
           title="Presents"
-          subtitle={`${studentAttendance.totalPresent}`}
+          subtitle={`${
+            studentAttendance
+              ? studentAttendance.totalPresent
+              : teacherAttendance?.totalPresent
+          }`}
           borderColor="border-success-500"
         />
         <AttendanceCard
           title="Absents"
-          subtitle={`${studentAttendance.totalAbsent}`}
+          subtitle={`${
+            studentAttendance?.totalAbsent || teacherAttendance?.totalAbsent
+          }`}
           borderColor="border-danger-500"
         />
       </View>
@@ -134,28 +178,52 @@ const SecondaryStudentAttendanceViewScreen = ({
           type={TextFontType.Bold}
           customClassName="my-4"
         />
-        {studentAttendance.attendancedata.map((item) => {
-          return (
-            <View key={item.id}>
-              <AttendanceHistoryCard
-                item={{ date: item.date }}
-                isMorningType={true}
-                attended={item.morningAttendance}
-                key={item.id + "1"}
-                showAttendanceStatus
-                alt
-              />
-              <AttendanceHistoryCard
-                item={{ date: item.date }}
-                isAfternoonType={true}
-                attended={item.afternoonAttendance}
-                key={item.id + "2"}
-                showAttendanceStatus
-                alt
-              />
-            </View>
-          );
-        })}
+        {studentAttendance
+          ? studentAttendance.attendancedata.map((item) => {
+              return (
+                <View key={item.id}>
+                  <AttendanceHistoryCard
+                    item={{ date: item.date }}
+                    isMorningType={true}
+                    attended={item.morningAttendance}
+                    key={item.id + "1"}
+                    showAttendanceStatus
+                    alt
+                  />
+                  <AttendanceHistoryCard
+                    item={{ date: item.date }}
+                    isAfternoonType={true}
+                    attended={item.afternoonAttendance}
+                    key={item.id + "2"}
+                    showAttendanceStatus
+                    alt
+                  />
+                </View>
+              );
+            })
+          : teacherAttendance &&
+            teacherAttendance.data.map((item) => {
+              return (
+                <View key={item.id}>
+                  <AttendanceHistoryCard
+                    item={{ date: item.date }}
+                    isMorningType={true}
+                    attended={item.morningAttendance}
+                    key={item.id + "1"}
+                    showAttendanceStatus
+                    alt
+                  />
+                  <AttendanceHistoryCard
+                    item={{ date: item.date }}
+                    isAfternoonType={true}
+                    attended={item.afternoonAttendance}
+                    key={item.id + "2"}
+                    showAttendanceStatus
+                    alt
+                  />
+                </View>
+              );
+            })}
       </View>
       <View className="h-20" />
     </ScrollView>

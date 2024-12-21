@@ -23,6 +23,8 @@ const ProfileScreen = () => {
 
   if (!user) return <NoUserDataComponent />;
 
+  const isSchoolUser = user?.accounts[0].school?.accountId;
+
   return (
     <ScrollView className="flex-1 bg-white px-4 pt-7">
       <StatusBar
@@ -52,7 +54,13 @@ const ProfileScreen = () => {
       <View className="mt-6">
         <ProfileScreenItem title={`${user?.firstName} ${user?.lastName}`} />
         <ProfileScreenItem
-          title={user.accounts[0].lecturer.position}
+          title={
+            user.accounts[0].lecturer?.position || isSchoolUser
+              ? `${user.accounts[0].school?.schoolType} ${
+                  user.accounts[0].type as string
+                }`
+              : (user.accounts[0].type as string)
+          }
           customTextClassName="uppercase"
           hideArrowIcon
         />
