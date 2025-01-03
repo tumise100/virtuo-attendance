@@ -98,8 +98,32 @@ const AttendanceHistoryHeaderForInstructorScreen = ({
                   if (moment().hour() >= 12) {
                     return (
                       <View key={item.date}>
-                        <AttendanceHistoryCard item={item} isMorningType />
-                        <AttendanceHistoryCard item={item} isAfternoonType />
+                        <AttendanceHistoryCard
+                          item={item}
+                          isMorningType
+                          onPress={() => {
+                            navigation.navigate(
+                              "AttendanceHistoryDetailForInstructorScreen",
+                              {
+                                date: item.date,
+                                attendancePeriod: "Morning",
+                              }
+                            );
+                          }}
+                        />
+                        <AttendanceHistoryCard
+                          item={item}
+                          isAfternoonType
+                          onPress={() => {
+                            navigation.navigate(
+                              "AttendanceHistoryDetailForInstructorScreen",
+                              {
+                                date: item.date,
+                                attendancePeriod: "Afternoon",
+                              }
+                            );
+                          }}
+                        />
                       </View>
                     );
                   } else {
@@ -108,14 +132,47 @@ const AttendanceHistoryHeaderForInstructorScreen = ({
                         key={item.date + "3"}
                         item={item}
                         isMorningType
+                        onPress={() => {
+                          navigation.navigate(
+                            "AttendanceHistoryDetailForInstructorScreen",
+                            {
+                              date: item.date,
+                              attendancePeriod: "Morning",
+                            }
+                          );
+                        }}
                       />
                     );
                   }
                 } else if (moment(item.date).isBefore()) {
                   return (
                     <View key={item.date}>
-                      <AttendanceHistoryCard item={item} isMorningType />
-                      <AttendanceHistoryCard item={item} isAfternoonType />
+                      <AttendanceHistoryCard
+                        item={item}
+                        isMorningType
+                        onPress={() => {
+                          navigation.navigate(
+                            "AttendanceHistoryDetailForInstructorScreen",
+                            {
+                              date: item.date,
+                              attendancePeriod: "Morning",
+                            }
+                          );
+                        }}
+                      />
+                      <AttendanceHistoryCard
+                        item={item}
+                        isAfternoonType
+                        onPress={() => {
+                          navigation.navigate(
+                            "AttendanceHistoryDetailForInstructorScreen",
+                            {
+                              date: item.date,
+                              attendancePeriod: "Afternoon",
+                            }
+                          );
+                        }}
+                      />
                     </View>
                   );
                 }

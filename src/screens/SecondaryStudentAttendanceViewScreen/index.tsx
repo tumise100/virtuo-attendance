@@ -160,7 +160,7 @@ const SecondaryStudentAttendanceViewScreen = ({
           customClassName="my-4"
         />
         {studentAttendance &&
-          studentAttendance.attendancedata.map((item) => {
+          studentAttendance.attendancedata.reverse().map((item) => {
             return (
               <View key={item.id}>
                 <AttendanceHistoryCard

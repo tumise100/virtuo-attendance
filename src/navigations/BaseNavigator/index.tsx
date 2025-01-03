@@ -32,6 +32,7 @@ import SecondaryStudentAttendanceViewScreen from "@/src/screens/SecondaryStudent
 import SecondaryAllTeacherScreen from "@/src/screens/SecondaryAllTeacherScreen";
 import InstructorAttendanceViewScreen from "@/src/screens/InstructorAttendanceViewScreen";
 import AttendanceHistoryHeaderForInstructorScreen from "@/src/screens/AttendanceHistoryHeaderForInstructorScreen";
+import AttendanceHistoryDetailForInstructorScreen from "@/src/screens/AttendanceHistoryDetailForInstructorScreen";
 
 const BaseNavigator = () => {
   const Stack = createStackNavigator();
@@ -104,6 +105,10 @@ const BaseNavigator = () => {
         <Stack.Screen
           name="AttendanceHistoryHeaderForInstructorScreen"
           component={AttendanceHistoryHeaderForInstructorScreen}
+        />
+        <Stack.Screen
+          name="AttendanceHistoryDetailForInstructorScreen"
+          component={AttendanceHistoryDetailForInstructorScreen}
         />
       </Stack.Navigator>
       <FilterStudentsByLevelModal />

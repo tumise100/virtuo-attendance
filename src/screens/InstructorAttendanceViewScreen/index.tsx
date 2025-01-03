@@ -31,7 +31,10 @@ import { AttendanceHistoryCard } from "../AttendanceHistoryScreen/components";
 import { Feather } from "@expo/vector-icons";
 import { combineStore } from "@/src/store";
 
-const InstructorAttendanceViewScreen = ({ route }: StackNavigationProps) => {
+const InstructorAttendanceViewScreen = ({
+  route,
+  navigation,
+}: StackNavigationProps) => {
   const [loading, setLoading] = useState(false);
   const [loadingMarkingAttendance, setLoadingMarkingAttendance] =
     useState(false);
@@ -147,7 +150,7 @@ const InstructorAttendanceViewScreen = ({ route }: StackNavigationProps) => {
           customClassName="my-4"
         />
         {teacherAttendance &&
-          teacherAttendance.data.map((item) => {
+          teacherAttendance.data.reverse().map((item) => {
             return (
               <View key={item.id}>
                 <AttendanceHistoryCard
@@ -157,6 +160,15 @@ const InstructorAttendanceViewScreen = ({ route }: StackNavigationProps) => {
                   key={item.id + "1"}
                   showAttendanceStatus
                   alt
+                  onPress={() => {
+                    navigation.navigate(
+                      "AttendanceHistoryDetailForInstructorScreen",
+                      {
+                        date: item.date,
+                        attendancePeriod: "Morning",
+                      }
+                    );
+                  }}
                 />
                 <AttendanceHistoryCard
                   item={{ date: item.date }}
@@ -165,6 +177,15 @@ const InstructorAttendanceViewScreen = ({ route }: StackNavigationProps) => {
                   key={item.id + "2"}
                   showAttendanceStatus
                   alt
+                  onPress={() => {
+                    navigation.navigate(
+                      "AttendanceHistoryDetailForInstructorScreen",
+                      {
+                        date: item.date,
+                        attendancePeriod: "Afternoon",
+                      }
+                    );
+                  }}
                 />
               </View>
             );

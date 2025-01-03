@@ -89,7 +89,8 @@ const SecondaryAllTeacherScreen = ({
       <View className="flex-1">
         <AttendanceHistoryButton
           title="Attendance history"
-          onPress={() => navigation.navigate("AttendanceHistoryScreen")}
+          // onPress={() => navigation.navigate("AttendanceHistoryScreen")}
+          onPress={() => navigation.navigate("AttendanceHistoryHeaderForInstructorScreen")}
         />
         <View className="flex-row justify-between items-center">
           <BodyText text="Teachers" type={TextFontType.Bold} />

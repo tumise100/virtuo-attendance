@@ -1,5 +1,6 @@
 import { EAttendanceHistoryCardStatus } from "@/src/contracts";
 import { IStudentAttendanceHeader } from "@/src/contracts/attendance";
+import { combineStore } from "@/src/store";
 import { COLORS } from "@/src/theme/colors";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -17,6 +18,7 @@ export const AttendanceHistoryCard = ({
   attended,
   alt,
   showAttendanceStatus,
+  onPress,
 }: {
   item: IStudentAttendanceHeader;
   avgPercentage?: string;
@@ -27,30 +29,42 @@ export const AttendanceHistoryCard = ({
   attended?: boolean;
   alt?: boolean;
   showAttendanceStatus?: boolean;
+
+  onPress?: () => void;
 }) => {
   const navigation = useNavigation<StackNavigationProp<any>>();
 
+  const { user } = combineStore();
+
+  const isSecondaryInstructor =
+    user?.accounts[0].lecturer?.lecturerType === "SECONDARY";
+  const isSchool = user?.accounts[0].school?.accountId;
+
   return (
     <TouchableOpacity
-      onPress={() =>
-        navigation.navigate("AttendanceHistoryDetailScreen", {
-          date: item.date,
-          attendancePeriod: isMorningType
-            ? "Morning"
-            : isAfternoonType
-            ? "Afternoon"
-            : "None",
-          // attendancePeriod: morningAttendance
-          //   ? "Morning"
-          //   : afternoonAttendance
-          //   ? "Afternoon"
-          //   : "None",
-        })
-      }
+      onPress={() => {
+        onPress
+          ? onPress()
+          : navigation.navigate(
+              // isSchool
+              //   ? "AttendanceHistoryDetailForInstructorScreen"
+              "AttendanceHistoryDetailScreen",
+              {
+                date: item.date,
+                attendancePeriod: isMorningType
+                  ? "Morning"
+                  : isAfternoonType
+                  ? "Afternoon"
+                  : "None",
+              }
+            );
+      }}
       // className="bg-info-500 flex-row items-center p-3 mb-3 rounded-md"
       className={`${
         alt ? "bg-white" : "bg-info-500"
-      } flex-row items-center p-3 mb-3 rounded-md ${alt && 'border border-gray-300' }`}
+      } flex-row items-center p-3 mb-3 rounded-md ${
+        alt && "border border-gray-300"
+      }`}
     >
       <View>
         <View

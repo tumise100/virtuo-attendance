@@ -17,7 +17,7 @@ export const NoUserDataComponent = () => {
   const navigation = useNavigation<any>();
 
   useEffect(() => {
-    showToast("No User Data!");
+    // showToast("No User Data!");
     // return navigation.replace("AuthNavigator");
   }, []);
 
