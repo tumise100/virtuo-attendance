@@ -25,6 +25,7 @@ const StudentOverviewCard = ({
   studentId,
   subtitle,
   hideTextStats,
+  onPress,
 }: {
   fullName?: string;
   level?: string;
@@ -35,6 +36,7 @@ const StudentOverviewCard = ({
   attendanceStatusType?: AttendanceStatusType;
   studentId: number;
   subtitle?: string;
+  onPress?: () => void;
 }) => {
   const { user } = combineStore();
 
@@ -47,14 +49,16 @@ const StudentOverviewCard = ({
 
   return (
     <TouchableOpacity
-      onPress={() =>
-        navigation.navigate(
-          isSecondaryInstructor || isSchool
-            ? "SecondaryStudentAttendanceViewScreen"
-            : "StudentViewScreen",
-          { id: studentId }
-        )
-      }
+      onPress={() => {
+        onPress
+          ? onPress()
+          : navigation.navigate(
+              isSecondaryInstructor || isSchool
+                ? "SecondaryStudentAttendanceViewScreen"
+                : "StudentViewScreen",
+              { id: studentId }
+            );
+      }}
       className="flex-row items-center justify-between mb-3 rounded-md border border-borderColor p-3"
     >
       <View className="flex-row items-center">

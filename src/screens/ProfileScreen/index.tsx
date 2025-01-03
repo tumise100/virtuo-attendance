@@ -55,12 +55,23 @@ const ProfileScreen = () => {
         <ProfileScreenItem title={`${user?.firstName} ${user?.lastName}`} />
         <ProfileScreenItem
           title={
-            user.accounts[0].lecturer?.position || isSchoolUser
+            isSchoolUser
               ? `${user.accounts[0].school?.schoolType} ${
+                  user.accounts[0].type as string
+                }`
+              : user.accounts[0].lecturer?.position
+              ? `${user.accounts[0].lecturer.lecturerType} ${
                   user.accounts[0].type as string
                 }`
               : (user.accounts[0].type as string)
           }
+          // title={
+          //   user.accounts[0].lecturer?.position || isSchoolUser
+          //     ? `${user.accounts[0].school?.schoolType} ${
+          //         user.accounts[0].type as string
+          //       }`
+          //     : (user.accounts[0].type as string)
+          // }
           customTextClassName="uppercase"
           hideArrowIcon
         />

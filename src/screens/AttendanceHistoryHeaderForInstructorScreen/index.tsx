@@ -4,7 +4,6 @@ import { COLORS } from "@/src/theme/colors";
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
 import { SubheadingSemibold18 } from "@/src/theme/typography";
 import AttendanceCard from "@/src/components/UI/AttendanceCard";
-import { AttendanceHistoryCard } from "./components";
 import FloatingButton from "@/src/components/UI/Buttons/FloatingButton";
 import {
   GetSecondaryStudentAttedance,
@@ -15,8 +14,11 @@ import LoadingComponent from "@/src/components/UI/LoadingComponent";
 import { StackNavigationProps } from "@/src/shared";
 import { combineStore } from "@/src/store";
 import moment from "moment";
+import { AttendanceHistoryCard } from "../AttendanceHistoryScreen/components";
 
-const AttendanceHistoryScreen = ({ navigation }: StackNavigationProps) => {
+const AttendanceHistoryHeaderForInstructorScreen = ({
+  navigation,
+}: StackNavigationProps) => {
   const [attendanceHistory, setAttendanceHistory] = useState<
     IStudentAttendanceHeader[] | null
   >(null);
@@ -29,15 +31,15 @@ const AttendanceHistoryScreen = ({ navigation }: StackNavigationProps) => {
 
   useEffect(() => {
     if (user) {
-      handleFetchAttendanceHistory(`${user.accounts[0].id}`);
+      handleFetchInstructorAttendanceHistory(`${user.accounts[0].id}`);
     }
   }, [user, isSecondaryInstructor, isSchool]);
 
-  const handleFetchAttendanceHistory = (id: string) => {
+  const handleFetchInstructorAttendanceHistory = (id: string) => {
     console.log(id, "lecturerId");
 
     setIsLoading(true);
-    GetSecondaryStudentAttedance({ lecturerId: id })
+    GetSecondaryTeacherAttendance({ schoolId: id })
       .then(({ responseData, responseStatus }) => {
         console.log(JSON.stringify(responseData), "classes of school");
         if (responseData.data) {
@@ -77,7 +79,7 @@ const AttendanceHistoryScreen = ({ navigation }: StackNavigationProps) => {
         <>
           <View className="flex-row justify-between items-center mt-7">
             <AttendanceCard
-              title={`Total Student`}
+              title={`Total Teacher`}
               subtitle={"740"}
               borderColor="border-primary-500"
             />
@@ -134,4 +136,4 @@ const AttendanceHistoryScreen = ({ navigation }: StackNavigationProps) => {
   );
 };
 
-export default AttendanceHistoryScreen;
+export default AttendanceHistoryHeaderForInstructorScreen;

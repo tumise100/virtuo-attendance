@@ -28,16 +28,21 @@ const AttendanceHistoryScreen = ({ navigation }: StackNavigationProps) => {
   const isSchool = user?.accounts[0].school?.accountId;
 
   useEffect(() => {
-    if (user) {
+    if (isSecondaryInstructor) {
       handleFetchAttendanceHistory(`${user.accounts[0].id}`);
+    } else if (isSchool) {
+      handleFetchAttendanceHistory(`${user.accounts[0].id}`, true);
     }
   }, [user, isSecondaryInstructor, isSchool]);
 
-  const handleFetchAttendanceHistory = (id: string) => {
+  const handleFetchAttendanceHistory = (id: string, isSchoolUser?: boolean) => {
     console.log(id, "lecturerId");
 
     setIsLoading(true);
-    GetSecondaryStudentAttedance({ lecturerId: id })
+    (isSchoolUser
+      ? GetSecondaryTeacherAttendance({ schoolId: id })
+      : GetSecondaryStudentAttedance({ lecturerId: id })
+    )
       .then(({ responseData, responseStatus }) => {
         console.log(JSON.stringify(responseData), "classes of school");
         if (responseData.data) {
@@ -77,7 +82,7 @@ const AttendanceHistoryScreen = ({ navigation }: StackNavigationProps) => {
         <>
           <View className="flex-row justify-between items-center mt-7">
             <AttendanceCard
-              title={`Total Student`}
+              title={`Total ${isSchool ? "Teacher" : "Student"}`}
               subtitle={"740"}
               borderColor="border-primary-500"
             />

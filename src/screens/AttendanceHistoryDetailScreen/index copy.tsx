@@ -49,22 +49,35 @@ const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
       setDate(_date);
       setAttendancePeriod(route.params.attendancePeriod);
 
-      handleFetchAttendanceHistoryDetail({
-        date: _date,
-        id: `${user.accounts[0].id}`,
-      });
+      if (isSecondaryInstructor) {
+        handleFetchAttendanceHistoryDetail({
+          date: _date,
+          id: `${user.accounts[0].id}`,
+        });
+      } else if (isSchool) {
+        handleFetchAttendanceHistoryDetail({
+          date: _date,
+          id: `${user.accounts[0].id}`,
+          isSchoolUser: true,
+        });
+      }
     }
   }, [route, user, isSchool, isSecondaryInstructor]);
 
   const handleFetchAttendanceHistoryDetail = ({
     date,
     id,
+    isSchoolUser,
   }: {
     date: string;
     id: string;
+    isSchoolUser?: boolean;
   }) => {
     setLoading(true);
-    GetAttendanceHistoryByDate({ date, lecturerId: id })
+    (isSchoolUser
+      ? GetAttendanceHistoryByDateForTeacher({ date, schoolId: id })
+      : GetAttendanceHistoryByDate({ date, lecturerId: id })
+    )
       .then(({ responseData, responseStatus }) => {
         console.log(responseData, "responseData");
         setAttendanceHistoryDetail(responseData.data);
@@ -150,12 +163,15 @@ const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
             </View>
 
             <InputWithFilter
-              placeHolder={`Search for Students`}
+              placeHolder={`Search for ${isSchool ? "Teachers" : "Students"}`}
               filterModalRef={filterStudentsByModalRef}
             />
 
             <View className="flex-row justify-between items-center">
-              <BodyText text={"Students"} type={TextFontType.Bold} />
+              <BodyText
+                text={isSchool ? "Teacher" : "Students"}
+                type={TextFontType.Bold}
+              />
               <BodyText
                 text={`${attendanceHistoryDetail.length}`}
                 type={TextFontType.Bold}
@@ -175,14 +191,20 @@ const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
                       : AttendanceStatusType.ABSENT
                   }
                   fullName={
-                    item.student
+                    isSchool && item.lecturer
+                      ? `${item.lecturer.lecturer.firstName} ${item.lecturer.lecturer.lastName}`
+                      : isSecondaryInstructor && item.student
                       ? `${item.student.student.firstName} ${item.student.student.lastName}`
                       : ""
                   }
                   studentId={item.accountId}
                   // subtitle={"Computer Sci. 100Level"}
                   subtitle={
-                    item.student
+                    isSchool && item.lecturer
+                      ? `${item.lecturer.lecturer.className || "N/A"} (${
+                          item.lecturer.lecturer.department?.name
+                        })`
+                      : isSecondaryInstructor && item.student
                       ? `${item.student.student.class?.name || "N/A"} (${
                           item.student.student.department?.name
                         })`

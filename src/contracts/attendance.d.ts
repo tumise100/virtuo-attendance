@@ -48,7 +48,7 @@ export interface IAttendanceHistoryDetail {
 }
 
 export interface ISecondaryStudentAttendanceDetail {
-  studentData: {
+  studentData?: {
     accountId: number;
     firstName: string;
     lastName: string;
@@ -74,7 +74,7 @@ export interface ISecondaryStudentAttendanceDetail {
 }
 
 export interface ISecondaryTeacherAttendanceDetail {
-  teacherData: {
+  teacherData?: {
     accountId: number;
     firstName: string;
     lastName: string;

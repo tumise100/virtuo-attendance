@@ -1,30 +1,31 @@
-import { View, Text, StatusBar, ScrollView } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
-import { COLORS } from "@/src/theme/colors";
-import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
-import { SubheadingSemibold18 } from "@/src/theme/typography";
 import AttendanceCard from "@/src/components/UI/AttendanceCard";
-import { AttendanceHistoryButton } from "../AttendanceHistoryScreen/components";
+import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
 import InputWithFilter from "@/src/components/UI/InputWithFilter";
-import { FilterModalContext } from "@/src/contexts/modals.context";
-import { BodyText } from "@/src/theme/typography/BodyText";
-import { TextFontType } from "@/src/theme/typography/typography";
+import LoadingComponent from "@/src/components/UI/LoadingComponent";
 import StudentOverviewCard from "@/src/components/UI/StudentOverviewCard";
-import { AttendanceStatusType, StackNavigationProps } from "@/src/shared";
-import moment from "moment";
+import { FilterModalContext } from "@/src/contexts/modals.context";
 import {
   EAttendancePeriod,
-  EAttendanceStatus,
   IAttendanceHistoryDetail,
 } from "@/src/contracts/attendance.d";
 import {
   GetAttendanceHistoryByDate,
   GetAttendanceHistoryByDateForTeacher,
 } from "@/src/services/attendance";
+import { AttendanceStatusType, StackNavigationProps } from "@/src/shared";
 import { combineStore } from "@/src/store";
-import LoadingComponent from "@/src/components/UI/LoadingComponent";
+import { COLORS } from "@/src/theme/colors";
+import { SubheadingSemibold18 } from "@/src/theme/typography";
+import { BodyText } from "@/src/theme/typography/BodyText";
+import { TextFontType } from "@/src/theme/typography/typography";
+import moment from "moment";
+import React, { useContext, useEffect, useState } from "react";
+import { ScrollView, StatusBar, Text, View } from "react-native";
+import { AttendanceHistoryButton } from "../AttendanceHistoryScreen/components";
 
-const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
+const AttendanceHistoryDetailForInstructorScreen = ({
+  route,
+}: StackNavigationProps) => {
   const { filterStudentsByModalRef } = useContext(FilterModalContext);
 
   const [date, setDate] = useState<string | null>(null);
@@ -64,7 +65,7 @@ const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
     id: string;
   }) => {
     setLoading(true);
-    GetAttendanceHistoryByDate({ date, lecturerId: id })
+    GetAttendanceHistoryByDateForTeacher({ date, schoolId: id })
       .then(({ responseData, responseStatus }) => {
         console.log(responseData, "responseData");
         setAttendanceHistoryDetail(responseData.data);
@@ -150,12 +151,12 @@ const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
             </View>
 
             <InputWithFilter
-              placeHolder={`Search for Students`}
+              placeHolder={`Search for Teachers`}
               filterModalRef={filterStudentsByModalRef}
             />
 
             <View className="flex-row justify-between items-center">
-              <BodyText text={"Students"} type={TextFontType.Bold} />
+              <BodyText text={"Teacher"} type={TextFontType.Bold} />
               <BodyText
                 text={`${attendanceHistoryDetail.length}`}
                 type={TextFontType.Bold}
@@ -175,16 +176,16 @@ const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
                       : AttendanceStatusType.ABSENT
                   }
                   fullName={
-                    item.student
-                      ? `${item.student.student.firstName} ${item.student.student.lastName}`
+                    item.lecturer
+                      ? `${item.lecturer.lecturer.firstName} ${item.lecturer.lecturer.lastName}`
                       : ""
                   }
                   studentId={item.accountId}
                   // subtitle={"Computer Sci. 100Level"}
                   subtitle={
-                    item.student
-                      ? `${item.student.student.class?.name || "N/A"} (${
-                          item.student.student.department?.name
+                    item.lecturer
+                      ? `${item.lecturer.lecturer.className || "N/A"} (${
+                          item.lecturer.lecturer.department?.name
                         })`
                       : ""
                   }
@@ -205,4 +206,4 @@ const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
   );
 };
 
-export default AttendanceHistoryDetailScreen;
+export default AttendanceHistoryDetailForInstructorScreen;

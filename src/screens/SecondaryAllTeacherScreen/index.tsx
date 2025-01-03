@@ -109,6 +109,11 @@ const SecondaryAllTeacherScreen = ({
                 fullName={`${student.firstName} ${student.lastName}`}
                 // title={`${student.courseId}`}
                 studentId={student.accountId}
+                onPress={() =>
+                  navigation.navigate("InstructorAttendanceViewScreen", {
+                    id: student.accountId,
+                  })
+                }
                 // level={
                 //   isSecondaryInstructor
                 //     ? ""

@@ -17,10 +17,6 @@ const QuickAction = () => {
 
   if (!user) return <NoUserDataComponent />;
 
-  // const isSecondaryInstructor =
-  //   user.accounts[0].lecturer.lecturerType === "SECONDARY";
-
-  console.log(user.accounts[0], "user");
 
   return (
     <View className="mt-3">

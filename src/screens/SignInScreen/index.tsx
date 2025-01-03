@@ -38,8 +38,8 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
           <Formik
             initialValues={{
               // email: "james.doe@example.com",
-              // email: "contact.sunnyschool@example.com",
-              email: "samuel.williams@example.com",
+              // email: "samuel.williams@example.com",
+              email: "contact.sunnyschool@example.com",
               password: "password",
             }}
             onSubmit={(values, form) => {

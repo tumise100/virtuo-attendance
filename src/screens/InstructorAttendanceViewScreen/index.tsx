@@ -31,59 +31,54 @@ import { AttendanceHistoryCard } from "../AttendanceHistoryScreen/components";
 import { Feather } from "@expo/vector-icons";
 import { combineStore } from "@/src/store";
 
-const SecondaryStudentAttendanceViewScreen = ({
-  route,
-}: StackNavigationProps) => {
+const InstructorAttendanceViewScreen = ({ route }: StackNavigationProps) => {
   const [loading, setLoading] = useState(false);
   const [loadingMarkingAttendance, setLoadingMarkingAttendance] =
     useState(false);
 
-  const [studentAttendance, setStudentAttendance] =
-    useState<ISecondaryStudentAttendanceDetail | null>(null);
+  const [teacherAttendance, setTeacherAttendance] =
+    useState<ISecondaryTeacherAttendanceDetail | null>(null);
 
   const { user } = combineStore();
 
-  const isSecondaryInstructor =
-    user?.accounts[0].lecturer?.lecturerType === "SECONDARY";
-
-  // const isSchool = user?.accounts[0].school?.accountId;
+  const isSchool = user?.accounts[0].school?.accountId;
 
   useEffect(() => {
     if (route && route.params && route.params.id) {
-      handleFetchStudentAttendance(route.params.id);
+      handleFetchInstructorAttendance(route.params.id);
     }
   }, [route]);
 
-  const handleMarkSecondaryStudentAttendance = (id: string) => {
+  const handleMarkInstructorAttendance = (id: string) => {
     setLoadingMarkingAttendance(true);
-    MarkSecondaryStudentAttedance(id)
+    MarkSecondaryTeacherAttedance(id)
       .then(({ responseData, responseStatus }) => {
         console.log(responseData);
         if (responseData.accountId) {
-          showToast(`Student Attendance marked`);
-          handleFetchStudentAttendance(id);
+          showToast(`Teacher Attendance marked`);
+          handleFetchInstructorAttendance(id);
         } else if (!responseData.success) {
           showToast(responseData.message);
         }
       })
       .catch((err) => {
-        console.log(err, "mark secondary student");
+        console.log(err, "mark instructor attendance");
       })
       .finally(() => {
         setLoadingMarkingAttendance(false);
       });
   };
 
-  const handleFetchStudentAttendance = (id: string) => {
+  const handleFetchInstructorAttendance = (id: string) => {
     setLoading(true);
-    GetASingleStudentAttendance(id)
+    GetASingleTeacherAttendance(id)
       .then(({ responseData, responseStatus }) => {
         console.log(responseStatus, "responseStatus");
 
         if (responseData.totalCount || responseStatus == 200) {
-          setStudentAttendance(responseData);
+          setTeacherAttendance(responseData);
         }
-        console.log(responseData, "studnet responseData");
+        console.log(responseData, "teacher responseData");
       })
       .catch((err) => {
         console.log(err);
@@ -102,12 +97,8 @@ const SecondaryStudentAttendanceViewScreen = ({
     );
   }
 
-  if (!studentAttendance?.attendancedata) {
-    return <NoDataComponent />;
-  }
-
   // return studentAttendance ? (
-  return studentAttendance ? (
+  return teacherAttendance ? (
     <ScrollView className="flex-1 bg-white px-4 pt-7">
       <StatusBar
         backgroundColor={COLORS.white}
@@ -117,18 +108,14 @@ const SecondaryStudentAttendanceViewScreen = ({
       <View className="flex-row items-center ">
         <BackBtn />
         <SubheadingSemibold18
-          text={
-            studentAttendance
-              ? `${studentAttendance.studentData?.firstName} ${studentAttendance.studentData?.lastName} (${studentAttendance.studentData?.class.name})`
-              : ""
-          }
+          text={`${teacherAttendance.teacherData?.firstName} ${teacherAttendance.teacherData?.lastName}`}
           customClassName="ml-5"
         />
         <TouchableOpacity
           disabled={loadingMarkingAttendance}
           onPress={() =>
-            handleMarkSecondaryStudentAttendance(
-              `${studentAttendance?.studentData?.accountId}`
+            handleMarkInstructorAttendance(
+              `${teacherAttendance?.teacherData?.accountId}`
             )
           }
           className="p-1 ml-auto rounded-md border border-neutral-300"
@@ -143,12 +130,12 @@ const SecondaryStudentAttendanceViewScreen = ({
       <View className="flex-row justify-between items-center mt-7">
         <AttendanceCard
           title="Presents"
-          subtitle={`${studentAttendance.totalPresent}`}
+          subtitle={`${teacherAttendance?.totalPresent}`}
           borderColor="border-success-500"
         />
         <AttendanceCard
           title="Absents"
-          subtitle={`${studentAttendance?.totalAbsent}`}
+          subtitle={`${teacherAttendance?.totalAbsent}`}
           borderColor="border-danger-500"
         />
       </View>
@@ -159,8 +146,8 @@ const SecondaryStudentAttendanceViewScreen = ({
           type={TextFontType.Bold}
           customClassName="my-4"
         />
-        {studentAttendance &&
-          studentAttendance.attendancedata.map((item) => {
+        {teacherAttendance &&
+          teacherAttendance.data.map((item) => {
             return (
               <View key={item.id}>
                 <AttendanceHistoryCard
@@ -190,4 +177,4 @@ const SecondaryStudentAttendanceViewScreen = ({
   );
 };
 
-export default SecondaryStudentAttendanceViewScreen;
+export default InstructorAttendanceViewScreen;
