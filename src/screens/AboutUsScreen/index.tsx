@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity, Linking } from "react-native";
 import React from "react";
 import { StatusBar } from "react-native";
 import { COLORS } from "@/src/theme/colors";
@@ -32,7 +32,15 @@ const AboutUsScreen = () => {
         <View className="flex-row items-center justify-between w-[60%] mx-auto mt-6">
           <AntDesign name="facebook-square" size={26} />
           <FontAwesome5 name="twitter-square" size={26} />
-          <FontAwesome5 name="instagram-square" size={26} />
+          <TouchableOpacity
+            onPress={() => {
+              Linking.openURL(
+                "https://www.instagram.com/virtuosphere_"
+              );
+            }}
+          >
+            <FontAwesome5 name="instagram-square" size={26} />
+          </TouchableOpacity>
           <FontAwesome5 name="linkedin" size={26} />
         </View>
       </View>
