@@ -1,20 +1,36 @@
 import { ILecturerUser, IStudentUser } from "./user";
 
-export interface IStudentAttendanceHeader {
-  date: string;
-}
 // export interface IStudentAttendanceHeader {
-//   entryTime: null;
-//   exitTime: string;
-//   morningAttendance: boolean;
-//   afternoonAttendance: boolean;
 //   date: string;
-//   accountId: number;
-//   id: number;
-//   createdAt: string;
-//   updatedAt: string;
-//   deletedAt: null;
 // }
+// export type IStudentAttendanceHeaderDate = (
+export interface IStudentAttendanceHeader {
+  dates: {
+    date: string;
+  }[];
+  totalStudents?: number;
+  totalTeacher?: number;
+}
+
+export type IStudentAttendanceResp = (
+  | {
+      date: string;
+    }[]
+  | {
+      totalStudents: number;
+    }
+)[];
+
+const a = {
+  date: [
+    { date: "2025-01-04T00:00:00.000Z" },
+    { date: "2025-01-03T00:00:00.000Z" },
+    { date: "2025-01-02T00:00:00.000Z" },
+    { date: "2024-12-19T00:00:00.000Z" },
+    { date: "2024-12-18T00:00:00.000Z" },
+  ],
+  totalStudents: 4,
+};
 
 export interface IAttendanceHistoryDetail {
   entryTime: string | null;

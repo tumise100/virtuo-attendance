@@ -20,7 +20,7 @@ export const AttendanceHistoryCard = ({
   showAttendanceStatus,
   onPress,
 }: {
-  item: IStudentAttendanceHeader;
+  item: { date: string };
   avgPercentage?: string;
   noPresent?: string;
   noAbsent?: string;
@@ -59,7 +59,6 @@ export const AttendanceHistoryCard = ({
               }
             );
       }}
-      // className="bg-info-500 flex-row items-center p-3 mb-3 rounded-md"
       className={`${
         alt ? "bg-white" : "bg-info-500"
       } flex-row items-center p-3 mb-3 rounded-md ${

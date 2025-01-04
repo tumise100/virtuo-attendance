@@ -135,8 +135,8 @@ export const StudentAttendanceMarked = ({
   matric_no,
   course,
   level,
-  id,
-}: StudentAttendance) => {
+}: Partial<StudentAttendance>) => {
+  if (!name) return;
   return (
     <TouchableOpacity className="flex-row items-center justify-between mb-3 rounded-md border border-borderColor p-3">
       <View className="flex-row items-center">
@@ -154,12 +154,14 @@ export const StudentAttendanceMarked = ({
             // text="Salako Mary Jane"
             type={TextFontType.Bold}
           />
-          <DescriptionText
-            text={`${course}. ${level}Level`}
-            // text="Computer Sci. 100Level"
-            type={TextFontType.Bold}
-            customClassName="normal-case"
-          />
+          {course && (
+            <DescriptionText
+              text={`${course}. ${level}Level`}
+              // text="Computer Sci. 100Level"
+              type={TextFontType.Bold}
+              customClassName="normal-case"
+            />
+          )}
         </View>
       </View>
       <Ionicons name="checkmark-circle" size={23} color={COLORS.success[700]} />

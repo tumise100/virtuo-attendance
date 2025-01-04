@@ -1,5 +1,6 @@
 import CustomAvatar from "@/src/components/UI/CustomAvatar";
 import CustomPaperTextInputWithIcons from "@/src/components/UI/Inputs/CustomPaperTextInputWithIcons";
+import LoadingComponent from "@/src/components/UI/LoadingComponent";
 import { showToast } from "@/src/components/UI/showToast";
 import { IClassHeader } from "@/src/contracts/course";
 import { IStudent } from "@/src/contracts/user";
@@ -15,9 +16,7 @@ import { ScrollView, TouchableOpacity, View } from "react-native";
 import { TextInput } from "react-native-paper";
 import QuickAction from "./components/QuickAction";
 import RecentClasses from "./components/RecentClasses";
-import TopStudents from "./components/TopStudents";
-import { Text } from "react-native";
-import LoadingComponent from "@/src/components/UI/LoadingComponent";
+import moment from "moment";
 
 const HomeScreen = ({
   navigation,
@@ -118,8 +117,13 @@ const HomeScreen = ({
           <Ionicons name="menu-outline" size={27} />
         </TouchableOpacity>
         <View className="items-center">
-          <TextMedium14 text="2022/2023 Session" />
-          <InputLabelMedium12 text="semester 1" customClassName="font-normal" />
+          <TextMedium14
+            text={`${moment().format("YYYY")}/${moment()
+              .add("1", "year")
+              .format("YYYY")} Session`}
+          />
+          {/* <TextMedium14 text="2022/2023 Session" /> */}
+          {/* <InputLabelMedium12 text="semester 1" customClassName="font-normal" /> */}
         </View>
         <CustomAvatar
           size={48}

@@ -63,6 +63,7 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           iconName="user"
           Icon={AntDesign}
           label="Profile"
+          onPress={() => props.navigation.navigate("ProfileScreen")}
         />
         <CustomDrawerContentItem
           iconName="send-o"
@@ -73,29 +74,32 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           iconName="send-o"
           Icon={FontAwesome}
           label="Change Password"
+          onPress={() => props.navigation.navigate("ChangePasswordScreen")}
         />
         <CustomDrawerContentItem
           iconName="call-outline"
           Icon={Ionicons}
           label="Support"
+          onPress={() => props.navigation.navigate("SupportScreen")}
         />
         <CustomDrawerContentItem
           iconName="people"
           Icon={Octicons}
           label="About Us"
+          onPress={() => props.navigation.navigate("AboutUsScreen")}
         />
-        <CustomDrawerContentItem
+        {/* <CustomDrawerContentItem
           iconName="terminal-outline"
           Icon={Ionicons}
           label="Terms & conditions"
           showMoreIcon={false}
-        />
-        <CustomDrawerContentItem
+        /> */}
+        {/* <CustomDrawerContentItem
           iconName="shield-account-outline"
           Icon={MaterialCommunityIcons}
           label="Privacy policy"
           showMoreIcon={false}
-        />
+        /> */}
         <CustomDrawerContentItem
           iconName="people"
           Icon={Octicons}

@@ -19,6 +19,7 @@ import {
 } from "@/src/contracts/attendance.d";
 import {
   GetAttendanceHistoryByDate,
+  GetAttendanceHistoryByDateForSchool,
   GetAttendanceHistoryByDateForTeacher,
 } from "@/src/services/attendance";
 import { combineStore } from "@/src/store";
@@ -64,7 +65,11 @@ const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
     id: string;
   }) => {
     setLoading(true);
-    GetAttendanceHistoryByDate({ date, lecturerId: id })
+    // GetAttendanceHistoryByDate({ date, lecturerId: id })
+    (isSchool
+      ? GetAttendanceHistoryByDateForSchool({ date, schoolId: id })
+      : GetAttendanceHistoryByDate({ date, lecturerId: id })
+    )
       .then(({ responseData, responseStatus }) => {
         console.log(responseData, "responseData");
         setAttendanceHistoryDetail(responseData.data);

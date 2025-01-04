@@ -8,6 +8,17 @@ export async function Login(input: { email: string; password: string }) {
   });
 }
 
+export async function ChangePassword(input: {
+  oldPassword: string;
+  newPassword: string;
+}) {
+  return FetchClient({
+    endpoint: "/auth/me/change-password",
+    body: input,
+    method: HttpMethod.PATCH,
+  });
+}
+
 export async function GetMe() {
   return FetchClient({
     endpoint: "/auth/me",

@@ -7,9 +7,7 @@ import {
 } from "@/src/services/attendance";
 import { combineStore } from "@/src/store";
 import { COLORS } from "@/src/theme/colors";
-import {
-  SubheadingSemibold18
-} from "@/src/theme/typography";
+import { SubheadingSemibold18 } from "@/src/theme/typography";
 import { BodyRegular } from "@/src/theme/typography/BodyText";
 import { H5Text } from "@/src/theme/typography/HeaderText";
 import { DescriptionText } from "@/src/theme/typography/OtherText";
@@ -22,14 +20,16 @@ import {
   Image,
   ScrollView,
   StatusBar,
-  View
+  View,
 } from "react-native";
 import NfcManager, { Ndef, NfcEvents } from "react-native-nfc-manager";
 import NfcAttendanceTakingNotSupported from "../AttendanceTakingScreen/NfcAttendanceTakingNotSupported";
+import { StudentAttendanceMarked } from "@/src/components/UI/StudentOverviewCard";
 
 const AttendanceTakingForSecondaryScreen = () => {
   const [loadingMarkingAttendance, setLoadingMarkingAttendance] =
     useState(false);
+  const [userJustMarkedInfo, setUserJustMarkedInfo] = useState<any>(null);
 
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -116,6 +116,8 @@ const AttendanceTakingForSecondaryScreen = () => {
       console.log(userId, "handleMarkSecondaryAttendance");
       setDisableTagReading(true);
       setLoadingMarkingAttendance(true);
+      setUserJustMarkedInfo(null);
+
       (isSchool
         ? MarkSecondaryTeacherAttedance(userId)
         : MarkSecondaryStudentAttedance(userId)
@@ -124,6 +126,7 @@ const AttendanceTakingForSecondaryScreen = () => {
           console.log(responseData);
           if (responseData.accountId) {
             showToast("Attendance marked");
+            setUserJustMarkedInfo({ name: "JohnSon" });
           } else if (!responseData.success) {
             showToast(responseData.message);
           }
@@ -135,6 +138,7 @@ const AttendanceTakingForSecondaryScreen = () => {
           setUserId(null);
           setLoadingMarkingAttendance(false);
           setDisableTagReading(false);
+          // setUserJustMarkedInfo(null);
         });
     }
   }, [userId]);
@@ -194,6 +198,12 @@ const AttendanceTakingForSecondaryScreen = () => {
           }
         </View>
         <View className="my-6">
+          {userJustMarkedInfo && (
+            <StudentAttendanceMarked
+              name={userJustMarkedInfo.name}
+              matric_no={"Sci/12/23"}
+            />
+          )}
           {/* <StudentAttendanceMarked
                 name={currentStudentAttendance.name}
                 matric_no={currentStudentAttendance.matric_no}

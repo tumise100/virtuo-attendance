@@ -8,18 +8,21 @@ import { AttendanceHistoryCard } from "./components";
 import FloatingButton from "@/src/components/UI/Buttons/FloatingButton";
 import {
   GetSecondaryStudentAttedance,
+  GetSecondaryStudentAttedanceAsSchool,
   GetSecondaryTeacherAttendance,
 } from "@/src/services/attendance";
-import { IStudentAttendanceHeader } from "@/src/contracts/attendance";
+import {
+  IStudentAttendanceHeader,
+  IStudentAttendanceResp,
+} from "@/src/contracts/attendance";
 import LoadingComponent from "@/src/components/UI/LoadingComponent";
 import { StackNavigationProps } from "@/src/shared";
 import { combineStore } from "@/src/store";
 import moment from "moment";
 
 const AttendanceHistoryScreen = ({ navigation }: StackNavigationProps) => {
-  const [attendanceHistory, setAttendanceHistory] = useState<
-    IStudentAttendanceHeader[] | null
-  >(null);
+  const [attendanceHistory, setAttendanceHistory] =
+    useState<IStudentAttendanceHeader | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const { user } = combineStore();
@@ -37,12 +40,23 @@ const AttendanceHistoryScreen = ({ navigation }: StackNavigationProps) => {
     console.log(id, "lecturerId");
 
     setIsLoading(true);
-    GetSecondaryStudentAttedance({ lecturerId: id })
+    // GetSecondaryStudentAttedance({ lecturerId: id })
+    (isSchool
+      ? GetSecondaryStudentAttedanceAsSchool({ schoolId: id })
+      : GetSecondaryStudentAttedance({ lecturerId: id })
+    )
       .then(({ responseData, responseStatus }) => {
-        console.log(JSON.stringify(responseData), "classes of school");
+        // console.log(JSON.stringify(responseData), "classes of school");
+
         if (responseData.data) {
-          const attendanceHeader = responseData.data;
-          setAttendanceHistory(attendanceHeader);
+          const attendanceHeader: IStudentAttendanceResp = responseData.data;
+
+          const obj = {
+            dates: attendanceHeader[0],
+            ...attendanceHeader[1],
+          };
+
+          setAttendanceHistory(obj as unknown as IStudentAttendanceHeader);
         }
       })
       .catch((err) => {
@@ -78,7 +92,7 @@ const AttendanceHistoryScreen = ({ navigation }: StackNavigationProps) => {
           <View className="flex-row justify-between items-center mt-7">
             <AttendanceCard
               title={`Total Student`}
-              subtitle={"740"}
+              subtitle={`${attendanceHistory?.totalStudents}` || "Nill"}
               borderColor="border-primary-500"
             />
             <AttendanceCard
@@ -91,7 +105,7 @@ const AttendanceHistoryScreen = ({ navigation }: StackNavigationProps) => {
           <Text className="my-4">Attendance</Text>
           {attendanceHistory ? (
             <ScrollView>
-              {attendanceHistory.map((item) => {
+              {attendanceHistory.dates.map((item) => {
                 if (item.date.split("T")[0] === moment().format("YYYY-MM-D")) {
                   if (moment().hour() >= 12) {
                     return (

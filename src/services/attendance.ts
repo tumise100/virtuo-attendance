@@ -10,6 +10,16 @@ export async function GetSecondaryStudentAttedance({
   });
 }
 
+export async function GetSecondaryStudentAttedanceAsSchool({
+  schoolId,
+}: {
+  schoolId: string;
+}) {
+  return FetchClient({
+    endpoint: `/students-attendance/school-students/${schoolId}`,
+  });
+}
+
 export async function GetSecondaryTeacherAttendance({
   schoolId,
 }: {
@@ -29,6 +39,17 @@ export async function GetAttendanceHistoryByDate({
 }) {
   return FetchClient({
     endpoint: `/students-attendance/by-date/${date}/${lecturerId}`,
+  });
+}
+export async function GetAttendanceHistoryByDateForSchool({
+  date,
+  schoolId,
+}: {
+  date: string;
+  schoolId: string;
+}) {
+  return FetchClient({
+    endpoint: `/students-attendance/school-by-date/${date}/${schoolId}`,
   });
 }
 
