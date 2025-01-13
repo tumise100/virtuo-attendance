@@ -3,7 +3,8 @@ import { combineStore as Store } from "@/src/store/index";
 // export const API_URL = "http://161.97.118.183:2024";
 // export const _API_URL = "https://api.virtuobusiness.com";
 // export const API_URL = "https://staging.virtuobusiness.com";
-export const API_URL = "https://staging.virtuobusiness.com";
+// export const API_URL = "https://staging.virtuobusiness.com";
+export const API_URL = "https://api.virtuobusiness.com";
 export const _api_key = "YOUR_API_KEY";
 
 export enum HttpMethod {

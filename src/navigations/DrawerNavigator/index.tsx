@@ -17,10 +17,13 @@ import {
   MaterialCommunityIcons,
   AntDesign,
   FontAwesome,
+  MaterialIcons,
 } from "@expo/vector-icons";
 import { COLORS } from "@/src/theme/colors";
 import { BodyRegular } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
+import * as Updates from "expo-updates";
+import { showToast } from "@/src/components/UI/showToast";
 
 const DrawerNavigator = () => {
   const Drawer = createDrawerNavigator();
@@ -48,6 +51,27 @@ const TestScreen = () => {
 
 const CustomDrawerContent = (props: DrawerContentComponentProps) => {
   // console.log(Object.keys(props.descriptors));
+
+  async function onFetchUpdateAsync() {
+    try {
+      const update = await Updates.checkForUpdateAsync();
+
+      // console.log(update, 'update');
+      // ShowNativeAlert({msg: JSON.stringify(update)});
+
+      if (update.isAvailable) {
+        showToast("New update available!");
+        await Updates.fetchUpdateAsync();
+        await Updates.reloadAsync();
+      } else {
+        showToast("No new update available.");
+      }
+    } catch (error) {
+      // You can also add an alert() to see the error message in case of an error when fetching updates.
+      alert(`Error fetching latest Expo update: ${error}`);
+    }
+  }
+
   return (
     <View className="p-3">
       <View className="flex-row items-center mt-4">
@@ -106,6 +130,13 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           label="Write Student Info into tag"
           showMoreIcon={false}
           onPress={() => props.navigation.navigate("WriteStudentInfoTagScreen")}
+        />
+        <CustomDrawerContentItem
+          iconName="update"
+          Icon={MaterialIcons}
+          label="Check for new updates"
+          showMoreIcon={false}
+          onPress={onFetchUpdateAsync}
         />
         {/* <CustomDrawerContentItem
           iconName="people"
