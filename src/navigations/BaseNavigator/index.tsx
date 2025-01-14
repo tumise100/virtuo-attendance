@@ -36,6 +36,7 @@ import AttendanceHistoryDetailForInstructorScreen from "@/src/screens/Attendance
 import ChangePasswordScreen from "@/src/screens/ChangePasswordScreen";
 import AboutUsScreen from "@/src/screens/AboutUsScreen";
 import SupportScreen from "@/src/screens/SupportScreen";
+import AttendanceTakingForInstructorScreen from "@/src/screens/AttendanceTakingForInstructorScreen";
 
 const BaseNavigator = () => {
   const Stack = createStackNavigator();
@@ -92,6 +93,10 @@ const BaseNavigator = () => {
         <Stack.Screen
           name="AttendanceTakingForSecondaryScreen"
           component={AttendanceTakingForSecondaryScreen}
+        />
+        <Stack.Screen
+          name="AttendanceTakingForInstructorScreen"
+          component={AttendanceTakingForInstructorScreen}
         />
         <Stack.Screen
           name="SecondaryStudentAttendanceViewScreen"

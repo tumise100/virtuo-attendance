@@ -140,6 +140,7 @@ const AttendanceHistoryScreen = ({ navigation }: StackNavigationProps) => {
           <FloatingButton
             title={"Mark Attendance"}
             onPress={() =>
+              // navigation.navigate("AttendanceTakingForSecondaryScreen")
               navigation.navigate("AttendanceTakingForSecondaryScreen")
             }
           />

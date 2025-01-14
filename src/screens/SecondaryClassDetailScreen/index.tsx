@@ -110,33 +110,37 @@ const SecondaryClassDetailScreen = ({ route }: StackNavigationProps) => {
 
           <Text className="my-4">Attendance</Text>
           <ScrollView>
-            {classAttendance.attendance.map((item) => {
-              if (item.date.split("T")[0] === moment().format("YYYY-MM-D")) {
-                if (moment().hour() >= 12) {
+            {classAttendance && classAttendance.attendance.length ? (
+              classAttendance.attendance.map((item) => {
+                if (item.date.split("T")[0] === moment().format("YYYY-MM-D")) {
+                  if (moment().hour() >= 12) {
+                    return (
+                      <View key={item.date}>
+                        <AttendanceHistoryCard item={item} isMorningType />
+                        <AttendanceHistoryCard item={item} isAfternoonType />
+                      </View>
+                    );
+                  } else {
+                    return (
+                      <AttendanceHistoryCard
+                        key={item.date + "1"}
+                        item={item}
+                        isMorningType
+                      />
+                    );
+                  }
+                } else if (moment(item.date).isBefore()) {
                   return (
                     <View key={item.date}>
                       <AttendanceHistoryCard item={item} isMorningType />
                       <AttendanceHistoryCard item={item} isAfternoonType />
                     </View>
                   );
-                } else {
-                  return (
-                    <AttendanceHistoryCard
-                      key={item.date + "1"}
-                      item={item}
-                      isMorningType
-                    />
-                  );
                 }
-              } else if (moment(item.date).isBefore()) {
-                return (
-                  <View key={item.date}>
-                    <AttendanceHistoryCard item={item} isMorningType />
-                    <AttendanceHistoryCard item={item} isAfternoonType />
-                  </View>
-                );
-              }
-            })}
+              })
+            ) : (
+              <Text>No Data Yet.</Text>
+            )}
             {/* <View>
             </View> */}
           </ScrollView>

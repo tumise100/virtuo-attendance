@@ -26,7 +26,7 @@ import NfcManager, { Ndef, NfcEvents } from "react-native-nfc-manager";
 import NfcAttendanceTakingNotSupported from "../AttendanceTakingScreen/NfcAttendanceTakingNotSupported";
 import { StudentAttendanceMarked } from "@/src/components/UI/StudentOverviewCard";
 
-const AttendanceTakingForSecondaryScreen = () => {
+const AttendanceTakingForInstructorScreen = () => {
   const [loadingMarkingAttendance, setLoadingMarkingAttendance] =
     useState(false);
   const [userJustMarkedInfo, setUserJustMarkedInfo] = useState<any>(null);
@@ -118,11 +118,11 @@ const AttendanceTakingForSecondaryScreen = () => {
       setLoadingMarkingAttendance(true);
       setUserJustMarkedInfo(null);
 
-      // (isSchool
-      //   ? MarkSecondaryTeacherAttedance(userId)
-      //   : MarkSecondaryStudentAttedance(userId)
+      //   (isSchool
+      //     ? MarkSecondaryTeacherAttedance(userId)
+      //     : MarkSecondaryStudentAttedance(userId)
       // )
-      MarkSecondaryStudentAttedance(userId)
+      MarkSecondaryTeacherAttedance(userId)
         .then(({ responseData, responseStatus }) => {
           console.log(responseData);
           if (responseData.accountId) {
@@ -133,7 +133,7 @@ const AttendanceTakingForSecondaryScreen = () => {
           }
         })
         .catch((err) => {
-          console.log(err, "mark secondary student");
+          console.log(err, "mark instructor student");
         })
         .finally(() => {
           setUserId(null);
@@ -223,4 +223,4 @@ const AttendanceTakingForSecondaryScreen = () => {
   );
 };
 
-export default AttendanceTakingForSecondaryScreen;
+export default AttendanceTakingForInstructorScreen;

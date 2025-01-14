@@ -59,11 +59,11 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
       : GetSchoolStudents(id)
     )
       .then(({ responseData, responseStatus }) => {
-        console.log(
-          JSON.stringify(responseData),
-          responseStatus,
-          "all teacher students"
-        );
+        // console.log(
+        //   JSON.stringify(responseData),
+        //   responseStatus,
+        //   "all teacher students"
+        // );
         // return;
         if (responseStatus === 200) {
           if (isTertiaryInstructor) {

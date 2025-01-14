@@ -199,7 +199,7 @@ const AttendanceHistoryHeaderForInstructorScreen = ({
           <FloatingButton
             title={"Mark Attendance"}
             onPress={() =>
-              navigation.navigate("AttendanceTakingForSecondaryScreen")
+              navigation.navigate("AttendanceTakingForInstructorScreen")
             }
           />
         </>
