@@ -1,6 +1,6 @@
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
 import LoadingComponent from "@/src/components/UI/LoadingComponent";
-import { ISecondaryClass } from "@/src/contracts/course";
+import { ISecondaryClass, ISecondaryClassHeader } from "@/src/contracts/course";
 import { AccountType } from "@/src/contracts/user.d";
 import { GetClassesOfSecondarySchool } from "@/src/services/class";
 import { StackNavigationProps, StackNavigatorProp } from "@/src/shared";
@@ -18,9 +18,9 @@ import {
 } from "react-native";
 
 const AllClassScreen = ({ navigation }: StackNavigationProps) => {
-  const [schoolClasses, setSchoolClasses] = useState<ISecondaryClass[] | null>(
-    null
-  );
+  const [schoolClasses, setSchoolClasses] = useState<
+    ISecondaryClassHeader[] | null
+  >(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const { user } = combineStore();
@@ -85,7 +85,7 @@ const AllClassScreen = ({ navigation }: StackNavigationProps) => {
           {schoolClasses.map((classItem) => (
             <ClassItem
               classItem={classItem}
-              key={classItem.classId}
+              key={classItem.id}
               onPress={() =>
                 navigation.navigate("SecondaryClassDetailScreen", {
                   classItem,
@@ -109,7 +109,7 @@ const ClassItem = ({
   classItem,
   onPress,
 }: {
-  classItem: ISecondaryClass;
+  classItem: ISecondaryClassHeader;
   onPress?: () => void;
 }) => {
   return (
@@ -122,9 +122,9 @@ const ClassItem = ({
           <Ionicons name="trophy" size={18} color={COLORS.primary[400]} />
         </View>
         <View className="ml-3">
-          <Text className={`font-medium`}>{classItem.class.name}</Text>
+          <Text className={`font-medium`}>{classItem.name}</Text>
           <Text className={`text-xs mt-1`}>
-            {classItem.class.name.startsWith("S.S") ? "Senior" : "Junior"}
+            {classItem.name.startsWith("S.S") ? "Senior" : "Junior"}
           </Text>
         </View>
       </View>

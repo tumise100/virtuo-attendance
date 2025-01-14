@@ -11,6 +11,7 @@ import { StackNavigationProps } from "@/src/shared";
 import {
   ISecondaryClass,
   ISecondaryClassDetailAttendance,
+  ISecondaryClassHeader,
 } from "@/src/contracts/course";
 import LoadingComponent from "@/src/components/UI/LoadingComponent";
 import moment from "moment";
@@ -19,17 +20,17 @@ const SecondaryClassDetailScreen = ({ route }: StackNavigationProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [classItemHeader, setClassItemHeader] =
-    useState<ISecondaryClass | null>(null);
+    useState<ISecondaryClassHeader | null>(null);
 
   const [classAttendance, setClassAttendance] =
     useState<ISecondaryClassDetailAttendance | null>(null);
 
   useEffect(() => {
     if (route && route.params && route.params.classItem) {
-      const _classItem: ISecondaryClass = route.params.classItem;
+      const _classItem: ISecondaryClassHeader = route.params.classItem;
       setClassItemHeader(_classItem);
       handleFetchClassDetail({
-        classId: _classItem.classId,
+        classId: _classItem.id,
         schoolId: _classItem.schoolId,
       });
     }
@@ -70,7 +71,7 @@ const SecondaryClassDetailScreen = ({ route }: StackNavigationProps) => {
       <View className="flex-row items-center ">
         <BackBtn />
         <SubheadingSemibold18
-          text={classItemHeader?.class.name || ""}
+          text={classItemHeader?.name || ""}
           customClassName="ml-5"
         />
       </View>

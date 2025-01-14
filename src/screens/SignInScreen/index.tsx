@@ -39,10 +39,10 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
             initialValues={{
               // email: "james.doe@example.com",
               // email: "samuel.williams@example.com",
-              // email: "access4019@gmail.com",
-              // password: "password",
-              email: "",
-              password: "",
+              email: "access4019@gmail.com",
+              password: "password",
+              // email: "",
+              // password: "",
             }}
             onSubmit={(values, form) => {
               // if (1) {
