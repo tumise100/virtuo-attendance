@@ -97,7 +97,8 @@ const AttendanceHistoryScreen = ({ navigation }: StackNavigationProps) => {
             />
             <AttendanceCard
               title="Average Attendance"
-              subtitle={"89%"}
+              // subtitle={"100%"}
+              subtitle={"Nill"}
               borderColor="border-info-500"
             />
           </View>

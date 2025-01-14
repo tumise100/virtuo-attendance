@@ -99,13 +99,14 @@ const AttendanceHistoryHeaderForInstructorScreen = ({
             />
             <AttendanceCard
               title="Average Attendance"
-              subtitle={"89%"}
+              // subtitle={"89%"}
+              subtitle={"Nill"}
               borderColor="border-info-500"
             />
           </View>
 
           <Text className="my-4">Attendance</Text>
-          {attendanceHistory ? (
+          {attendanceHistory && attendanceHistory.dates.length ? (
             <ScrollView>
               {attendanceHistory.dates.map((item) => {
                 if (item.date.split("T")[0] === moment().format("YYYY-MM-D")) {

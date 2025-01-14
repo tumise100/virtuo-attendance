@@ -85,12 +85,17 @@ const SecondaryAllTeacherScreen = ({
         <BackBtn />
         <SubheadingSemibold18 text="Teachers" customClassName="ml-5" />
       </View>
-      <InputWithFilter filterModalRef={filterStudentsByModalRef} />
+      <InputWithFilter
+        filterModalRef={filterStudentsByModalRef}
+        placeHolder="Search for teachers"
+      />
       <View className="flex-1">
         <AttendanceHistoryButton
           title="Attendance history"
           // onPress={() => navigation.navigate("AttendanceHistoryScreen")}
-          onPress={() => navigation.navigate("AttendanceHistoryHeaderForInstructorScreen")}
+          onPress={() =>
+            navigation.navigate("AttendanceHistoryHeaderForInstructorScreen")
+          }
         />
         <View className="flex-row justify-between items-center">
           <BodyText text="Teachers" type={TextFontType.Bold} />

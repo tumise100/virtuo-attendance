@@ -39,8 +39,10 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
             initialValues={{
               // email: "james.doe@example.com",
               // email: "samuel.williams@example.com",
-              email: "contact.sunnyschool@example.com",
-              password: "password",
+              // email: "access4019@gmail.com",
+              // password: "password",
+              email: "",
+              password: "",
             }}
             onSubmit={(values, form) => {
               // if (1) {
@@ -61,7 +63,7 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
                     if (responseData.accessToken) {
                       // console.log(responseData, "some data");
                       combinedStore.updateUserToken(responseData.accessToken);
-                      showToast("Log In Successfull");
+                      showToast("Log In Successful");
                       form.resetForm();
                       navigation.navigate("BaseNavigator");
                     }

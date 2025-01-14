@@ -49,7 +49,7 @@ const AllClassScreen = ({ navigation }: StackNavigationProps) => {
     setIsLoading(true);
     GetClassesOfSecondarySchool({ schoolId })
       .then(({ responseData, responseStatus }) => {
-        // console.log(JSON.stringify(responseData), "classes of school");
+        console.log(JSON.stringify(responseData), "classes of school");
         if (responseData.data) {
           const secondaryClasses = responseData.data;
           setSchoolClasses(secondaryClasses);
@@ -80,7 +80,7 @@ const AllClassScreen = ({ navigation }: StackNavigationProps) => {
           <LoadingComponent />
           <LoadingComponent />
         </View>
-      ) : schoolClasses ? (
+      ) : schoolClasses && schoolClasses.length ? (
         <ScrollView className="mt-8">
           {schoolClasses.map((classItem) => (
             <ClassItem

@@ -71,7 +71,7 @@ const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
       : GetAttendanceHistoryByDate({ date, lecturerId: id })
     )
       .then(({ responseData, responseStatus }) => {
-        console.log(responseData, "responseData");
+        console.log(responseData.data[0], "responseData here");
         setAttendanceHistoryDetail(responseData.data);
       })
       .catch((err) => {
@@ -188,9 +188,11 @@ const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
                   // subtitle={"Computer Sci. 100Level"}
                   subtitle={
                     item.student
-                      ? `${item.student.student.class?.name || "N/A"} (${
+                      ? `${item.student.student.class?.name || "N/A"} ${
                           item.student.student.department?.name
-                        })`
+                            ? `(${item.student.student.department?.name})`
+                            : ""
+                        } `
                       : ""
                   }
                   key={item.id}

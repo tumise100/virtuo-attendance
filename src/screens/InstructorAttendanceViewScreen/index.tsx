@@ -149,7 +149,7 @@ const InstructorAttendanceViewScreen = ({
           type={TextFontType.Bold}
           customClassName="my-4"
         />
-        {teacherAttendance &&
+        {teacherAttendance && teacherAttendance.data.length ? (
           teacherAttendance.data.reverse().map((item) => {
             return (
               <View key={item.id}>
@@ -189,7 +189,10 @@ const InstructorAttendanceViewScreen = ({
                 />
               </View>
             );
-          })}
+          })
+        ) : (
+          <Text>No Attendance for this teacher yet</Text>
+        )}
       </View>
       <View className="h-20" />
     </ScrollView>

@@ -63,11 +63,12 @@ const StudentOverviewCard = ({
     >
       <View className="flex-row items-center">
         <View className="w-[32px] h-[32px]">
-          <Image
+          {/* <Image
             source={UserAvatarImg}
             resizeMode="contain"
             className="w-full h-full"
-          />
+          /> */}
+          <CustomAvatar name={fullName || ""} size={32} />
         </View>
         <View className="ml-3">
           <Overline1Text

@@ -14,12 +14,12 @@ export async function GetAStudent({
 
 export async function GetMyStudents(id: number) {
   return FetchClient({
-    endpoint: `/courses/lecturer/students/${id}`,
+    endpoint: `/courses/lecturer/students/${id}?limit=1000`,
   });
 }
 
 export async function GetTeacherStudents(id: number) {
   return FetchClient({
-    endpoint: `/students-attendance/lecturer/students/${id}`,
+    endpoint: `/students-attendance/lecturer/students/${id}?limit=1000`,
   });
 }
