@@ -24,6 +24,7 @@ const StudentOverviewCard = ({
   attendanceStatusType,
   studentId,
   subtitle,
+  timeIn,
   hideTextStats,
   onPress,
 }: {
@@ -36,6 +37,7 @@ const StudentOverviewCard = ({
   attendanceStatusType?: AttendanceStatusType;
   studentId: number;
   subtitle?: string;
+  timeIn?: string;
   onPress?: () => void;
 }) => {
   const { user } = combineStore();
@@ -87,6 +89,13 @@ const StudentOverviewCard = ({
               text={`${subtitle}`}
               type={TextFontType.Bold}
               customClassName="normal-case"
+            />
+          )}
+          {timeIn && (
+            <DescriptionText
+              text={`${timeIn}`}
+              type={TextFontType.Bold}
+              customClassName="normal-case mt-1"
             />
           )}
         </View>

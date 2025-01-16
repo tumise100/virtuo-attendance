@@ -195,6 +195,15 @@ const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
                         } `
                       : ""
                   }
+                  timeIn={
+                    attendancePeriod === EAttendancePeriod.Morning
+                      ? item.morningAttendance && item.entryTime
+                        ? `Time In: ${moment(item.entryTime).format("hh:mmA")}`
+                        : ""
+                      : item.afternoonAttendance && item.exitTime
+                      ? `Time out: ${moment(item.exitTime).format("hh:mmA")}`
+                      : ""
+                  }
                   key={item.id}
                 />
               ))}

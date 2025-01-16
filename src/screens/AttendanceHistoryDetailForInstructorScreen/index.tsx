@@ -24,6 +24,7 @@ import { ScrollView, StatusBar, Text, View } from "react-native";
 import { AttendanceHistoryButton } from "../AttendanceHistoryScreen/components";
 
 const AttendanceHistoryDetailForInstructorScreen = ({
+  navigation,
   route,
 }: StackNavigationProps) => {
   const { filterStudentsByModalRef } = useContext(FilterModalContext);
@@ -184,16 +185,33 @@ const AttendanceHistoryDetailForInstructorScreen = ({
                   // subtitle={"Computer Sci. 100Level"}
                   subtitle={
                     item.lecturer
-                      ? `${item.lecturer.lecturer.className || "N/A"} (${
+                      ? `${item.lecturer.lecturer.className || ""}${
                           item.lecturer.lecturer.department?.name
-                        })`
+                            ? ` (${item.lecturer.lecturer.department.name})`
+                            : ""
+                        }`
                       : ""
                   }
+                  timeIn={
+                    attendancePeriod === EAttendancePeriod.Morning
+                      ? item.morningAttendance && item.entryTime
+                        ? `Time In: ${moment(item.entryTime).format("hh:mmA")}`
+                        : ""
+                      : item.afternoonAttendance && item.exitTime
+                      ? `Time out: ${moment(item.exitTime).format("hh:mmA")}`
+                      : ""
+                  }
+                  onPress={() => {
+                    isSchool &&
+                      navigation.navigate("InstructorAttendanceViewScreen", {
+                        id: item.accountId,
+                      });
+                  }}
                   key={item.id}
                 />
               ))}
 
-              <View className="h-20" />
+              <View className="h-32" />
             </ScrollView>
           </View>
         ) : (
