@@ -119,7 +119,14 @@ const SecondaryStudentAttendanceViewScreen = ({
         <SubheadingSemibold18
           text={
             studentAttendance
-              ? `${studentAttendance.studentData?.firstName} ${studentAttendance.studentData?.lastName} (${studentAttendance.studentData?.class.name})`
+              ? // ? `${studentAttendance.studentData?.firstName} ${studentAttendance.studentData?.lastName} (${studentAttendance.studentData?.class?.name})`
+                `${studentAttendance.studentData?.firstName} ${
+                  studentAttendance.studentData?.lastName
+                } ${
+                  studentAttendance.studentData?.class?.name
+                    ? `(${studentAttendance.studentData?.class?.name})`
+                    : ""
+                }`
               : ""
           }
           customClassName="ml-5"

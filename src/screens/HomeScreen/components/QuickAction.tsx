@@ -17,6 +17,7 @@ const QuickAction = () => {
 
   if (!user) return <NoUserDataComponent />;
 
+  console.log(user.accounts[0]);
 
   return (
     <View className="mt-3">
@@ -26,13 +27,12 @@ const QuickAction = () => {
         customClassName="mb-2"
       />
       <>
-        {/* {handleUserType("SECONDARY", navigation).map((outerArr, _outer) => ( */}
         {handleUserType(
           (user.accounts[0].lecturer?.lecturerType as TUserType) ||
-            (user.accounts[0].type as TUserType),
-          // user.accounts[0].lecturer
-          //   ? (user.accounts[0].lecturer.lecturerType as TUserType)
-          //   : "ADMIN",
+            // (user.accounts[0].type as TUserType),
+            (user.accounts[0].type === "SCHOOL"
+              ? user.accounts[0].school?.schoolType
+              : (user.accounts[0].type as TUserType)),
           navigation
         ).map((outerArr, _outer) => (
           <View
@@ -58,6 +58,8 @@ const QuickAction = () => {
 export default QuickAction;
 
 const handleUserType = (type: TUserType, navigation: DrawerNavigatorProp) => {
+  console.log(type, "typpe");
+
   switch (type) {
     case "SECONDARY":
       const secondaryInstructorsActions = [
@@ -81,6 +83,12 @@ const handleUserType = (type: TUserType, navigation: DrawerNavigatorProp) => {
             subtitle: "Manage classes and students",
             onPress: () => navigation.navigate("AllClassScreen"),
             colorType: "info",
+          },
+          {
+            title: "Teachers",
+            subtitle: "Manage and mark teachers attendance",
+            onPress: () => navigation.navigate("SecondaryAllTeacherScreen"),
+            colorType: "success",
           },
           // {
           //   title: "Mark Sheet",
@@ -149,11 +157,17 @@ const handleUserType = (type: TUserType, navigation: DrawerNavigatorProp) => {
             colorType: "info",
           },
           {
-            title: "Mark Sheet",
-            subtitle: "Export mark sheets of students",
-            onPress: () => navigation.navigate(""),
+            title: "Teachers",
+            subtitle: "Manage and mark teachers attendance",
+            onPress: () => navigation.navigate("SecondaryAllTeacherScreen"),
             colorType: "success",
           },
+          // {
+          //   title: "Mark Sheet",
+          //   subtitle: "Export mark sheets of students",
+          //   onPress: () => navigation.navigate(""),
+          //   colorType: "success",
+          // },
         ],
       ];
       return institutionInstructorsActions;

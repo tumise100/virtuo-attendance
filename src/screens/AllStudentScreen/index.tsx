@@ -7,9 +7,7 @@ import { FilterModalContext } from "@/src/contexts/modals.context";
 import { IStudentUser } from "@/src/contracts/user";
 import { GetSchoolStudents } from "@/src/services/school";
 import { GetMyStudents, GetTeacherStudents } from "@/src/services/student";
-import {
-  StackNavigationProps
-} from "@/src/shared";
+import { StackNavigationProps } from "@/src/shared";
 import { combineStore } from "@/src/store";
 import { COLORS } from "@/src/theme/colors";
 import { SubheadingSemibold18 } from "@/src/theme/typography";
@@ -17,12 +15,7 @@ import { BodyText } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
 import { convertLevelStringToNumber } from "@/src/utils";
 import React, { useContext, useEffect, useState } from "react";
-import {
-  ScrollView,
-  StatusBar,
-  Text,
-  View
-} from "react-native";
+import { ScrollView, StatusBar, Text, View } from "react-native";
 import { AttendanceHistoryButton } from "../AttendanceHistoryScreen/components";
 
 const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
@@ -44,7 +37,8 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
   useEffect(() => {
     if (user) {
       fetchAllMyStudents(user.accounts[0].id);
-      console.log(user.accounts[0].id, "user.accounts[0].id");
+      // console.log(user.accounts[0].id, "user.accounts[0].id");
+      console.log(user.accounts[0], "user.accounts[0].id");
     }
   }, [user]);
 
@@ -59,12 +53,6 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
       : GetSchoolStudents(id)
     )
       .then(({ responseData, responseStatus }) => {
-        // console.log(
-        //   JSON.stringify(responseData),
-        //   responseStatus,
-        //   "all teacher students"
-        // );
-        // return;
         if (responseStatus === 200) {
           if (isTertiaryInstructor) {
             setAllStudents(

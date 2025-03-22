@@ -12,7 +12,7 @@ import { InputLabelMedium12, TextMedium14 } from "@/src/theme/typography";
 import { Ionicons } from "@expo/vector-icons";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import React, { useEffect, useState } from "react";
-import { ScrollView, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { TextInput } from "react-native-paper";
 import QuickAction from "./components/QuickAction";
 import RecentClasses from "./components/RecentClasses";
@@ -99,6 +99,8 @@ const HomeScreen = ({
         setLoadingRecentClass(false);
       });
   };
+
+  // return <Text>Hello</Text>;
 
   if (loadingUser) {
     return (
