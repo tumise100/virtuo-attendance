@@ -38,9 +38,9 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
           <Formik
             initialValues={{
               // email: "james.doe@example.com",
-              // email: "samuel.williams@example.com",
+              email: "samuel.williams@example.com",
               // email: "info@virtuobusiness.com",
-              email: "access4019@gmail.com",
+              // email: "access4019@gmail.com",
               password: "password",
               // email: "",
               // password: "",

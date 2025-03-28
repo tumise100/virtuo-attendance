@@ -1,4 +1,4 @@
-import { View, Text, StatusBar, ScrollView } from "react-native";
+import { View, Text, StatusBar, ScrollView, FlatList } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { COLORS } from "@/src/theme/colors";
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
@@ -128,7 +128,7 @@ const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
           leftTextClassName="text-white"
         />
         {attendanceHistoryDetail && attendancePeriod ? (
-          <View>
+          <>
             <View className="flex-row justify-between items-center mt-3">
               <AttendanceCard
                 title="Presents"
@@ -166,8 +166,11 @@ const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
                 type={TextFontType.Bold}
               />
             </View>
-            <ScrollView className="mt-2">
-              {attendanceHistoryDetail.map((item) => (
+
+            <FlatList
+              data={attendanceHistoryDetail}
+              className=""
+              renderItem={({ item }) => (
                 <StudentOverviewCard
                   hideStatsShowOnlyAttendanceStat={true}
                   attendanceStatusType={
@@ -185,7 +188,6 @@ const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
                       : ""
                   }
                   studentId={item.accountId}
-                  // subtitle={"Computer Sci. 100Level"}
                   subtitle={
                     item.student
                       ? `${item.student.student.class?.name || "N/A"} ${
@@ -206,11 +208,10 @@ const AttendanceHistoryDetailScreen = ({ route }: StackNavigationProps) => {
                   }
                   key={item.id}
                 />
-              ))}
-
-              <View className="h-20" />
-            </ScrollView>
-          </View>
+              )}
+              ListFooterComponent={() => <View className="h-20" />}
+            />
+          </>
         ) : (
           <View className="bg-white items-center justify-center flex-1">
             <Text>No Data</Text>

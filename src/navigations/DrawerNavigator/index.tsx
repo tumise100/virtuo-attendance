@@ -1,6 +1,7 @@
 import VlogoImg from "@/assets/images/Vlogo1.png";
 import { showToast } from "@/src/components/UI/showToast";
 import HomeScreen from "@/src/screens/HomeScreen";
+import { combineStore } from "@/src/store";
 import { COLORS } from "@/src/theme/colors";
 import { SubheadingSemibold18 } from "@/src/theme/typography";
 import { BodyRegular } from "@/src/theme/typography/BodyText";
@@ -37,6 +38,8 @@ const DrawerNavigator = () => {
 export default DrawerNavigator;
 
 const CustomDrawerContent = (props: DrawerContentComponentProps) => {
+  const { updateUserToken } = combineStore();
+
   async function onFetchUpdateAsync() {
     try {
       const update = await Updates.checkForUpdateAsync();
@@ -54,7 +57,7 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
   }
 
   return (
-    <View className="p-3">
+    <View className="p-3 flex-1">
       <View className="flex-row items-center mt-4">
         <Image
           source={VlogoImg}
@@ -108,14 +111,15 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           onPress={onFetchUpdateAsync}
         />
       </View>
-      <View className="justify-center items-center mt-[75%]">
+      <View className="justify-center items-center mt-[75%]l mt-auto">
         <TouchableOpacity
           className="flex-row items-center p-3 bg-danger-600 rounded-md"
-          onPress={() =>
-            props.navigation.navigate("AuthNavigator", {
-              screen: "SignInScreen",
-            })
-          }
+          onPress={() => {
+            updateUserToken("");
+            // props.navigation.navigate("AuthNavigator", {
+            //   screen: "SignInScreen",
+            // })
+          }}
         >
           <AntDesign name="logout" size={15} color={COLORS.white} />
           <BodyRegular

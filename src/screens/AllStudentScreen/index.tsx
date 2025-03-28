@@ -94,13 +94,6 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
       .finally(() => setLoading(false));
   };
 
-  if (!allStudents)
-    return (
-      <View className="bg-white items-center justify-center flex-1">
-        <Text>No Data</Text>
-      </View>
-    );
-
   return (
     <View className="flex-1 bg-white px-4 pt-7">
       <StatusBar
@@ -122,6 +115,10 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
         <View className="flex-1 bg-white">
           <LoadingComponent />
           <LoadingComponent />
+        </View>
+      ) : !allStudents ? (
+        <View className="bg-white items-center justify-center flex-1">
+          <Text>No Data</Text>
         </View>
       ) : (
         <View className="flex-1">
@@ -165,6 +162,7 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
                   />
                 )}
                 keyExtractor={(item) => `${item.accountId}`}
+                ListFooterComponent={() => <View className="h-36" />}
               />
               <CustomPagination
                 currentPage={currentPage}

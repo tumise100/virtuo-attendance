@@ -20,7 +20,7 @@ import { BodyText } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
 import moment from "moment";
 import React, { useContext, useEffect, useState } from "react";
-import { ScrollView, StatusBar, Text, View } from "react-native";
+import { FlatList, ScrollView, StatusBar, Text, View } from "react-native";
 import { AttendanceHistoryButton } from "../AttendanceHistoryScreen/components";
 
 const AttendanceHistoryDetailForInstructorScreen = ({
@@ -125,7 +125,7 @@ const AttendanceHistoryDetailForInstructorScreen = ({
           leftTextClassName="text-white"
         />
         {attendanceHistoryDetail && attendancePeriod ? (
-          <View>
+          <>
             <View className="flex-row justify-between items-center mt-3">
               <AttendanceCard
                 title="Presents"
@@ -163,8 +163,10 @@ const AttendanceHistoryDetailForInstructorScreen = ({
                 type={TextFontType.Bold}
               />
             </View>
-            <ScrollView className="mt-2">
-              {attendanceHistoryDetail.map((item) => (
+
+            <FlatList
+              data={attendanceHistoryDetail}
+              renderItem={({ item }) => (
                 <StudentOverviewCard
                   hideStatsShowOnlyAttendanceStat={true}
                   attendanceStatusType={
@@ -209,11 +211,10 @@ const AttendanceHistoryDetailForInstructorScreen = ({
                   }}
                   key={item.id}
                 />
-              ))}
-
-              <View className="h-32" />
-            </ScrollView>
-          </View>
+              )}
+              ListFooterComponent={() => <View className="h-20" />}
+            />
+          </>
         ) : (
           <View className="bg-white items-center justify-center flex-1">
             <Text>No Data</Text>

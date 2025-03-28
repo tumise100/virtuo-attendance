@@ -75,21 +75,21 @@ const SecondaryAllTeacherScreen = ({
       .finally(() => setLoading(false));
   };
 
-  if (loading) {
-    return (
-      <View className="flex-1 px-4 py-7 bg-white">
-        <LoadingComponent />
-        <LoadingComponent />
-      </View>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <View className="flex-1 px-4 py-7 bg-white">
+  //       <LoadingComponent />
+  //       <LoadingComponent />
+  //     </View>
+  //   );
+  // }
 
-  if (!allTeachers)
-    return (
-      <View className="bg-white items-center justify-center flex-1">
-        <Text>No Data</Text>
-      </View>
-    );
+  // if (!allTeachers)
+  //   return (
+  //     <View className="bg-white items-center justify-center flex-1">
+  //       <Text>No Data</Text>
+  //     </View>
+  //   );
 
   return (
     <View className="flex-1 bg-white px-4 pt-7">
@@ -108,77 +108,88 @@ const SecondaryAllTeacherScreen = ({
         // value={searchTerm}
         // onChangeText={setSearchTerm}
       />
-      <View className="flex-1">
-        <AttendanceHistoryButton
-          title="Attendance history"
-          // onPress={() => navigation.navigate("AttendanceHistoryScreen")}
-          onPress={() =>
-            navigation.navigate("AttendanceHistoryHeaderForInstructorScreen")
-          }
-        />
-        <View className="flex-row justify-between items-center">
-          <BodyText text="Teachers" type={TextFontType.Bold} />
-          <BodyText
-            // text={`${allTeachers.length || 0}`}
-            text={`${totalCount || 0}`}
-            type={TextFontType.Bold}
-          />
+      {loading ? (
+        <View className="flex-1 bg-white">
+          <LoadingComponent />
+          <LoadingComponent />
         </View>
-
-        {allTeachers && allTeachers.length ? (
-          <>
-            <FlatList
-              data={allTeachers.slice(0, perPage)}
-              renderItem={({ item: teacher, index }) => (
-                <StudentOverviewCard
-                  hideStatsShowOnlyAttendanceAverage={true}
-                  hideStatsShowOnlyAttendanceStat={true}
-                  hideTextStats={true}
-                  key={teacher.accountId}
-                  fullName={`${teacher.firstName} ${teacher.lastName}`}
-                  // title={`${teacher.courseId}`}
-                  studentId={teacher.accountId}
-                  onPress={() =>
-                    navigation.navigate("InstructorAttendanceViewScreen", {
-                      id: teacher.accountId,
-                    })
-                  }
-                />
-              )}
-              keyExtractor={(item) => `${item.accountId}`}
-              ListFooterComponent={() => <View className="h-36" />}
+      ) : !allTeachers ? (
+        <View className="bg-white items-center justify-center flex-1">
+          <Text>No Data</Text>
+        </View>
+      ) : (
+        <View className="flex-1">
+          <AttendanceHistoryButton
+            title="Attendance history"
+            // onPress={() => navigation.navigate("AttendanceHistoryScreen")}
+            onPress={() =>
+              navigation.navigate("AttendanceHistoryHeaderForInstructorScreen")
+            }
+          />
+          <View className="flex-row justify-between items-center">
+            <BodyText text="Teachers" type={TextFontType.Bold} />
+            <BodyText
+              // text={`${allTeachers.length || 0}`}
+              text={`${totalCount || 0}`}
+              type={TextFontType.Bold}
             />
+          </View>
 
-            <CustomPagination
-              currentPage={currentPage}
-              numberOfPage={Math.ceil(totalCount / perPage)}
-              onNextPress={() =>
-                handlePaginationNextPress(
-                  currentPage,
-                  totalCount,
-                  setCurrentPage
-                )
-              }
-              onPressItem={(val) => {
-                handlePaginationItemPress(
-                  val,
-                  Math.ceil(perPage / currentPage),
-                  setCurrentPage
-                );
-              }}
-              onPrevPress={() => {
-                handlePaginationPrevPress(
-                  currentPage,
-                  totalCount,
-                  setCurrentPage
-                );
-              }}
-            />
-          </>
-        ) : (
-          <Text>No Teacher</Text>
-        )}
-      </View>
+          {allTeachers && allTeachers.length ? (
+            <>
+              <FlatList
+                data={allTeachers.slice(0, perPage)}
+                renderItem={({ item: teacher, index }) => (
+                  <StudentOverviewCard
+                    hideStatsShowOnlyAttendanceAverage={true}
+                    hideStatsShowOnlyAttendanceStat={true}
+                    hideTextStats={true}
+                    key={teacher.accountId}
+                    fullName={`${teacher.firstName} ${teacher.lastName}`}
+                    // title={`${teacher.courseId}`}
+                    studentId={teacher.accountId}
+                    onPress={() =>
+                      navigation.navigate("InstructorAttendanceViewScreen", {
+                        id: teacher.accountId,
+                      })
+                    }
+                  />
+                )}
+                keyExtractor={(item) => `${item.accountId}`}
+                ListFooterComponent={() => <View className="h-36" />}
+              />
+
+              <CustomPagination
+                currentPage={currentPage}
+                numberOfPage={Math.ceil(totalCount / perPage)}
+                onNextPress={() =>
+                  handlePaginationNextPress(
+                    currentPage,
+                    totalCount,
+                    setCurrentPage
+                  )
+                }
+                onPressItem={(val) => {
+                  handlePaginationItemPress(
+                    val,
+                    Math.ceil(perPage / currentPage),
+                    setCurrentPage
+                  );
+                }}
+                onPrevPress={() => {
+                  handlePaginationPrevPress(
+                    currentPage,
+                    totalCount,
+                    setCurrentPage
+                  );
+                }}
+              />
+            </>
+          ) : (
+            <Text>No Teacher</Text>
+          )}
+        </View>
+      )}
       {/* <FloatingButton title={"Export Teacher"} /> */}
     </View>
   );

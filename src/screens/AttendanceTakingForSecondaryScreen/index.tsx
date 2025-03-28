@@ -25,6 +25,7 @@ import {
 import NfcManager, { Ndef, NfcEvents } from "react-native-nfc-manager";
 import NfcAttendanceTakingNotSupported from "../AttendanceTakingScreen/NfcAttendanceTakingNotSupported";
 import { StudentAttendanceMarked } from "@/src/components/UI/StudentOverviewCard";
+import { Text } from "react-native";
 
 const AttendanceTakingForSecondaryScreen = () => {
   const [loadingMarkingAttendance, setLoadingMarkingAttendance] =
@@ -73,10 +74,6 @@ const AttendanceTakingForSecondaryScreen = () => {
   const readTag = async () => {
     await NfcManager.registerTagEvent();
   };
-
-  //   const disableTagReading = async () => {
-  //     await NfcManager.unregisterTagEvent();
-  //   };
 
   useEffect(() => {
     handleMarkSecondaryAttendance();
@@ -167,13 +164,21 @@ const AttendanceTakingForSecondaryScreen = () => {
 
       <View className="justify-center">
         <View className="justify-center items-center">
-          <SubheadingSemibold18 text="School Name" />
+          <SubheadingSemibold18
+            text={
+              isSchool
+                ? user.accounts[0].school?.name || "School name"
+                : "School Name"
+            }
+            customClassName="text-center text-base"
+          />
+
           <DescriptionText
             text={`${moment().format("dddd, Do MMM.")} (${moment().format(
               "hh:mma"
             )} - ${moment().add(2, "h").format("hh:mma")})`}
             type={TextFontType.Medium}
-            customClassName="my-2"
+            customClassName="my-2 text-sm"
           />
           <View className="w-[208px] h-[287px] my-12">
             <Image
