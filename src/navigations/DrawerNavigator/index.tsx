@@ -1,29 +1,25 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
-import React from "react";
-import {
-  DrawerContentComponentProps,
-  DrawerItem,
-  DrawerItemList,
-  createDrawerNavigator,
-} from "@react-navigation/drawer";
-import HomeScreen from "@/src/screens/HomeScreen";
 import VlogoImg from "@/assets/images/Vlogo1.png";
-import { SubheadingSemibold18 } from "@/src/theme/typography";
-import {
-  Feather,
-  Entypo,
-  Ionicons,
-  Octicons,
-  MaterialCommunityIcons,
-  AntDesign,
-  FontAwesome,
-  MaterialIcons,
-} from "@expo/vector-icons";
+import { showToast } from "@/src/components/UI/showToast";
+import HomeScreen from "@/src/screens/HomeScreen";
 import { COLORS } from "@/src/theme/colors";
+import { SubheadingSemibold18 } from "@/src/theme/typography";
 import { BodyRegular } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
+import {
+  AntDesign,
+  Entypo,
+  FontAwesome,
+  Ionicons,
+  MaterialIcons,
+  Octicons,
+} from "@expo/vector-icons";
+import {
+  DrawerContentComponentProps,
+  createDrawerNavigator,
+} from "@react-navigation/drawer";
 import * as Updates from "expo-updates";
-import { showToast } from "@/src/components/UI/showToast";
+import React from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 
 const DrawerNavigator = () => {
   const Drawer = createDrawerNavigator();
@@ -34,30 +30,16 @@ const DrawerNavigator = () => {
       drawerContent={(props) => <CustomDrawerContent {...props} />}
     >
       <Drawer.Screen name="HomeScreen" component={HomeScreen} />
-      {/* <Drawer.Screen name="HomeScreen" component={TestScreen} /> */}
     </Drawer.Navigator>
   );
 };
 
 export default DrawerNavigator;
 
-const TestScreen = () => {
-  return (
-    <View className="flex-1 bg-white items-center justify-center">
-      <Text>Hi there, Test Screen Here!</Text>
-    </View>
-  );
-};
-
 const CustomDrawerContent = (props: DrawerContentComponentProps) => {
-  // console.log(Object.keys(props.descriptors));
-
   async function onFetchUpdateAsync() {
     try {
       const update = await Updates.checkForUpdateAsync();
-
-      // console.log(update, 'update');
-      // ShowNativeAlert({msg: JSON.stringify(update)});
 
       if (update.isAvailable) {
         showToast("New update available!");
@@ -67,7 +49,6 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
         showToast("No new update available.");
       }
     } catch (error) {
-      // You can also add an alert() to see the error message in case of an error when fetching updates.
       alert(`Error fetching latest Expo update: ${error}`);
     }
   }
@@ -112,18 +93,6 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           label="About Us"
           onPress={() => props.navigation.navigate("AboutUsScreen")}
         />
-        {/* <CustomDrawerContentItem
-          iconName="terminal-outline"
-          Icon={Ionicons}
-          label="Terms & conditions"
-          showMoreIcon={false}
-        /> */}
-        {/* <CustomDrawerContentItem
-          iconName="shield-account-outline"
-          Icon={MaterialCommunityIcons}
-          label="Privacy policy"
-          showMoreIcon={false}
-        /> */}
         <CustomDrawerContentItem
           iconName="people"
           Icon={Octicons}
@@ -138,13 +107,6 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           showMoreIcon={false}
           onPress={onFetchUpdateAsync}
         />
-        {/* <CustomDrawerContentItem
-          iconName="people"
-          Icon={Octicons}
-          label="Create new Student  tag"
-          showMoreIcon={false}
-          onPress={() => props.navigation.navigate("CreateNewStudentTagScreen")}
-        /> */}
       </View>
       <View className="justify-center items-center mt-[75%]">
         <TouchableOpacity

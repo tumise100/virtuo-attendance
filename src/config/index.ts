@@ -1,4 +1,5 @@
 import { combineStore as Store } from "@/src/store/index";
+import { showToast } from "../components/UI/showToast";
 
 // export const API_URL = "http://161.97.118.183:2024";
 // export const _API_URL = "https://api.virtuobusiness.com";
@@ -24,7 +25,7 @@ export default async function FetchClient({
   body?: any;
   headers?: Record<string, string>;
 }) {
-  const { token } = Store.getState();
+  const { token, updateUserToken } = Store.getState();
 
   const config = {
     method: method ? method : HttpMethod.GET,
@@ -42,8 +43,17 @@ export default async function FetchClient({
     let data = await response.json();
     let responseStatus = response.status;
 
+    if (data?.message === "Unauthorized") {
+      updateUserToken("");
+    }
+
     return { responseData: data, responseStatus };
   } catch (error) {
+    // @ts-ignore
+    if (error && error.message) {
+      // @ts-ignore
+      showToast(error.message);
+    }
     throw error;
   }
 }

@@ -64,8 +64,8 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
                   }
                 })
                 .catch((err) => {
-                  showToast("Wrong Credentials!");
-                  console.log(err, "err");
+                  // showToast("Wrong Credentials!");
+                  console.log(err, err.message, "err");
                 })
                 .finally(() => setLoading(false));
             }}

@@ -16,6 +16,12 @@ import { TextFontType } from "@/src/theme/typography/typography";
 import { ScrollView } from "react-native";
 import StudentOverviewCard from "@/src/components/UI/StudentOverviewCard";
 import FloatingButton from "@/src/components/UI/Buttons/FloatingButton";
+import { FlatList } from "react-native";
+import CustomPagination, {
+  handlePaginationItemPress,
+  handlePaginationNextPress,
+  handlePaginationPrevPress,
+} from "@/src/components/UI/Buttons/CustomPagination";
 
 const SecondaryAllTeacherScreen = ({
   navigation,
@@ -25,6 +31,11 @@ const SecondaryAllTeacherScreen = ({
   const [loading, setLoading] = useState(false);
   const { user } = combineStore();
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage] = useState(100);
+  const [totalCount, setTotalCount] = useState(0);
+
   const { filterStudentsByModalRef } = useContext(FilterModalContext);
 
   useEffect(() => {
@@ -32,13 +43,18 @@ const SecondaryAllTeacherScreen = ({
       fetchAllSchoolTeachers(user.accounts[0].school?.accountId);
       console.log(user.accounts[0].id, "user.accounts[0].id");
     }
-  }, [user]);
+  }, [user, currentPage, perPage, searchTerm]);
 
-  const fetchAllSchoolTeachers = async (lecturerId: number) => {
+  const fetchAllSchoolTeachers = async (
+    lecturerId: number,
+    currentPage?: number,
+    perPage?: number,
+    searchTerm?: string
+  ) => {
     if (!user) return;
 
     setLoading(true);
-    GetAllSchoolTeacher(lecturerId)
+    GetAllSchoolTeacher(lecturerId, currentPage, perPage, searchTerm)
       .then(({ responseData, responseStatus }) => {
         console.log(
           JSON.stringify(responseData),
@@ -48,6 +64,7 @@ const SecondaryAllTeacherScreen = ({
         // return;
         if (responseStatus === 200) {
           setAllTeachers(responseData.data);
+          setTotalCount(responseData.meta.totalCount);
         } else {
           console.log(responseData, "some data 2");
         }
@@ -88,6 +105,8 @@ const SecondaryAllTeacherScreen = ({
       <InputWithFilter
         filterModalRef={filterStudentsByModalRef}
         placeHolder="Search for teachers"
+        // value={searchTerm}
+        // onChangeText={setSearchTerm}
       />
       <View className="flex-1">
         <AttendanceHistoryButton
@@ -100,46 +119,67 @@ const SecondaryAllTeacherScreen = ({
         <View className="flex-row justify-between items-center">
           <BodyText text="Teachers" type={TextFontType.Bold} />
           <BodyText
-            text={`${allTeachers.length || 0}`}
+            // text={`${allTeachers.length || 0}`}
+            text={`${totalCount || 0}`}
             type={TextFontType.Bold}
           />
         </View>
-        <ScrollView className="flex-1 mt-2">
-          {allTeachers && allTeachers.length ? (
-            allTeachers.map((student) => (
-              <StudentOverviewCard
-                hideStatsShowOnlyAttendanceAverage={true}
-                hideStatsShowOnlyAttendanceStat={true}
-                hideTextStats={true}
-                key={student.accountId}
-                fullName={`${student.firstName} ${student.lastName}`}
-                // title={`${student.courseId}`}
-                studentId={student.accountId}
-                onPress={() =>
-                  navigation.navigate("InstructorAttendanceViewScreen", {
-                    id: student.accountId,
-                  })
-                }
-                // level={
-                //   isSecondaryInstructor
-                //     ? ""
-                //     : convertLevelStringToNumber(student.level)
-                // }
-                // subtitle={
-                //   isSecondaryInstructor
-                //     ? `${student.class?.name} (${student.department?.name})`
-                //     : ""
-                // }
-              />
-            ))
-          ) : (
-            <Text>No Teacher</Text>
-          )}
 
-          <View className="h-20" />
-        </ScrollView>
+        {allTeachers && allTeachers.length ? (
+          <>
+            <FlatList
+              data={allTeachers.slice(0, perPage)}
+              renderItem={({ item: teacher, index }) => (
+                <StudentOverviewCard
+                  hideStatsShowOnlyAttendanceAverage={true}
+                  hideStatsShowOnlyAttendanceStat={true}
+                  hideTextStats={true}
+                  key={teacher.accountId}
+                  fullName={`${teacher.firstName} ${teacher.lastName}`}
+                  // title={`${teacher.courseId}`}
+                  studentId={teacher.accountId}
+                  onPress={() =>
+                    navigation.navigate("InstructorAttendanceViewScreen", {
+                      id: teacher.accountId,
+                    })
+                  }
+                />
+              )}
+              keyExtractor={(item) => `${item.accountId}`}
+              ListFooterComponent={() => <View className="h-36" />}
+            />
+
+            <CustomPagination
+              currentPage={currentPage}
+              numberOfPage={Math.ceil(totalCount / perPage)}
+              onNextPress={() =>
+                handlePaginationNextPress(
+                  currentPage,
+                  totalCount,
+                  setCurrentPage
+                )
+              }
+              onPressItem={(val) => {
+                handlePaginationItemPress(
+                  val,
+                  Math.ceil(perPage / currentPage),
+                  setCurrentPage
+                );
+              }}
+              onPrevPress={() => {
+                handlePaginationPrevPress(
+                  currentPage,
+                  totalCount,
+                  setCurrentPage
+                );
+              }}
+            />
+          </>
+        ) : (
+          <Text>No Teacher</Text>
+        )}
       </View>
-      <FloatingButton title={"Export Teacher"} />
+      {/* <FloatingButton title={"Export Teacher"} /> */}
     </View>
   );
 };

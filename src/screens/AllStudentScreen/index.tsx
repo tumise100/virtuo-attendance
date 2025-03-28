@@ -15,14 +15,25 @@ import { BodyText } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
 import { convertLevelStringToNumber } from "@/src/utils";
 import React, { useContext, useEffect, useState } from "react";
-import { ScrollView, StatusBar, Text, View } from "react-native";
+import { FlatList, ScrollView, StatusBar, Text, View } from "react-native";
 import { AttendanceHistoryButton } from "../AttendanceHistoryScreen/components";
+import CustomPagination, {
+  handlePaginationItemPress,
+  handlePaginationNextPress,
+  handlePaginationPrevPress,
+} from "@/src/components/UI/Buttons/CustomPagination";
+import { showToast } from "@/src/components/UI/showToast";
 
 const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
   // const [allStudents, setAllStudents] = useState<IStudentItem[] | null>(null);
   const [allStudents, setAllStudents] = useState<IStudentUser[] | null>(null);
   const [loading, setLoading] = useState(false);
   const { user } = combineStore();
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage] = useState(100);
+  const [totalCount, setTotalCount] = useState(0);
 
   const { filterStudentsByModalRef } = useContext(FilterModalContext);
 
@@ -36,24 +47,31 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
 
   useEffect(() => {
     if (user) {
-      fetchAllMyStudents(user.accounts[0].id);
+      fetchAllMyStudents(user.accounts[0].id, currentPage, perPage, searchTerm);
       // console.log(user.accounts[0].id, "user.accounts[0].id");
       console.log(user.accounts[0], "user.accounts[0].id");
     }
-  }, [user]);
+  }, [user, currentPage, perPage, searchTerm]);
 
-  const fetchAllMyStudents = async (id: number) => {
+  const fetchAllMyStudents = async (
+    id: number,
+    currentPage?: number,
+    perPage?: number,
+    searchTerm?: string
+  ) => {
     if (!user) return;
 
     setLoading(true);
     await (isSecondaryInstructor
-      ? GetTeacherStudents(id)
+      ? GetTeacherStudents(id, currentPage, perPage, searchTerm)
       : isTertiaryInstructor
-      ? GetMyStudents(id)
-      : GetSchoolStudents(id)
+      ? GetMyStudents(id, currentPage, perPage, searchTerm)
+      : GetSchoolStudents(id, currentPage, perPage, searchTerm)
     )
       .then(({ responseData, responseStatus }) => {
         if (responseStatus === 200) {
+          console.log(responseData, "responseData");
+
           if (isTertiaryInstructor) {
             setAllStudents(
               responseData.data.map((item: any) => ({
@@ -63,24 +81,18 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
           } else {
             setAllStudents(responseData.data);
           }
+
+          setTotalCount(responseData.meta.totalCount);
         } else {
           console.log(responseData, "some data 2");
         }
       })
       .catch((err) => {
-        console.log(err, "err");
+        // showToast(err);
+        console.log(err.message, "err");
       })
       .finally(() => setLoading(false));
   };
-
-  if (loading) {
-    return (
-      <View className="flex-1 px-4 py-7 bg-white">
-        <LoadingComponent />
-        <LoadingComponent />
-      </View>
-    );
-  }
 
   if (!allStudents)
     return (
@@ -100,52 +112,92 @@ const AllStudentScreen = ({ navigation, route }: StackNavigationProps) => {
         <BackBtn />
         <SubheadingSemibold18 text="Students" customClassName="ml-5" />
       </View>
-      <InputWithFilter filterModalRef={filterStudentsByModalRef} />
-      <View className="flex-1">
-        {(isSecondaryInstructor || isSchoolUser) && (
-          <AttendanceHistoryButton
-            title="Attendance history"
-            onPress={() => navigation.navigate("AttendanceHistoryScreen")}
-          />
-        )}
-        <View className="flex-row justify-between items-center">
-          <BodyText text="Students" type={TextFontType.Bold} />
-          <BodyText
-            text={`${allStudents.length || 0}`}
-            type={TextFontType.Bold}
-          />
+      <InputWithFilter
+        filterModalRef={filterStudentsByModalRef}
+        // value={searchTerm}
+        // onChangeText={setSearchTerm}
+      />
+
+      {loading ? (
+        <View className="flex-1 bg-white">
+          <LoadingComponent />
+          <LoadingComponent />
         </View>
-        <ScrollView className="flex-1 mt-2">
+      ) : (
+        <View className="flex-1">
+          {(isSecondaryInstructor || isSchoolUser) && (
+            <AttendanceHistoryButton
+              title="Attendance history"
+              onPress={() => navigation.navigate("AttendanceHistoryScreen")}
+            />
+          )}
+          <View className="flex-row justify-between items-center">
+            <BodyText text="Students" type={TextFontType.Bold} />
+            <BodyText
+              // text={`${allStudents.length || 0}`}
+              text={`${totalCount || 0}`}
+              type={TextFontType.Bold}
+            />
+          </View>
+
           {allStudents && allStudents.length ? (
-            allStudents.map((student) => (
-              <StudentOverviewCard
-                hideStatsShowOnlyAttendanceAverage={true}
-                hideStatsShowOnlyAttendanceStat={true}
-                hideTextStats={true}
-                key={student.accountId}
-                fullName={`${student.firstName} ${student.lastName}`}
-                // title={`${student.courseId}`}
-                studentId={student.accountId}
-                level={
-                  isSecondaryInstructor
-                    ? ""
-                    : convertLevelStringToNumber(student.level)
-                }
-                subtitle={
-                  isSecondaryInstructor
-                    ? `${student.class?.name} (${student.department?.name})`
-                    : ""
-                }
+            <>
+              <FlatList
+                data={allStudents.slice(0, perPage)}
+                renderItem={({ item: student, index }) => (
+                  <StudentOverviewCard
+                    hideStatsShowOnlyAttendanceAverage={true}
+                    hideStatsShowOnlyAttendanceStat={true}
+                    hideTextStats={true}
+                    key={student.accountId}
+                    fullName={`${student.firstName} ${student.lastName}`}
+                    studentId={student.accountId}
+                    level={
+                      isSecondaryInstructor
+                        ? ""
+                        : convertLevelStringToNumber(student.level)
+                    }
+                    subtitle={
+                      isSecondaryInstructor
+                        ? `${student.class?.name} (${student.department?.name})`
+                        : ""
+                    }
+                  />
+                )}
+                keyExtractor={(item) => `${item.accountId}`}
               />
-            ))
+              <CustomPagination
+                currentPage={currentPage}
+                numberOfPage={Math.ceil(totalCount / perPage)}
+                onNextPress={() =>
+                  handlePaginationNextPress(
+                    currentPage,
+                    totalCount,
+                    setCurrentPage
+                  )
+                }
+                onPressItem={(val) => {
+                  handlePaginationItemPress(
+                    val,
+                    Math.ceil(perPage / currentPage),
+                    setCurrentPage
+                  );
+                }}
+                onPrevPress={() => {
+                  handlePaginationPrevPress(
+                    currentPage,
+                    totalCount,
+                    setCurrentPage
+                  );
+                }}
+              />
+            </>
           ) : (
             <Text>No Student</Text>
           )}
-
-          <View className="h-20" />
-        </ScrollView>
-      </View>
-      <FloatingButton title={"Export Student"} />
+        </View>
+      )}
+      {/* <FloatingButton title={"Export Student"} /> */}
     </View>
   );
 };

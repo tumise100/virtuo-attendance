@@ -9,15 +9,19 @@ import { ModalProp } from "@/src/shared";
 const InputWithFilter = ({
   placeHolder,
   filterModalRef,
+  value,
+  onChangeText,
 }: {
   placeHolder?: string;
   filterModalRef: React.RefObject<ModalProp>;
+  value?: string;
+  onChangeText?: (text: string) => void;
 }) => {
   return (
     <View className="my-5 flex-row items-center">
       <CustomPaperTextInputWithIcons
         outerStyle="bg-white border border-borderColor flex-[.9]"
-        innerStyle="bg-white text-sm"
+        innerStyle="bg-white text-sm text-black"
         inputStyle={{ height: 50 }}
         containerStyle={{ height: 48 }}
         rightComponent={
@@ -28,6 +32,8 @@ const InputWithFilter = ({
           />
         }
         placeholder={placeHolder || "Search for student"}
+        value={value}
+        onChangeText={onChangeText}
       />
       <TouchableOpacity
         onPress={() => filterModalRef.current?.setVisible(true)}

@@ -6,15 +6,22 @@ import { PaperProvider } from "react-native-paper";
 import AuthNavigator from "./src/navigations/AuthNavigator";
 import BaseNavigator from "./src/navigations/BaseNavigator";
 import NfcScreen from "./src/screens/NfcScreen";
+import { combineStore } from "./src/store";
 
 export default function App() {
   const Stack = createStackNavigator();
+
+  const { token } = combineStore();
+
   return (
     <PaperProvider>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="AuthNavigator" component={AuthNavigator} />
-          <Stack.Screen name="BaseNavigator" component={BaseNavigator} />
+          {token ? (
+            <Stack.Screen name="BaseNavigator" component={BaseNavigator} />
+          ) : (
+            <Stack.Screen name="AuthNavigator" component={AuthNavigator} />
+          )}
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>

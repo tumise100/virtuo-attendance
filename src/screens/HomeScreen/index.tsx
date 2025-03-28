@@ -46,12 +46,10 @@ const HomeScreen = ({
           console.log(responseData, "responseData");
           showToast(responseData.message);
         } else if (responseData.accounts) {
-          // getLecturerRecentClasses(responseData.accounts[0].id);
           updateUser(responseData);
         }
       })
       .catch((err) => {
-        // showToast("Wrong Credentials!");
         console.log(err, "err");
       })
       .finally(() => {

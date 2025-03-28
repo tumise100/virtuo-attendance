@@ -34,6 +34,11 @@ const AllTeacherScreen = ({ navigation, route }: StackNavigationProps) => {
   const [loading, setLoading] = useState(false);
   const { user } = combineStore();
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage] = useState(100);
+  const [totalCount, setTotalCount] = useState(0);
+
   const { filterStudentsByModalRef } = useContext(FilterModalContext);
 
   const isSecondaryInstructor =
@@ -44,9 +49,14 @@ const AllTeacherScreen = ({ navigation, route }: StackNavigationProps) => {
       fetchAllMyStudents(user.accounts[0].id);
       console.log(user.accounts[0].id, "user.accounts[0].id");
     }
-  }, [user]);
+  }, [user, currentPage, perPage, searchTerm]);
 
-  const fetchAllMyStudents = async (lecturerId: number) => {
+  const fetchAllMyStudents = async (
+    lecturerId: number,
+    currentPage?: number,
+    perPage?: number,
+    searchTerm?: string
+  ) => {
     if (!user) return;
 
     setLoading(true);

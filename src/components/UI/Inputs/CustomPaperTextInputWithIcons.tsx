@@ -59,8 +59,9 @@ const CustomPaperTextInputWithIcons: React.FC<
       <TextInput
         mode="flat"
         style={[styles.input, inputStyle]}
-        className={innerStyle}
+        className={`${innerStyle}`}
         // textColor={isDarkMode ? COLORS.black : COLORS.black}
+        textColor="black"
         label={label}
         activeUnderlineColor="black"
         placeholder={placeholder}

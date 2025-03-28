@@ -1,8 +1,15 @@
 import FetchClient from "../config";
 
-export async function GetSchoolStudents(schoolId: number) {
+export async function GetSchoolStudents(
+  schoolId: number,
+  currentPage?: number,
+  perPage?: number,
+  search?: string
+) {
   return FetchClient({
-    endpoint: `/school/students/${schoolId}?limit=1000`,
+    endpoint: `/school/students/${schoolId}?limit=${
+      perPage || 100
+    }&page=${currentPage}&search=${search}`,
   });
 }
 
