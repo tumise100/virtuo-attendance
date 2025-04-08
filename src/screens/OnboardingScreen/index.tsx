@@ -22,7 +22,7 @@ const OnboardingScreen = ({ navigation }: StackNavigationProps) => {
         barStyle={"light-content"}
         animated
       />
-      <View className="h-[50%] w-full bg-info-500 items-center overflow-hidden">
+      <View className="h-[65%] w-full bg-info-500 items-center overflow-hidden">
         <View className="w-full h-full items-center">
           <Image
             source={Image3}

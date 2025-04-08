@@ -46,7 +46,7 @@ const SecondaryStudentAttendanceViewScreen = ({
   const isSecondaryInstructor =
     user?.accounts[0].lecturer?.lecturerType === "SECONDARY";
 
-  // const isSchool = user?.accounts[0].school?.accountId;
+  const isSchool = user?.accounts[0].school?.accountId;
 
   useEffect(() => {
     if (route && route.params && route.params.id) {
@@ -131,21 +131,23 @@ const SecondaryStudentAttendanceViewScreen = ({
           }
           customClassName="ml-5"
         />
-        <TouchableOpacity
-          disabled={loadingMarkingAttendance}
-          onPress={() =>
-            handleMarkSecondaryStudentAttendance(
-              `${studentAttendance?.studentData?.accountId}`
-            )
-          }
-          className="p-1 ml-auto rounded-md border border-neutral-300"
-        >
-          {loadingMarkingAttendance ? (
-            <ActivityIndicator size={"small"} color={COLORS.black} />
-          ) : (
-            <Feather name="check" size={19} />
-          )}
-        </TouchableOpacity>
+        {isSchool ? null : (
+          <TouchableOpacity
+            disabled={loadingMarkingAttendance}
+            onPress={() =>
+              handleMarkSecondaryStudentAttendance(
+                `${studentAttendance?.studentData?.accountId}`
+              )
+            }
+            className="p-1 ml-auto rounded-md border border-neutral-300"
+          >
+            {loadingMarkingAttendance ? (
+              <ActivityIndicator size={"small"} color={COLORS.black} />
+            ) : (
+              <Feather name="check" size={19} />
+            )}
+          </TouchableOpacity>
+        )}
       </View>
       <View className="flex-row justify-between items-center mt-7">
         <AttendanceCard

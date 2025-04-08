@@ -13,6 +13,7 @@ export const CustomButton = ({
   loadingWithText,
   customClassName,
   containerClassName,
+  loadingColor,
 }: {
   title: string;
   outline?: boolean;
@@ -20,6 +21,7 @@ export const CustomButton = ({
   onPress?: () => void;
   loading?: boolean;
   loadingWithText?: boolean;
+  loadingColor?: string;
   customClassName?: string;
   containerClassName?: string;
 }) => {
@@ -44,7 +46,7 @@ export const CustomButton = ({
         } ${customClassName}`}
       >
         {loading ? (
-          <ActivityIndicator color={COLORS.white} />
+          <ActivityIndicator color={loadingColor || COLORS.white} />
         ) : (
           <Text
             className={`text-white font-medium ${

@@ -21,6 +21,7 @@ import { IClassDetail, ICourse } from "@/src/contracts/course";
 import LoadingComponent from "@/src/components/UI/LoadingComponent";
 import { GetAClass } from "@/src/services/courses";
 import { convertLevelStringToNumber } from "@/src/utils";
+import moment from "moment";
 
 const ClassViewScreen = ({ navigation, route }: StackNavigationProps) => {
   const classViewFilterModalRef = useRef<ModalProp>(null);
@@ -55,6 +56,7 @@ const ClassViewScreen = ({ navigation, route }: StackNavigationProps) => {
         console.log(
           // JSON.stringify(responseData),
           responseStatus,
+          responseData,
           "fetchClassViewDetail"
         );
         if (responseStatus === 200) {
@@ -105,8 +107,8 @@ const ClassViewScreen = ({ navigation, route }: StackNavigationProps) => {
           customclassName="mt-6"
           title={classViewDetail.course.title}
           courseCode={classViewDetail.course.code}
-          endTime={classViewDetail.startTime}
-          startTime={classViewDetail.endTime}
+          endTime={classViewDetail.endTime}
+          startTime={classViewDetail.startTime}
         />
 
         <View className="flex-row justify-between items-center mt-2">
@@ -147,7 +149,21 @@ const ClassViewScreen = ({ navigation, route }: StackNavigationProps) => {
           </ScrollView>
         </View>
       </View>
-      <FloatingButton title="Export attendance" />
+      {/* <FloatingButton title="Export attendance" /> */}
+      <FloatingButton
+        // title={
+        //   moment(classViewDetail.endTime).isBefore()
+        //     ? "Export attendance"
+        //     : `Mark Attendance`
+        // }
+        title="Mark Attendance"
+        onPress={() =>
+          navigation.navigate("AttendanceTakingScreen", {
+            courseId: classViewDetail.courseId,
+            classId: classViewDetail.id,
+          })
+        }
+      />
 
       <Modal
         ref={classViewFilterModalRef}

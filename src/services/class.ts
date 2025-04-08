@@ -1,6 +1,20 @@
 import FetchClient, { HttpMethod } from "../config";
 
-export async function CreatNewClass(input: {
+// export async function CreateNewClass(input: {
+//   courseId: number;
+//   day: string;
+//   startTime: string;
+//   endTime: string;
+// }) {
+//   return FetchClient({
+//     endpoint: `/courses/create-class`,
+//     // body: JSON.stringify(input),
+//     body: input,
+//     method: HttpMethod.POST,
+//   });
+// }
+
+export async function CreateNewClass(input: {
   courseId: number;
   day: string;
   startTime: string;
@@ -8,8 +22,15 @@ export async function CreatNewClass(input: {
 }) {
   return FetchClient({
     endpoint: `/courses/create-class`,
-    body: JSON.stringify(input),
     method: HttpMethod.POST,
+    body: input,
+  });
+}
+
+export async function DeleteClass({ classId }: { classId: number }) {
+  return FetchClient({
+    endpoint: `/courses/remove/${classId}`,
+    method: HttpMethod.DELETE,
   });
 }
 

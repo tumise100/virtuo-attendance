@@ -33,6 +33,8 @@ import {
 import NfcManager, { Ndef, NfcEvents, NfcTech } from "react-native-nfc-manager";
 import NfcAttendanceTakingNotSupported from "./NfcAttendanceTakingNotSupported";
 import DeleteClassModal from "./components/DeleteClassModal";
+import { CreateNewClass } from "@/src/services/class";
+import { extractLastNumber } from "@/src/utils";
 
 const AttendanceTakingScreen = ({
   navigation,
@@ -40,11 +42,11 @@ const AttendanceTakingScreen = ({
 }: StackNavigationProps) => {
   const [hasNfc, setHasNFC] = useState(false);
 
-  const [studentAttendance, setStudentAttendance] = useState<
-    StudentAttendance[] | null
-  >(null);
-  const [currentStudentAttendance, setCurrentStudentAttendance] =
-    useState<StudentAttendance | null>(null);
+  const [studentIds, setStudentIds] = useState<number[] | null>(null);
+  const [currentStudentId, setCurrentStudentId] = useState<number | null>(null);
+
+  const [isExistingClass, setIsExistingClass] = useState(false);
+  const [attendanceWasMarked, setAttendanceWasMarked] = useState(false);
 
   const [loadingCreateClass, setLoadingCreateClass] = useState(false);
 
@@ -65,7 +67,14 @@ const AttendanceTakingScreen = ({
 
   useEffect(() => {
     if (route && route.params && route.params.courseId && hasNfc) {
-      createNewClass(route.params.courseId);
+      const routeParams = route.params;
+
+      if (routeParams.courseId && routeParams.classId) {
+        setIsExistingClass(true);
+        setAttendanceWasMarked(true);
+      } else if (routeParams.courseId) {
+        handleCreateNewClass(route.params.courseId);
+      }
     }
     // console.log(route, "route");
   }, [route, hasNfc]);
@@ -93,7 +102,7 @@ const AttendanceTakingScreen = ({
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
       () => {
-        if (createdClass) {
+        if (createdClass && !attendanceWasMarked) {
           confirmNavigateBack();
           return true;
         } else {
@@ -103,18 +112,22 @@ const AttendanceTakingScreen = ({
     );
 
     return () => backHandler.remove();
-  }, [createdClass]);
+  }, [createdClass, attendanceWasMarked]);
 
-  const confirmNavigateBack = () => {
-    deleteModalRef.current?.setVisible(true);
-  };
+  const confirmNavigateBack = useCallback(() => {
+    if (createdClass && !attendanceWasMarked) {
+      deleteModalRef.current?.setVisible(true);
+    } else {
+      navigation.goBack();
+    }
+  }, [createdClass, attendanceWasMarked]);
 
   const handleConfirmDeleteClass = () => {
     deleteModalRef.current?.setVisible(false);
     navigation.goBack();
   };
 
-  const createNewClass = (courseId: number) => {
+  const handleCreateNewClass = (courseId: number) => {
     const day = moment().format("dddd");
     const startTime = moment().toISOString();
     const endTime = moment().add(2, "h").toISOString();
@@ -155,29 +168,31 @@ const AttendanceTakingScreen = ({
     return () => {
       NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
     };
-  }, [currentStudentAttendance, studentAttendance]);
+  }, [currentStudentId, studentIds]);
 
   const handleTagReading = useCallback(
     (tag: any) => {
       try {
-        const data = JSON.parse(
-          Ndef.uri.decodePayload(tag.ndefMessage[0].payload)
-        ) as StudentAttendance;
+        console.log(Ndef.uri.decodePayload(tag.ndefMessage[0].payload), "hi");
 
-        setCurrentStudentAttendance(data);
-        if (
-          studentAttendance &&
-          studentAttendance.find((sA) => sA.matric_no === data.matric_no)
-        ) {
+        const studentID = extractLastNumber(
+          Ndef.uri.decodePayload(tag.ndefMessage[0].payload)
+        );
+
+        if (!studentID) return showToast("Invalid Student Card!");
+
+        setCurrentStudentId(studentID);
+
+        if (studentIds && studentIds.includes(studentID)) {
           showToast("User has been registered already!");
         } else {
-          const a = [...(studentAttendance || []), data];
+          const a = [...(studentIds || []), studentID];
 
-          setStudentAttendance(a);
-          setCurrentStudentAttendance(data);
+          setStudentIds(a);
+          setCurrentStudentId(studentID);
           console.log(
-            data,
-            studentAttendance,
+            studentID,
+            studentIds,
             "tag data in here",
             "studentAttendance"
           );
@@ -191,7 +206,7 @@ const AttendanceTakingScreen = ({
         console.log(error, "error");
       }
     },
-    [studentAttendance, currentStudentAttendance]
+    [studentIds, currentStudentId]
   );
 
   const handleSubmitAttendanceToServer = ({
@@ -205,25 +220,31 @@ const AttendanceTakingScreen = ({
 
     setSubmitAttendanceloading(true);
     // setTimeout(() => {
-    //   showToast(`Attendance Sumbitted`);
+    //   showToast(`Attendance Submitted`);
     //   setSubmitAttendanceloading(false);
     // }, 1000);
 
-    // MarkAttencdance({ classId, studentId: studentId[0] })
-    MarkAttendance({ classId, studentId: 4 })
+    // MarkAttendance({ classId, studentId: 4 })
+    MarkAttendance({ classId, studentId: studentId[0] })
       .then(({ responseData, responseStatus }) => {
-        console.log(responseData, "handleSubmitAttendanceToServer");
-        if (!responseData.success) {
-          showToast(responseData?.message);
+        console.log(
+          responseData,
+          responseStatus,
+          "handleSubmitAttendanceToServe"
+        );
+        if (responseStatus === 201) {
+          showToast("Successful!");
+          setStudentIds(null);
+          setAttendanceWasMarked(true);
         } else {
-          console.log(responseData, "handleSubmitAttendanceToServer");
+          showToast(responseData?.message || "Something went wrong!");
           // navigation.navigate("StudentAttendanceScreen", {
           //   students: studentAttendance,
           // });
         }
       })
       .catch((err) => {
-        console.log(err, "handleSubmitAttendanceToServer");
+        console.log(err, "handleSubmitAttendanceToServe");
       })
       .finally(() => {
         setSubmitAttendanceloading(false);
@@ -280,7 +301,7 @@ const AttendanceTakingScreen = ({
               className="h-full w-full"
             />
           </View>
-          {!currentStudentAttendance ? (
+          {!currentStudentId ? (
             <>
               <H5Text
                 text="Hold your card against back of your phone"
@@ -295,25 +316,21 @@ const AttendanceTakingScreen = ({
             </>
           ) : null}
         </View>
-        <Text>{JSON.stringify(currentStudentAttendance)}</Text>
-        {currentStudentAttendance && studentAttendance ? (
+        {currentStudentId && studentIds ? (
           <View className="my-6">
             <StudentAttendanceMarked
-              name={currentStudentAttendance.name}
-              matric_no={currentStudentAttendance.matric_no}
-              level={currentStudentAttendance.level}
-              course={currentStudentAttendance.course}
-              id={currentStudentAttendance.id}
+              name={`Student #${currentStudentId}`}
+              id={`${currentStudentId}`}
             />
             <HeadingsSemibold24
               text="Thank you"
               customClassName="text-center"
             />
             <CustomButton
-              title={`Done. Upload to server (${studentAttendance.length})`}
+              title={`Done. Upload to server (${studentIds.length})`}
               onPress={handleSubmitAttendanceToServer.bind(this, {
                 classId: createdClass.id,
-                studentId: studentAttendance.map((sA) => +sA.id),
+                studentId: studentIds,
               })}
               customClassName="my-5"
               loading={submitAttendanceloading}

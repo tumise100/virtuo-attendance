@@ -36,3 +36,12 @@ export const extractStudentId = (url: string): number | null => {
   const match = url.match(/\/(\d+);?$/);
   return match ? parseInt(match[1], 10) : null;
 };
+
+
+export function extractLastNumber(input: string): number | null {
+  const matches = input.match(/\d+/g); // Match all number sequences
+  if (!matches || matches.length === 0) return null;
+
+  const lastNumber = matches[matches.length - 1];
+  return parseInt(lastNumber, 10);
+}

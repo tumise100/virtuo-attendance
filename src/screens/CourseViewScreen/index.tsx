@@ -5,6 +5,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { COLORS } from "@/src/theme/colors";
@@ -25,13 +26,28 @@ import {
   ICourseViewDetailClass,
 } from "@/src/contracts/course";
 import LoadingComponent from "@/src/components/UI/LoadingComponent";
-import { GetACourse } from "@/src/services/courses";
+import { GetACourse, GetCourseClasses } from "@/src/services/courses";
+import { FlatList } from "react-native";
+import DeleteCourseClassModal from "./components/DeleteCourseClassModal";
+import { showToast } from "@/src/components/UI/showToast";
+import { DeleteClass } from "@/src/services/class";
 
 const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
-  const courseSettingsModalRef = useRef<ModalProp>(null);
   const [courseCode, setCourseCode] = useState<string | null>(null);
   const [course, setCourse] = useState<ICourseViewDetail | null>(null);
+
+  const [courseClasses, setCourseClasses] = useState<
+    ICourseViewDetailClass[] | null
+  >(null);
+  const [selectedClassForDeletion, setSelectedClassForDeletion] =
+    useState<ICourseViewDetailClass | null>(null);
+
   const [loading, setLoading] = useState(false);
+  const [loadingCourseClasses, setLoadingCourseClasses] = useState(false);
+  const [deletingCourseClass, setDeletingCourseClass] = useState(false);
+
+  const courseSettingsModalRef = useRef<ModalProp>(null);
+  const deleteClassModalRef = useRef<ModalProp>(null);
 
   useEffect(() => {
     // console.log(route);
@@ -54,6 +70,7 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
         console.log(responseData, responseStatus, "my course");
         if (responseStatus === 200) {
           setCourse(responseData);
+          setCourseClasses(responseData.classes);
         } else {
           console.log(responseData, "some data 2");
         }
@@ -62,6 +79,63 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
         console.log(err, "err");
       })
       .finally(() => setLoading(false));
+  };
+
+  const handleRefetchCourseClasses = async () => {
+    if (!course) return;
+
+    setLoadingCourseClasses(true);
+
+    await GetCourseClasses(course.id)
+      .then(({ responseData, responseStatus }) => {
+        console.log(responseData, responseStatus, "my course classes");
+        if (responseStatus === 200) {
+          setCourseClasses(responseData.classes);
+        } else {
+          console.log(responseData, "some data 2");
+        }
+      })
+      .catch((err) => {
+        console.log(err, "err");
+      })
+      .finally(() => setLoadingCourseClasses(false));
+  };
+
+  const handleClassItemLongPress = ({
+    courseClass,
+  }: {
+    courseClass: ICourseViewDetailClass;
+  }) => {
+    console.log("Hii", courseClass);
+    setSelectedClassForDeletion(courseClass);
+    deleteClassModalRef.current?.setVisible(true);
+  };
+
+  const handleConfirmDeleteClass = () => {
+    setDeletingCourseClass(false);
+    if (!selectedClassForDeletion) return;
+
+    setDeletingCourseClass(true);
+    DeleteClass({ classId: selectedClassForDeletion.id })
+      .then(({ responseData, responseStatus }) => {
+        console.log(
+          responseData,
+          responseStatus,
+          selectedClassForDeletion.id,
+          `deleting course class`
+        );
+        if (responseStatus === 200) {
+          showToast("Deleted");
+        } else {
+          console.log(responseData, "some data 2");
+        }
+      })
+      .catch((err) => {
+        console.log(err, "err");
+      })
+      .finally(() => {
+        setDeletingCourseClass(false);
+      });
   };
 
   if (loading) {
@@ -127,14 +201,36 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
           />
         </View>
         <View className="flex-1">
-          <BodyText
-            text="Classes"
-            type={TextFontType.Bold}
-            customClassName="my-4"
-          />
-          <ScrollView className="flex-1">
-            {course && course.classes.length ? (
-              course.classes.map((courseClass) => (
+          <View className="flex-row items-center justify-between">
+            <BodyText
+              text="Classes"
+              type={TextFontType.Bold}
+              customClassName="my-4"
+            />
+            <TouchableOpacity
+              className="flex-row items-center"
+              onPress={handleRefetchCourseClasses}
+            >
+              {loadingCourseClasses ? (
+                <ActivityIndicator color={COLORS.black} />
+              ) : (
+                <Ionicons name="reload" size={18} />
+              )}
+              <Text className="ml-2">Refresh</Text>
+            </TouchableOpacity>
+          </View>
+
+          {loadingCourseClasses ? (
+            <View>
+              <LoadingComponent />
+              <LoadingComponent />
+            </View>
+          ) : // ) : course && course.classes.length ? (
+          course && courseClasses && courseClasses.length ? (
+            <FlatList
+              // data={course.classes}
+              data={courseClasses}
+              renderItem={({ item: courseClass }) => (
                 <ClassCardOverview
                   key={courseClass.id}
                   title={`Introduction to ${course.title} ${courseClass.id}`}
@@ -150,12 +246,16 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
                             100
                         )}`
                   }
+                  onLongPress={handleClassItemLongPress.bind(this, {
+                    courseClass,
+                  })}
+                  isSelected={courseClass.id === selectedClassForDeletion?.id}
                 />
-              ))
-            ) : (
-              <Text>No Data</Text>
-            )}
-          </ScrollView>
+              )}
+            />
+          ) : (
+            <Text>No Data</Text>
+          )}
         </View>
       </View>
       <FloatingButton
@@ -174,6 +274,18 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
       >
         <CourseSettingsModalContent modalRef={courseSettingsModalRef} />
       </Modal>
+
+      <DeleteCourseClassModal
+        deleteClassModalRef={deleteClassModalRef}
+        handleConfirmBtnPress={handleConfirmDeleteClass}
+        onCancel={() => {
+          if (!deletingCourseClass) {
+            deleteClassModalRef.current?.setVisible(false);
+            setSelectedClassForDeletion(null);
+          }
+        }}
+        deletingCourseClass={deletingCourseClass}
+      />
     </View>
   );
 };
@@ -181,8 +293,8 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
 export default CourseViewScreen;
 
 const extractAttendanceRateFromClass = (clasx: ICourseViewDetailClass) => {
-  const present = clasx.classAttendance.filter((cA) => cA.attended).length;
-  const total = clasx.classAttendance.length;
+  const present = clasx.classAttendance?.filter((cA) => cA.attended).length;
+  const total = clasx.classAttendance?.length;
 
   return { present, total };
 };

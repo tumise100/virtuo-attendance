@@ -1,4 +1,9 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  GestureResponderEvent,
+} from "react-native";
 import React from "react";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -23,6 +28,8 @@ const ClassCardOverview = ({
   startTime,
   endTime,
   attendanceRate,
+  onLongPress,
+  isSelected,
 }: {
   title: string;
   onPress?: () => void;
@@ -34,6 +41,8 @@ const ClassCardOverview = ({
   startTime?: string;
   endTime?: string;
   attendanceRate?: string;
+  onLongPress?: (event: GestureResponderEvent) => void;
+  isSelected?: boolean;
 }) => {
   const navigation = useNavigation<any>();
 
@@ -44,8 +53,10 @@ const ClassCardOverview = ({
           ? onPress()
           : navigation.navigate("ClassViewScreen", { classId });
       }}
-      // onPress={onPress}
-      className={`flex-row rounded-md items-center justify-between bg-info-500 p-3 mb-3 ${customclassName}`}
+      onLongPress={onLongPress}
+      className={`flex-row rounded-md items-center justify-between bg-info-500 p-3 mb-3 ${customclassName} ${
+        (isSelected) && "border-2 border-primary-400 bg-info-400"
+      }`}
     >
       <View className="bg-white p-[10px] rounded-full">
         <Ionicons name="trophy" size={19} color={COLORS.primary[500]} />
