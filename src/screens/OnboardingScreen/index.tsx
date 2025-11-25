@@ -16,7 +16,7 @@ const { width, height } = Dimensions.get("screen");
 
 const OnboardingScreen = ({ navigation }: StackNavigationProps) => {
   return (
-    <SafeAreaView className="flex-1">
+    <View className="flex-1">
       <StatusBar
         backgroundColor={COLORS.info[500]}
         barStyle={"light-content"}
@@ -43,12 +43,11 @@ const OnboardingScreen = ({ navigation }: StackNavigationProps) => {
           <CustomButton
             title="Signin"
             onPress={() => navigation.navigate("SignInScreen")}
-            outline
           />
         </View>
       </View>
       <View></View>
-    </SafeAreaView>
+    </View>
   );
 };
 

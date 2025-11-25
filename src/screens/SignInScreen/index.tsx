@@ -55,11 +55,9 @@ const SignInScreen = ({ navigation }: StackNavigationProps) => {
                     showToast(responseData.message);
                   } else {
                     if (responseData.accessToken) {
-                      // console.log(responseData, "some data");
                       combinedStore.updateUserToken(responseData.accessToken);
                       showToast("Log In Successful");
                       form.resetForm();
-                      navigation.navigate("BaseNavigator");
                     }
                   }
                 })

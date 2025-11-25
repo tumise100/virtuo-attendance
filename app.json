@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/Vlogo 1.png",
     "userInterfaceStyle": "light",
+    "newArchEnabled": true,
     "plugins": [
       "react-native-nfc-manager",
       [

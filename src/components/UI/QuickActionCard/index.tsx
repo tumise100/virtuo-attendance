@@ -46,7 +46,6 @@ const QuickActionCard = ({
       break;
   }
 
-  // console.log(color100, color200, color300);
 
   return (
     <TouchableOpacity
@@ -57,7 +56,9 @@ const QuickActionCard = ({
         <View className={`${color200} p-[5px] rounded-full`}>
           <View className={`${color300} p-[5px] rounded-full`}>
             {/* <Feather name="send" color={COLORS.white} /> */}
-            <AntDesign name="appstore-o" color={COLORS.white} />
+            {/* <AntDesign name="appstore-o" color={COLORS.white} /> */}
+            <AntDesign name="appstore" color={COLORS.white} />
+            
           </View>
         </View>
       </View>

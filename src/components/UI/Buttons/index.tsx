@@ -1,8 +1,7 @@
-import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
-import React from "react";
-import { LinearGradient } from "expo-linear-gradient";
 import { COLORS } from "@/src/theme/colors";
-import { Feather } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import React from "react";
+import { ActivityIndicator, Text, TouchableOpacity } from "react-native";
 
 export const CustomButton = ({
   title,

@@ -4,7 +4,7 @@ import { StatusBar } from "react-native";
 import { COLORS } from "@/src/theme/colors";
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
 import { SubheadingSemibold18 } from "@/src/theme/typography";
-import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
+import { AntDesign, Entypo, FontAwesome5 } from "@expo/vector-icons";
 
 const AboutUsScreen = () => {
   return (
@@ -30,7 +30,8 @@ const AboutUsScreen = () => {
           You can reach out to us on social media
         </Text>
         <View className="flex-row items-center justify-between w-[60%] mx-auto mt-6">
-          <AntDesign name="facebook-square" size={26} />
+          <Entypo name="facebook" size={26} />
+          
           <FontAwesome5 name="twitter-square" size={26} />
           <TouchableOpacity
             onPress={() => {
