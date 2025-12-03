@@ -8,6 +8,7 @@ import CustomPaperTextInput from "@/src/components/UI/Inputs/CustomPaperTextInpu
 import { CustomButton } from "@/src/components/UI/Buttons";
 import { showToast } from "@/src/components/UI/showToast";
 import NfcManager, { Ndef, NfcEvents, NfcTech } from "react-native-nfc-manager";
+import { RegisterStudentCard } from "@/src/services/student";
 
 const WriteStudentInfoTagScreen = () => {
   const [readyToWrite, setReadyToWrite] = useState(false);
@@ -30,6 +31,7 @@ const WriteStudentInfoTagScreen = () => {
         <Formik
           initialValues={{
             url: "https://v1.virtuobusiness.com/access",
+            email: "",
             student_id: "",
           }}
           onSubmit={async (values) => {
@@ -40,6 +42,27 @@ const WriteStudentInfoTagScreen = () => {
 
             try {
               await NfcManager.requestTechnology(NfcTech.Ndef);
+
+              const tag = await NfcManager.getTag();
+              const cardUid = tag?.id;
+
+              if (!cardUid) {
+                showToast("Unable to read card UID. Please try again.");
+                return result;
+              }
+
+              const registrationResponse = await RegisterStudentCard({
+                email: values.email,
+                cardUID: cardUid,
+              });
+
+              if (registrationResponse.responseStatus >= 400) {
+                showToast(
+                  registrationResponse.responseData?.message ||
+                    "Failed to register card UID."
+                );
+                return result;
+              }
 
               const bytes = Ndef.encodeMessage([
                 // Ndef.uriRecord(`${JSON.stringify(values)}`),
@@ -53,6 +76,7 @@ const WriteStudentInfoTagScreen = () => {
               }
             } catch (ex) {
               console.warn(JSON.stringify(ex));
+              showToast("Failed to create student tag. Please try again.");
             } finally {
               setReadyToWrite(false);
               NfcManager.cancelTechnologyRequest();
@@ -63,10 +87,14 @@ const WriteStudentInfoTagScreen = () => {
           validate={(values) => {
             const errors: {
               url?: string;
+              email?: string;
               student_id?: string;
             } = {};
             if (!values.url.trim().length) {
               errors.url = "Website Url required";
+            }
+            if (!values.email.trim().length) {
+              errors.email = "Student email is required";
             }
             if (!values.student_id.trim().length) {
               errors.student_id = "Student ID is required";
@@ -91,6 +119,14 @@ const WriteStudentInfoTagScreen = () => {
                 value={values.url}
                 placeholder="https://v1.https://v1.virtuobusiness.com"
                 error={touched.url ? errors.url : undefined}
+              />
+              <CustomPaperTextInput
+                label="Student Email"
+                onChangeText={handleChange("email")}
+                onBlur={handleBlur("email")}
+                value={values.email}
+                placeholder="student@example.com"
+                error={touched.email ? errors.email : undefined}
               />
               <CustomPaperTextInput
                 label="Student ID"

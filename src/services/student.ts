@@ -1,4 +1,4 @@
-import FetchClient from "../config";
+import FetchClient, { HttpMethod } from "../config";
 
 export async function GetAStudent({
   lecturerId,
@@ -35,5 +35,19 @@ export async function GetTeacherStudents(
     endpoint: `/students-attendance/lecturer/students/${id}?limit=${
       perPage || 100
     }&page=${currentPage}&search=${search}`,
+  });
+}
+
+export async function RegisterStudentCard({
+  email,
+  cardUID,
+}: {
+  email: string;
+  cardUID: string;
+}) {
+  return FetchClient({
+    endpoint: "/card/create",
+    method: HttpMethod.POST,
+    body: { email, cardUID },
   });
 }
