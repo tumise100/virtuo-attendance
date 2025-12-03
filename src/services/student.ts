@@ -39,15 +39,15 @@ export async function GetTeacherStudents(
 }
 
 export async function RegisterStudentCard({
-  studentId,
-  cardUid,
+  email,
+  cardUID,
 }: {
-  studentId: string;
-  cardUid: string;
+  email: string;
+  cardUID: string;
 }) {
   return FetchClient({
-    endpoint: "/students/register-card",
+    endpoint: "/card/create",
     method: HttpMethod.POST,
-    body: { studentId, cardUid },
+    body: { email, cardUID },
   });
 }

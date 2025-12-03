@@ -31,6 +31,7 @@ const WriteStudentInfoTagScreen = () => {
         <Formik
           initialValues={{
             url: "https://v1.virtuobusiness.com/access",
+            email: "",
             student_id: "",
           }}
           onSubmit={async (values) => {
@@ -51,8 +52,8 @@ const WriteStudentInfoTagScreen = () => {
               }
 
               const registrationResponse = await RegisterStudentCard({
-                studentId: values.student_id,
-                cardUid,
+                email: values.email,
+                cardUID: cardUid,
               });
 
               if (registrationResponse.responseStatus >= 400) {
@@ -86,10 +87,14 @@ const WriteStudentInfoTagScreen = () => {
           validate={(values) => {
             const errors: {
               url?: string;
+              email?: string;
               student_id?: string;
             } = {};
             if (!values.url.trim().length) {
               errors.url = "Website Url required";
+            }
+            if (!values.email.trim().length) {
+              errors.email = "Student email is required";
             }
             if (!values.student_id.trim().length) {
               errors.student_id = "Student ID is required";
@@ -114,6 +119,14 @@ const WriteStudentInfoTagScreen = () => {
                 value={values.url}
                 placeholder="https://v1.https://v1.virtuobusiness.com"
                 error={touched.url ? errors.url : undefined}
+              />
+              <CustomPaperTextInput
+                label="Student Email"
+                onChangeText={handleChange("email")}
+                onBlur={handleBlur("email")}
+                value={values.email}
+                placeholder="student@example.com"
+                error={touched.email ? errors.email : undefined}
               />
               <CustomPaperTextInput
                 label="Student ID"
