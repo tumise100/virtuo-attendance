@@ -79,7 +79,7 @@ const WriteStudentInfoTagScreen = () => {
               showToast("Failed to create student tag. Please try again.");
             } finally {
               setReadyToWrite(false);
-              NfcManager.cancelTechnologyRequest();
+              await NfcManager.cancelTechnologyRequest();
             }
 
             return result;
