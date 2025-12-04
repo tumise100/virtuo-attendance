@@ -79,24 +79,31 @@ const AttendanceTakingScreen = ({
     // console.log(route, "route");
   }, [route, hasNfc]);
 
-  useEffect(() => {
-    const checkIsSupported = async () => {
-      const deviceIsSupported = await NfcManager.isSupported();
-      // const deviceIsSupported = false;
+  const checkIsSupported = useCallback(async () => {
+    const deviceIsSupported = await NfcManager.isSupported();
+    if (!deviceIsSupported) {
+      setHasNFC(false);
+      return;
+    }
 
-      console.log(deviceIsSupported, "deviceIsSupported");
-      setHasNFC(deviceIsSupported);
-      // if (deviceIsSupported) {
-      //   await NfcManager.start();
-      //   NfcManager.requestTechnology(NfcTech.Ndef);
-      // }
-      if (deviceIsSupported) {
-        readTag();
-      }
-    };
+    await NfcManager.start();
+    const nfcEnabled = await NfcManager.isEnabled();
 
-    checkIsSupported();
+    if (!nfcEnabled) {
+      showToast("Please enable NFC in your device settings to continue");
+      NfcManager.goToNfcSetting?.();
+    }
+
+    setHasNFC(nfcEnabled);
+
+    if (nfcEnabled) {
+      readTag();
+    }
   }, []);
+
+  useEffect(() => {
+    checkIsSupported();
+  }, [checkIsSupported]);
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -252,7 +259,7 @@ const AttendanceTakingScreen = ({
   };
 
   if (!hasNfc) {
-    return <NfcAttendanceTakingNotSupported />;
+    return <NfcAttendanceTakingNotSupported onRetry={checkIsSupported} />;
   }
 
   if (loadingCreateClass) {

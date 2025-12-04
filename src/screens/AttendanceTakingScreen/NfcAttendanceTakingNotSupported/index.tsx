@@ -24,8 +24,15 @@ import {
   useCameraPermissions,
 } from "expo-camera";
 import { showToast } from "@/src/components/UI/showToast";
+import NfcManager from "react-native-nfc-manager";
 
-const NfcAttendanceTakingNotSupported = () => {
+type NfcAttendanceTakingNotSupportedProps = {
+  onRetry?: () => void;
+};
+
+const NfcAttendanceTakingNotSupported = ({
+  onRetry,
+}: NfcAttendanceTakingNotSupportedProps) => {
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
   const [scanResult, setScanResult] = useState<BarcodeScanningResult>();
@@ -122,7 +129,7 @@ const NfcAttendanceTakingNotSupported = () => {
             />
           </View>
           <H5Text
-            text="Your phone does not support NFC technology"
+            text="NFC is unavailable. Enable NFC in your phone settings to continue"
             type={TextFontType.Bold}
             customClassName="w-[85%] text-center"
           />
@@ -138,9 +145,21 @@ const NfcAttendanceTakingNotSupported = () => {
           />
         </View>
         <CustomButton
+          title="Open NFC settings"
+          onPress={() => NfcManager.goToNfcSetting?.()}
+          customClassName="mt-7"
+        />
+        {onRetry ? (
+          <CustomButton
+            title="Retry NFC check"
+            onPress={onRetry}
+            customClassName="mt-3"
+          />
+        ) : null}
+        <CustomButton
           title="SCAN QR CODE"
           onPress={() => setShowCamera(true)}
-          customClassName="mt-7"
+          customClassName="mt-3"
         />
       </View>
       <View className="h-24" />
