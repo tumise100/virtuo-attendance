@@ -44,20 +44,32 @@ const AttendanceTakingForSecondaryScreen = () => {
     user?.accounts[0].lecturer?.lecturerType === "SECONDARY";
   const isSchool = user?.accounts[0].school?.accountId;
 
-  useEffect(() => {
-    const checkIsSupported = async () => {
-      const deviceIsSupported = await NfcManager.isSupported();
-      // const deviceIsSupported = false;
+  const checkIsSupported = useCallback(async () => {
+    const deviceIsSupported = await NfcManager.isSupported();
 
-      console.log(deviceIsSupported, "deviceIsSupported");
-      setHasNFC(deviceIsSupported);
-      if (deviceIsSupported) {
-        readTag();
-      }
-    };
+    if (!deviceIsSupported) {
+      setHasNFC(false);
+      return;
+    }
 
-    checkIsSupported();
+    await NfcManager.start();
+    const nfcEnabled = await NfcManager.isEnabled();
+
+    if (!nfcEnabled) {
+      showToast("Please enable NFC in your device settings to continue");
+      NfcManager.goToNfcSetting?.();
+    }
+
+    setHasNFC(nfcEnabled);
+
+    if (nfcEnabled) {
+      readTag();
+    }
   }, []);
+
+  useEffect(() => {
+    checkIsSupported();
+  }, [checkIsSupported]);
 
   useEffect(() => {
     if (!disableTagReading) {
@@ -142,7 +154,7 @@ const AttendanceTakingForSecondaryScreen = () => {
   }, [userId]);
 
   if (!hasNfc) {
-    return <NfcAttendanceTakingNotSupported />;
+    return <NfcAttendanceTakingNotSupported onRetry={checkIsSupported} />;
   }
 
   return (
