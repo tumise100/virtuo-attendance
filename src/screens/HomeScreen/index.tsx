@@ -62,8 +62,6 @@ const HomeScreen = ({
   const [loadingSchedules, setLoadingSchedules] = useState(false);
   const [loadingUser, setLoadingUser] = useState(false);
 
-  const [loadingUser, setLoadingUser] = useState(false);
-
   useEffect(() => {
     fetchUser();
     fetchNotificationCount();
@@ -95,7 +93,7 @@ const HomeScreen = ({
       };
     }
     return null;
-  }, [sessions, selectedTermId, currentAcademicInfo]);
+  }, [sessions, activeTermId, currentAcademicInfo]);
 
   useEffect(() => {
     fetchAttendanceOverview();

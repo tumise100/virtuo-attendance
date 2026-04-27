@@ -602,7 +602,7 @@ const StudentViewScreen = ({ navigation, route }: StackNavigationProps) => {
     return (
       <ScreenContainer>
         <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color={COLORS.orange500} />
+          <ActivityIndicator size="large" color={COLORS.primary[500]} />
           <Text className="mt-4 text-gray-500">Loading student profile...</Text>
         </View>
       </ScreenContainer>
@@ -652,7 +652,7 @@ const StudentViewScreen = ({ navigation, route }: StackNavigationProps) => {
           <View className="h-24" />
         </ScrollView>
       </View>
-      <OptionsModal visible={modalVisible} onClose={() => setModalVisible(false)} />
+      <OptionsModal visible={modalVisible} onClose={() => setModalVisible(false)} onAction={handleAction} />
     </ScreenContainer>
   );
 };

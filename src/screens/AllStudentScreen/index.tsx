@@ -181,9 +181,9 @@ const AllStudentScreen = ({ navigation }: StackNavigationProps) => {
           }
           setAllStudents(rows as any);
           const total =
-            responseData?.meta?.total ??
-            responseData?.meta?.totalCount ??
-            responseData?.meta?.totalPages * perPage ??
+            (responseData?.meta?.total ??
+             responseData?.meta?.totalCount ??
+             (responseData?.meta?.totalPages || 0) * perPage) ||
             (Array.isArray(rows) ? rows.length : 0);
           setTotalCount(total);
         }

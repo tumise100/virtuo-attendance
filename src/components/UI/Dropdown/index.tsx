@@ -64,13 +64,15 @@ interface GenericDropdownProps {
   value?: any;
   onChange: (item: any) => void;
   style?: any;
+  disable?: boolean;
 }
 
-export const GenericDropdown = ({ data, labelField, valueField, placeholder, value, onChange, style }: GenericDropdownProps) => {
+export const GenericDropdown = ({ data, labelField, valueField, placeholder, value, onChange, style, disable }: GenericDropdownProps) => {
   const [isFocus, setIsFocus] = useState(false);
   return (
     <Dropdown
       style={[styles.dropdown, style, isFocus && { borderColor: COLORS.primary[500] }]}
+      disable={disable}
       placeholderStyle={[styles.placeholderStyle, { color: COLORS.neutral[400] }]}
       selectedTextStyle={[styles.placeholderStyle, { color: COLORS.textColor }]}
       data={data}

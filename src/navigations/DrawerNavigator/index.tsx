@@ -24,6 +24,7 @@ import {
 import * as Updates from "expo-updates";
 import React from "react";
 import { Image, Text, TouchableOpacity, View, ScrollView } from "react-native";
+import { asArray } from "@/src/utils";
 
 const DrawerNavigator = () => {
   const Drawer = createDrawerNavigator();
@@ -64,7 +65,6 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
     }
   }, [user]);
 
-  const asArray = (val: any) => (Array.isArray(val) ? val : []);
 
   const account = (user?.accounts as any[])?.[0] as any;
   const staff = account?.staff;

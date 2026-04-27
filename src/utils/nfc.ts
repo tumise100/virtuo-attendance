@@ -26,7 +26,7 @@ export const extractDataFromTag = (tag: any): string => {
       // b. Check if it's a URI record (Type 'U' [85])
       if (Array.isArray(record.type) && record.type[0] === 85) {
         try {
-          const decoded = Ndef.uri.decodePayload(payload);
+          const decoded = Ndef.uri.decodePayload(new Uint8Array(payload));
           if (decoded) return decoded.trim().toUpperCase();
         } catch (e) {
           // Fallback to raw if decoding fails
