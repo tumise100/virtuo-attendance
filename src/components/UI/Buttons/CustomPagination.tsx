@@ -37,7 +37,7 @@ const CustomPagination = ({
       <TouchableOpacity className="justify-center" onPress={onPrevPress}>
         {currentPage !== 1 ? (
           <AntDesign
-            name="arrowleft"
+            name="arrow-left"
             size={24}
             accessibilityLabel="Go to the previous pagination item"
             color={COLORS.gray3}
@@ -61,7 +61,7 @@ const CustomPagination = ({
         {currentPage !== numberOfPage ? (
           <AntDesign
             accessibilityLabel="Go to the next pagination item"
-            name="arrowright"
+            name="arrow-right"
             size={24}
             color={COLORS.gray3}
           />

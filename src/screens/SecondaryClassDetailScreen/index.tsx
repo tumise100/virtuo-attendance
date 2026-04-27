@@ -1,156 +1,151 @@
-import { View, Text, StatusBar, ScrollView } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from "react-native";
 import React, { useEffect, useState } from "react";
-import { COLORS } from "@/src/theme/colors";
-import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
-import { SubheadingSemibold18 } from "@/src/theme/typography";
-import AttendanceCard from "@/src/components/UI/AttendanceCard";
-import FloatingButton from "@/src/components/UI/Buttons/FloatingButton";
-import { AttendanceHistoryCard } from "../AttendanceHistoryScreen/components";
-import { GetClassDetailOfSecondarySchool } from "@/src/services/class";
-import { StackNavigationProps } from "@/src/shared";
-import {
-  ISecondaryClass,
-  ISecondaryClassDetailAttendance,
-  ISecondaryClassHeader,
-} from "@/src/contracts/course";
+import { ScreenContainer } from "../../components/UI/ScreenContainer";
+import { BackBtn } from "../../components/UI/Buttons/BackBtn";
+import { SubheadingSemibold18 } from "../../theme/typography";
+import { StackNavigationProps } from "../../shared";
+import { ISecondaryClassHeader } from "../../contracts/course";
+import CustomAvatar from "../../components/UI/CustomAvatar";
+import { GetClassDetail } from "@/src/services/class";
+import { GetMyStudents } from "@/src/services/student";
 import LoadingComponent from "@/src/components/UI/LoadingComponent";
-import moment from "moment";
 
-const SecondaryClassDetailScreen = ({ route }: StackNavigationProps) => {
-  const [isLoading, setIsLoading] = useState(false);
+// --- Sub-Components ---
 
-  const [classItemHeader, setClassItemHeader] =
-    useState<ISecondaryClassHeader | null>(null);
+// --- Sub-Components ---
 
-  const [classAttendance, setClassAttendance] =
-    useState<ISecondaryClassDetailAttendance | null>(null);
+const SummarySection = ({ studentCount }: { studentCount: number }) => (
+  <View className="flex-row justify-between mb-8">
+    <View className="w-[48%] relative bg-white border border-gray-100 rounded-xl p-4 shadow-sm h-20 justify-center">
+      <View className="absolute left-0 top-0 bottom-0 w-2 bg-orange-500 rounded-l-xl" />
+      <Text className="text-gray-400 text-xs mb-1 ml-2">No of Students</Text>
+      <Text className="text-2xl font-bold text-gray-900 ml-2">{studentCount}</Text>
+    </View>
+
+    <View className="w-[48%] relative bg-white border border-gray-100 rounded-xl p-4 shadow-sm h-20 justify-center">
+      <View className="absolute left-0 top-0 bottom-0 w-2 bg-blue-500 rounded-l-xl" />
+      <Text className="text-gray-400 text-xs mb-1 ml-2">Average Attendance</Text>
+      <Text className="text-2xl font-bold text-gray-900 ml-2">--%</Text>
+    </View>
+  </View>
+);
+
+const StudentsList = ({ navigation, students }: { navigation: any, students: any[] }) => (
+  <View>
+    {students.map((student: any, idx: number) => {
+      const fullName = [student.firstName, student.lastName].filter(Boolean).join(" ") || "Student";
+      const subtitle = [student.level, student.section, student.department].filter(Boolean).join(" • ");
+      return (
+        <TouchableOpacity
+          key={student.id ?? student.accountId ?? idx}
+          onPress={() => navigation.navigate("StudentViewScreen", { id: student.id ?? student.accountId })}
+          className="flex-row items-center border border-gray-100 rounded-2xl p-3 mb-3 bg-white shadow-sm"
+        >
+          <CustomAvatar name={fullName} size={45} />
+          <View className="ml-3 flex-1">
+            <Text className="text-base font-bold text-gray-900" numberOfLines={1}>{fullName}</Text>
+            <Text className="text-xs text-gray-400 mt-0.5" numberOfLines={1}>{subtitle || "—"}</Text>
+          </View>
+        </TouchableOpacity>
+      );
+    })}
+  </View>
+);
+
+// --- Main Screen ---
+
+const SecondaryClassDetailScreen = ({ route, navigation }: StackNavigationProps) => {
+  const [classItemHeader, setClassItemHeader] = useState<ISecondaryClassHeader | null>(null);
+  const [students, setStudents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const classId = route?.params?.classId;
 
   useEffect(() => {
-    if (route && route.params && route.params.classItem) {
-      const _classItem: ISecondaryClassHeader = route.params.classItem;
-      setClassItemHeader(_classItem);
-      handleFetchClassDetail({
-        classId: _classItem.id,
-        schoolId: _classItem.schoolId,
-      });
+    fetchClassData();
+  }, [classId]);
+
+  const normalizeRows = (payload: any) => {
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload?.data)) return payload.data;
+    return [];
+  };
+
+  const fetchClassData = async () => {
+    if (!classId) return;
+    setLoading(true);
+    try {
+      // Load the class header first so the title renders before the
+      // (potentially large) student list starts parsing.
+      const classRes = await GetClassDetail(classId);
+      if (classRes.responseStatus === 200 && classRes.responseData) {
+        const data = classRes.responseData;
+        const groupName = data?.classGroup?.name || "";
+        const isJunior = /junior|primary|nursery|kg|prep/i.test(groupName);
+        const facultyPiece = !isJunior && data?.faculty?.name ? data.faculty.name : groupName;
+        const pieces = [data.name, data.section?.name, facultyPiece].filter(Boolean).join(" • ");
+        setClassItemHeader({
+          id: data.id,
+          name: pieces || data.name || "Class",
+          students: data.totalStudents || data.students?.length || 0,
+        } as any);
+      }
+
+      const studentsRes = await GetMyStudents({ classId, limit: 200 });
+      if (studentsRes.responseStatus === 200) {
+        const rows = normalizeRows(studentsRes.responseData).map((student: any) => {
+          const klass = student.currentClass || student.class;
+          const groupName = klass?.classGroup?.name || "";
+          const isJunior = /junior|primary|nursery|kg|prep/i.test(groupName);
+          const facultyPiece = !isJunior ? (klass?.faculty?.name || student.faculty?.name || "") : groupName;
+          return {
+            id: student.id,
+            accountId: student.accountId || student.id,
+            firstName: student.firstName,
+            lastName: student.lastName,
+            level: klass?.name || "Class",
+            section: klass?.section?.name || "",
+            department: facultyPiece,
+          };
+        });
+        setStudents(rows);
+      }
+    } catch (error) {
+      console.error("fetchClassData error:", error);
+      setStudents([]);
+    } finally {
+      setLoading(false);
     }
-  }, [route]);
-
-  const handleFetchClassDetail = ({
-    schoolId,
-    classId,
-  }: {
-    schoolId: number;
-    classId: number;
-  }) => {
-    console.log(schoolId, classId);
-
-    setIsLoading(true);
-    GetClassDetailOfSecondarySchool({ classId, schoolId })
-      .then(({ responseData, responseStatus }) => {
-        if (responseData.data) {
-          setClassAttendance(responseData.data);
-        }
-        console.log(responseData, "class Detail");
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
   };
 
   return (
-    <View className="flex-1 bg-white px-4 pt-7">
-      <StatusBar
-        backgroundColor={COLORS.white}
-        barStyle={"dark-content"}
-        animated
-      />
-      <View className="flex-row items-center ">
-        <BackBtn />
-        <SubheadingSemibold18
-          text={classItemHeader?.name || ""}
-          customClassName="ml-5"
-        />
+    <ScreenContainer>
+      {/* Header */}
+      <View className="flex-row items-center justify-between px-4 mb-6">
+        <View className="flex-row items-center">
+          <BackBtn />
+          <SubheadingSemibold18 text={classItemHeader?.name || (route?.params?.className as string) || "Class"} customClassName="ml-4 text-gray-900" />
+        </View>
       </View>
 
-      {isLoading ? (
-        <View className="p-3 pt-7">
-          <LoadingComponent />
-          <LoadingComponent />
-        </View>
-      ) : classAttendance ? (
-        <>
-          <View className="flex-row justify-between items-center mt-7">
-            <AttendanceCard
-              title="Class teacher"
-              // subtitle={"Mrs Oginni"}
-              subtitle={`${
-                !classAttendance.teacherSex.length
-                  ? ""
-                  : classAttendance.teacherSex[0].toLowerCase() === "male"
-                  ? "Mr"
-                  : "Mrs"
-              } ${
-                !classAttendance.teacherLastName.length
-                  ? "N/A"
-                  : classAttendance.teacherLastName[0]
-              }`}
-              borderColor="border-primary-500"
-            />
-            <AttendanceCard
-              title="Average Attendance"
-              // subtitle={"89%"}
-              subtitle={"0%"}
-              borderColor="border-info-500"
-            />
-          </View>
+      <View className="flex-1 px-4">
 
-          <Text className="my-4">Attendance</Text>
-          <ScrollView>
-            {classAttendance && classAttendance.attendance.length ? (
-              classAttendance.attendance.map((item) => {
-                if (item.date.split("T")[0] === moment().format("YYYY-MM-D")) {
-                  if (moment().hour() >= 12) {
-                    return (
-                      <View key={item.date}>
-                        <AttendanceHistoryCard item={item} isMorningType />
-                        <AttendanceHistoryCard item={item} isAfternoonType />
-                      </View>
-                    );
-                  } else {
-                    return (
-                      <AttendanceHistoryCard
-                        key={item.date + "1"}
-                        item={item}
-                        isMorningType
-                      />
-                    );
-                  }
-                } else if (moment(item.date).isBefore()) {
-                  return (
-                    <View key={item.date}>
-                      <AttendanceHistoryCard item={item} isMorningType />
-                      <AttendanceHistoryCard item={item} isAfternoonType />
-                    </View>
-                  );
-                }
-              })
-            ) : (
-              <Text>No Data Yet.</Text>
-            )}
-            {/* <View>
-            </View> */}
+
+        <SummarySection studentCount={students.length} />
+
+        <Text className="text-lg font-bold text-gray-900 mb-4">Students</Text>
+        {loading ? (
+          <LoadingComponent />
+        ) : (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchClassData} tintColor="#F97316" colors={["#F97316"]} />}
+          >
+            <StudentsList navigation={navigation} students={students} />
+            <View className="h-20" />
           </ScrollView>
-        </>
-      ) : (
-        <View className="p-3 pt-7">
-          <Text>No Data Found!</Text>
-        </View>
-      )}
-    </View>
+        )}
+      </View>
+    </ScreenContainer>
   );
 };
 

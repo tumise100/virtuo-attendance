@@ -13,6 +13,13 @@ import AttendanceTakingForInstructorScreen from "@/src/screens/AttendanceTakingF
 import AttendanceTakingForSecondaryScreen from "@/src/screens/AttendanceTakingForSecondaryScreen";
 import AttendanceTakingScreen from "@/src/screens/AttendanceTakingScreen";
 import ChangePasswordScreen from "@/src/screens/ChangePasswordScreen";
+import MessagesScreen from "@/src/screens/MessagesScreen";
+import AnnouncementsScreen from "@/src/screens/AnnouncementsScreen";
+import TimetableScreen from "@/src/screens/TimetableScreen";
+import SubjectLessonsScreen from "@/src/screens/SubjectLessonsScreen";
+import QuestionBankScreen from "../../screens/QuestionBankScreen";
+import LeaveScreen from "../../screens/LeaveScreen";
+import SettingsScreen from "../../screens/SettingsScreen";
 import ClassViewScreen from "@/src/screens/ClassViewScreen";
 import CourseViewScreen from "@/src/screens/CourseViewScreen";
 import CreateNewStudentTagScreen from "@/src/screens/CreateNewStudentTagScreen";
@@ -22,6 +29,7 @@ import SecondaryAllTeacherScreen from "@/src/screens/SecondaryAllTeacherScreen";
 import SecondaryClassDetailScreen from "@/src/screens/SecondaryClassDetailScreen";
 import SecondaryStudentAttendanceViewScreen from "@/src/screens/SecondaryStudentAttendanceViewScreen";
 import StudentAttendanceScreen from "@/src/screens/StudentAttendanceScreen";
+import StudentAttendanceHistoryScreen from "@/src/screens/StudentAttendanceHistoryScreen";
 import StudentViewScreen from "@/src/screens/StudentViewScreen";
 import SupportScreen from "@/src/screens/SupportScreen";
 import WriteStudentInfoTagScreen from "@/src/screens/WriteStudentInfoTagScreen";
@@ -29,6 +37,7 @@ import { ModalProp } from "@/src/shared";
 import { createStackNavigator } from "@react-navigation/stack";
 import React, { useRef } from "react";
 import AllClassScreen from "../../screens/AllClassScreen";
+import ManageResultScreen from "../../screens/ManageResultScreen";
 import DrawerNavigator from "../DrawerNavigator";
 
 const BaseNavigator = () => {
@@ -41,12 +50,12 @@ const BaseNavigator = () => {
   return (
     <FilterModalContext.Provider
       value={{
-        filterStudentsByLevelModalRef,
-        filterStudentsByModalRef,
-        filterStudentsByPercentageModalRef,
+        filterStudentsByLevelModalRef: filterStudentsByLevelModalRef as any,
+        filterStudentsByModalRef: filterStudentsByModalRef as any,
+        filterStudentsByPercentageModalRef: filterStudentsByPercentageModalRef as any,
       }}
     >
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator id={undefined} screenOptions={{ headerShown: false }}>
         <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
         <Stack.Screen name="ClassViewScreen" component={ClassViewScreen} />
         <Stack.Screen name="AllCourseScreen" component={AllCourseScreen} />
@@ -59,6 +68,10 @@ const BaseNavigator = () => {
         <Stack.Screen
           name="StudentAttendanceScreen"
           component={StudentAttendanceScreen}
+        />
+        <Stack.Screen
+          name="StudentAttendanceHistoryScreen"
+          component={StudentAttendanceHistoryScreen}
         />
         <Stack.Screen name="StudentViewScreen" component={StudentViewScreen} />
         <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
@@ -115,8 +128,19 @@ const BaseNavigator = () => {
           name="ChangePasswordScreen"
           component={ChangePasswordScreen}
         />
+        <Stack.Screen name="MessagesScreen" component={MessagesScreen} />
+        <Stack.Screen name="AnnouncementsScreen" component={AnnouncementsScreen} />
+        <Stack.Screen name="TimetableScreen" component={TimetableScreen} />
+        <Stack.Screen name="SubjectLessonsScreen" component={SubjectLessonsScreen} />
+        <Stack.Screen name="QuestionBankScreen" component={QuestionBankScreen} />
+        <Stack.Screen name="LeaveScreen" component={LeaveScreen} />
+        <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
         <Stack.Screen name="AboutUsScreen" component={AboutUsScreen} />
         <Stack.Screen name="SupportScreen" component={SupportScreen} />
+        <Stack.Screen
+          name="ManageResultScreen"
+          component={ManageResultScreen}
+        />
       </Stack.Navigator>
       <FilterStudentsByLevelModal />
       <FilterStudentsByModal />

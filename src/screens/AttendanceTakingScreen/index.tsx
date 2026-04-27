@@ -26,15 +26,18 @@ import {
   BackHandler,
   Image,
   ScrollView,
-  StatusBar,
   Text,
   View,
 } from "react-native";
+import { ScreenContainer } from "@/src/components/UI/ScreenContainer";
+import { PrimaryButton } from "@/src/components/UI/Buttons/PrimaryButton";
 import NfcManager, { Ndef, NfcEvents, NfcTech } from "react-native-nfc-manager";
 import NfcAttendanceTakingNotSupported from "./NfcAttendanceTakingNotSupported";
 import DeleteClassModal from "./components/DeleteClassModal";
 import { CreateNewClass } from "@/src/services/class";
-import { extractLastNumber } from "@/src/utils";
+
+import { extractDataFromTag } from "@/src/utils/nfc";
+
 
 const AttendanceTakingScreen = ({
   navigation,
@@ -42,8 +45,8 @@ const AttendanceTakingScreen = ({
 }: StackNavigationProps) => {
   const [hasNfc, setHasNFC] = useState(false);
 
-  const [studentIds, setStudentIds] = useState<number[] | null>(null);
-  const [currentStudentId, setCurrentStudentId] = useState<number | null>(null);
+  const [studentIds, setStudentIds] = useState<string[] | null>(null);
+  const [currentStudentId, setCurrentStudentId] = useState<string | null>(null);
 
   const [isExistingClass, setIsExistingClass] = useState(false);
   const [attendanceWasMarked, setAttendanceWasMarked] = useState(false);
@@ -180,11 +183,7 @@ const AttendanceTakingScreen = ({
   const handleTagReading = useCallback(
     (tag: any) => {
       try {
-        console.log(Ndef.uri.decodePayload(tag.ndefMessage[0].payload), "hi");
-
-        const studentID = extractLastNumber(
-          Ndef.uri.decodePayload(tag.ndefMessage[0].payload)
-        );
+        const studentID = extractDataFromTag(tag);
 
         if (!studentID) return showToast("Invalid Student Card!");
 
@@ -221,7 +220,7 @@ const AttendanceTakingScreen = ({
     studentId,
   }: {
     classId: number;
-    studentId: number[];
+    studentId: string[];
   }) => {
     console.log({ classId, studentId: studentId[0] });
 
@@ -232,7 +231,7 @@ const AttendanceTakingScreen = ({
     // }, 1000);
 
     // MarkAttendance({ classId, studentId: 4 })
-    MarkAttendance({ classId, studentId: studentId[0] })
+    MarkAttendance({ classId, nfcCode: studentId[0], status: "PRESENT" } as any)
       .then(({ responseData, responseStatus }) => {
         console.log(
           responseData,
@@ -272,89 +271,88 @@ const AttendanceTakingScreen = ({
   }
 
   return createdClass ? (
-    <ScrollView className="flex-1 bg-white px-4 pt-7">
-      <StatusBar
-        backgroundColor={COLORS.white}
-        barStyle={"dark-content"}
-        animated
-      />
-      <View className="flex-row items-center justify-between">
-        <View className="flex-row items-center ">
-          <BackBtn onPress={confirmNavigateBack} />
-          <SubheadingSemibold18 text="Attendance" customClassName="ml-5" />
-        </View>
+    <ScreenContainer>
+      <View className="flex-row items-center px-4 mb-4">
+        <BackBtn onPress={confirmNavigateBack} />
+        <SubheadingSemibold18 text="Attendance" customClassName="ml-5 text-gray-900" />
       </View>
-      <BodyRegular
-        text="Tap your NFC identity card to mark attendance"
-        type={TextFontType.Regular}
-        customClassName="my-3 text-gray3"
-      />
-      <View className="justify-center">
-        <View className="justify-center items-center">
-          <SubheadingSemibold18 text="Intro to Computer Sci." />
-          <DescriptionText
-            text={`${moment(createdClass.startTime).format(
-              "dddd, Do MMM."
-            )} (${moment(createdClass.startTime).format("hha")} - ${moment(
-              createdClass.endTime
-            ).format("hha")})`}
-            type={TextFontType.Medium}
-            customClassName="my-2"
-          />
-          <View className="w-[208px] h-[287px] my-12">
-            <Image
-              source={PhoneWithCardImg}
-              resizeMode="contain"
-              className="h-full w-full"
+
+      <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
+
+        <BodyRegular
+          text="Tap your NFC identity card to mark attendance"
+          type={TextFontType.Regular}
+          customClassName="my-3 text-gray3"
+        />
+        <View className="justify-center">
+          <View className="justify-center items-center">
+            <SubheadingSemibold18 text="Intro to Computer Sci." />
+            <DescriptionText
+              text={`${moment(createdClass.startTime).format(
+                "dddd, Do MMM."
+              )} (${moment(createdClass.startTime).format("hha")} - ${moment(
+                createdClass.endTime
+              ).format("hha")})`}
+              type={TextFontType.Medium}
+              customClassName="my-2"
             />
+            <View className="w-[208px] h-[287px] my-12">
+              <Image
+                source={PhoneWithCardImg}
+                resizeMode="contain"
+                className="h-full w-full"
+              />
+            </View>
+            {!currentStudentId ? (
+              <>
+                <H5Text
+                  text="Hold your card against back of your phone"
+                  type={TextFontType.Bold}
+                  customClassName="w-[85%] text-center"
+                />
+                <BodyRegular
+                  text="Hold your NFC card against the back of your phone, near the NFC chip location. Ensure that the NFC card's chip aligns with your phone's NFC area to establish a connection."
+                  type={TextFontType.Regular}
+                  customClassName="text-gray3 w-[99%] text-center mt-4"
+                />
+              </>
+            ) : null}
           </View>
-          {!currentStudentId ? (
-            <>
-              <H5Text
-                text="Hold your card against back of your phone"
-                type={TextFontType.Bold}
-                customClassName="w-[85%] text-center"
+          {currentStudentId && studentIds ? (
+            <View className="my-6">
+              <StudentAttendanceMarked
+                name={`Card ${currentStudentId}`}
+                id={`${currentStudentId}`}
               />
-              <BodyRegular
-                text="Hold your NFC card against the back of your phone, near the NFC chip location. Ensure that the NFC card's chip aligns with your phone's NFC area to establish a connection."
-                type={TextFontType.Regular}
-                customClassName="text-gray3 w-[99%] text-center mt-4"
+              <HeadingsSemibold24
+                text="Thank you"
+                customClassName="text-center"
               />
-            </>
+              <PrimaryButton
+                text={`Done. Upload to server (${studentIds.length})`}
+                onPress={handleSubmitAttendanceToServer.bind(this, {
+                  classId: createdClass.id,
+                  studentId: studentIds,
+                })}
+                className="my-5"
+                isLoading={submitAttendanceloading}
+              />
+            </View>
           ) : null}
         </View>
-        {currentStudentId && studentIds ? (
-          <View className="my-6">
-            <StudentAttendanceMarked
-              name={`Student #${currentStudentId}`}
-              id={`${currentStudentId}`}
-            />
-            <HeadingsSemibold24
-              text="Thank you"
-              customClassName="text-center"
-            />
-            <CustomButton
-              title={`Done. Upload to server (${studentIds.length})`}
-              onPress={handleSubmitAttendanceToServer.bind(this, {
-                classId: createdClass.id,
-                studentId: studentIds,
-              })}
-              customClassName="my-5"
-              loading={submitAttendanceloading}
-            />
-          </View>
-        ) : null}
-      </View>
-      <DeleteClassModal
-        deleteModalRef={deleteModalRef}
-        handleConfirmBtnPress={handleConfirmDeleteClass}
-      />
-      <View className="h-24" />
-    </ScrollView>
+        <DeleteClassModal
+          deleteModalRef={deleteModalRef as any}
+          handleConfirmBtnPress={handleConfirmDeleteClass}
+        />
+        <View className="h-24" />
+      </ScrollView>
+    </ScreenContainer>
   ) : (
-    <View className="flex-1 bg-white items-center justify-center">
-      <Text>Something went wrong, No class created.</Text>
-    </View>
+    <ScreenContainer>
+      <View className="flex-1 items-center justify-center">
+        <Text className="text-gray-500">Something went wrong, No class created.</Text>
+      </View>
+    </ScreenContainer>
   );
 };
 

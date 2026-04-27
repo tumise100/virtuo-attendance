@@ -11,9 +11,7 @@ import { OverviewAttendanceStatus } from "../ClassCardOverview";
 import { AttendanceStatusType, StudentAttendance } from "@/src/shared";
 import { Ionicons } from "@expo/vector-icons";
 import { COLORS } from "@/src/theme/colors";
-import { useNavigation } from "@react-navigation/native";
 import CustomAvatar from "../CustomAvatar";
-import { combineStore } from "@/src/store";
 
 const StudentOverviewCard = ({
   fullName,
@@ -35,32 +33,22 @@ const StudentOverviewCard = ({
   hideStatsShowOnlyAttendanceAverage?: boolean;
   hideTextStats?: boolean;
   attendanceStatusType?: AttendanceStatusType;
-  studentId: number;
+  studentId?: number;
   subtitle?: string;
   timeIn?: string;
   onPress?: () => void;
 }) => {
-  const { user } = combineStore();
-
-  const isSecondaryInstructor =
-    user?.accounts[0].lecturer?.lecturerType === "SECONDARY";
-
-  const isSchool = user?.accounts[0].school?.accountId;
-
-  const navigation = useNavigation<any>();
+  // This card is presentational. Screens that want it to be tappable must
+  // pass an explicit onPress. No implicit navigation — it used to default
+  // to `navigation.navigate("StudentViewScreen", { id: studentId })` which
+  // hid bugs (wrong/hard-coded ids routing to the wrong student) and could
+  // crash when the destination screen hadn't received a navigation prop.
+  const Container: any = onPress ? TouchableOpacity : View;
+  const containerProps = onPress ? { onPress } : {};
 
   return (
-    <TouchableOpacity
-      onPress={() => {
-        onPress
-          ? onPress()
-          : navigation.navigate(
-              isSecondaryInstructor || isSchool
-                ? "SecondaryStudentAttendanceViewScreen"
-                : "StudentViewScreen",
-              { id: studentId }
-            );
-      }}
+    <Container
+      {...containerProps}
       className="flex-row items-center justify-between mb-3 rounded-md border border-borderColor p-3"
     >
       <View className="flex-row items-center">
@@ -134,7 +122,7 @@ const StudentOverviewCard = ({
           </View>
         </View>
       )}
-    </TouchableOpacity>
+    </Container>
   );
 };
 
@@ -146,9 +134,10 @@ export const StudentAttendanceMarked = ({
   course,
   level,
 }: Partial<StudentAttendance>) => {
-  if (!name) return;
+  if (!name) return null;
+  // Presentational row — no tap target.
   return (
-    <TouchableOpacity className="flex-row items-center justify-between mb-3 rounded-md border border-borderColor p-3">
+    <View className="flex-row items-center justify-between mb-3 rounded-md border border-borderColor p-3">
       <View className="flex-row items-center">
         <View className="w-[32px] h-[32px]">
           {/* <Image
@@ -175,6 +164,6 @@ export const StudentAttendanceMarked = ({
         </View>
       </View>
       <Ionicons name="checkmark-circle" size={23} color={COLORS.success[700]} />
-    </TouchableOpacity>
+    </View>
   );
 };

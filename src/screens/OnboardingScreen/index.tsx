@@ -29,14 +29,14 @@ const OnboardingScreen = ({ navigation }: StackNavigationProps) => {
             resizeMode="contain"
             style={{ height: height * 0.8 }}
             className="h-[100%] w-[100%] absolute bottom-[-330px]"
-            // className="h-[1000px] w-[100%] absolute bottom-[-70px]l"
+          // className="h-[1000px] w-[100%] absolute bottom-[-70px]l"
           />
         </View>
       </View>
       <View className="flex-1 bg-white">
         <View className="mt-8 mb-20">
           <Text className="font-semibold text-[20px] text-center mt-3">
-            Welcome to virtuo attendance
+            Welcome to Virtuo App
           </Text>
         </View>
         <View className="px-5 mt-auto mb-16">

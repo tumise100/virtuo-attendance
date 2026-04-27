@@ -23,8 +23,8 @@ const CustomDropdown = ({
 
   return (
     <Dropdown
-      style={[styles.dropdown, isFocus && { borderColor: COLORS.textColor }]}
-      placeholderStyle={[styles.placeholderStyle, { color: COLORS.textColor }]}
+      style={[styles.dropdown, isFocus && { borderColor: COLORS.primary[500] }]}
+      placeholderStyle={[styles.placeholderStyle, { color: COLORS.neutral[400] }]}
       selectedTextStyle={styles.placeholderStyle}
       inputSearchStyle={styles.inputSearchStyle}
       data={data}
@@ -40,30 +40,77 @@ const CustomDropdown = ({
       }}
       renderRightIcon={(props) => (
         <Entypo
-          name="chevron-thin-down"
-          size={20}
+          name="chevron-down"
+          size={18}
+          color={COLORS.neutral[500]}
           style={{ marginRight: 10 }}
         />
+      )}
+      renderItem={(item) => (
+        <View style={styles.item}>
+          <Text style={styles.textItem}>{item.name}</Text>
+        </View>
       )}
     />
   );
 };
+
+// Also export a version that accepts generic props for broader usage
+interface GenericDropdownProps {
+  data: any[];
+  labelField: string;
+  valueField: string;
+  placeholder?: string;
+  value?: any;
+  onChange: (item: any) => void;
+  style?: any;
+}
+
+export const GenericDropdown = ({ data, labelField, valueField, placeholder, value, onChange, style }: GenericDropdownProps) => {
+  const [isFocus, setIsFocus] = useState(false);
+  return (
+    <Dropdown
+      style={[styles.dropdown, style, isFocus && { borderColor: COLORS.primary[500] }]}
+      placeholderStyle={[styles.placeholderStyle, { color: COLORS.neutral[400] }]}
+      selectedTextStyle={[styles.placeholderStyle, { color: COLORS.textColor }]}
+      data={data}
+      labelField={labelField}
+      valueField={valueField}
+      placeholder={placeholder}
+      value={value}
+      onFocus={() => setIsFocus(true)}
+      onBlur={() => setIsFocus(false)}
+      onChange={(item) => {
+        onChange(item);
+        setIsFocus(false);
+      }}
+      renderRightIcon={() => (
+        <Entypo
+          name="chevron-down"
+          size={18}
+          color={COLORS.neutral[500]}
+          style={{ marginRight: 10 }}
+        />
+      )}
+    />
+  )
+}
 
 export default CustomDropdown;
 
 const styles = StyleSheet.create({
   dropdown: {
     height: 50,
-    borderColor: "gray",
+    borderColor: '#E5E7EB',
     borderWidth: 1,
     borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 28,
-    marginBottom: 20,
+    paddingHorizontal: 12,
+    backgroundColor: 'white',
+    width: '100%',
   },
   placeholderStyle: {
     fontSize: 14,
-    marginLeft: 10,
+    marginLeft: 0,
   },
   iconStyle: {
     width: 20,
@@ -72,5 +119,16 @@ const styles = StyleSheet.create({
   inputSearchStyle: {
     height: 20,
     fontSize: 16,
+  },
+  item: {
+    padding: 15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  textItem: {
+    flex: 1,
+    fontSize: 14,
+    color: COLORS.textColor
   },
 });

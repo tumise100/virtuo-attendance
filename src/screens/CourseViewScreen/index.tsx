@@ -69,8 +69,8 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
       .then(({ responseData, responseStatus }) => {
         console.log(responseData, responseStatus, "my course");
         if (responseStatus === 200) {
-          setCourse(responseData);
-          setCourseClasses(responseData.classes);
+          setCourse(responseData || null);
+          setCourseClasses(responseData?.classes || []);
         } else {
           console.log(responseData, "some data 2");
         }
@@ -90,7 +90,7 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
       .then(({ responseData, responseStatus }) => {
         console.log(responseData, responseStatus, "my course classes");
         if (responseStatus === 200) {
-          setCourseClasses(responseData.classes);
+          setCourseClasses(responseData?.classes || []);
         } else {
           console.log(responseData, "some data 2");
         }
@@ -189,13 +189,13 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
             // subtitle={extractEntireAttendanceFromCourse(course)}
             subtitle={
               !extractEntireAttendanceFromCourse(course).total ||
-              !extractEntireAttendanceFromCourse(course).present
+                !extractEntireAttendanceFromCourse(course).present
                 ? "0"
                 : `${Math.floor(
-                    (extractEntireAttendanceFromCourse(course).present /
-                      extractEntireAttendanceFromCourse(course).total) *
-                      100
-                  )}%`
+                  (extractEntireAttendanceFromCourse(course).present /
+                    extractEntireAttendanceFromCourse(course).total) *
+                  100
+                )}%`
             }
             borderColor="border-blue-500"
           />
@@ -226,36 +226,36 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
               <LoadingComponent />
             </View>
           ) : // ) : course && course.classes.length ? (
-          course && courseClasses && courseClasses.length ? (
-            <FlatList
-              // data={course.classes}
-              data={courseClasses}
-              renderItem={({ item: courseClass }) => (
-                <ClassCardOverview
-                  key={courseClass.id}
-                  title={`Introduction to ${course.title} ${courseClass.id}`}
-                  courseCode={course.code}
-                  showAttendanceStats={false}
-                  attendanceRate={
-                    !extractAttendanceRateFromClass(courseClass).total ||
-                    !extractAttendanceRateFromClass(courseClass).present
-                      ? "0"
-                      : `${Math.floor(
+            course && courseClasses && courseClasses.length ? (
+              <FlatList
+                // data={course.classes}
+                data={courseClasses}
+                renderItem={({ item: courseClass }) => (
+                  <ClassCardOverview
+                    key={courseClass.id}
+                    title={`Introduction to ${course.title} ${courseClass.id}`}
+                    courseCode={course.code}
+                    showAttendanceStats={false}
+                    attendanceRate={
+                      !extractAttendanceRateFromClass(courseClass).total ||
+                        !extractAttendanceRateFromClass(courseClass).present
+                        ? "0"
+                        : `${Math.floor(
                           (extractAttendanceRateFromClass(courseClass).present /
                             extractAttendanceRateFromClass(courseClass).total) *
-                            100
+                          100
                         )}`
-                  }
-                  onLongPress={handleClassItemLongPress.bind(this, {
-                    courseClass,
-                  })}
-                  isSelected={courseClass.id === selectedClassForDeletion?.id}
-                />
-              )}
-            />
-          ) : (
-            <Text>No Data</Text>
-          )}
+                    }
+                    onLongPress={handleClassItemLongPress.bind(this, {
+                      courseClass,
+                    })}
+                    isSelected={courseClass.id === selectedClassForDeletion?.id}
+                  />
+                )}
+              />
+            ) : (
+              <Text>No Data</Text>
+            )}
         </View>
       </View>
       <FloatingButton
@@ -266,21 +266,21 @@ const CourseViewScreen = ({ navigation, route }: StackNavigationProps) => {
       />
 
       <Modal
-        ref={courseSettingsModalRef}
+        ref={courseSettingsModalRef as any}
         onCancel={() => {
-          courseSettingsModalRef.current?.setVisible(false);
+          (courseSettingsModalRef.current as any)?.setVisible(false);
         }}
         customStyle={{ height: Dimensions.get("screen").height * 0.4 }}
       >
-        <CourseSettingsModalContent modalRef={courseSettingsModalRef} />
+        <CourseSettingsModalContent modalRef={courseSettingsModalRef as any} />
       </Modal>
 
       <DeleteCourseClassModal
-        deleteClassModalRef={deleteClassModalRef}
+        deleteClassModalRef={deleteClassModalRef as any}
         handleConfirmBtnPress={handleConfirmDeleteClass}
         onCancel={() => {
           if (!deletingCourseClass) {
-            deleteClassModalRef.current?.setVisible(false);
+            (deleteClassModalRef.current as any)?.setVisible(false);
             setSelectedClassForDeletion(null);
           }
         }}
@@ -305,9 +305,9 @@ const extractEntireAttendanceFromCourse = (course: ICourseViewDetail) => {
     present: 0,
   };
 
-  course.classes.forEach((clasx, indx, arr) => {
-    clasx.classAttendance.forEach((cA) => {
-      if (cA.attended) {
+  (course?.classes || []).forEach((clasx) => {
+    (clasx?.classAttendance || []).forEach((cA) => {
+      if (cA?.attended) {
         _courseAttendanceRate.present += 1;
       }
       _courseAttendanceRate.total += 1;

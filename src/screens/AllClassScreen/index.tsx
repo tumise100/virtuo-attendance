@@ -1,135 +1,128 @@
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
-import LoadingComponent from "@/src/components/UI/LoadingComponent";
-import { ISecondaryClass, ISecondaryClassHeader } from "@/src/contracts/course";
-import { AccountType } from "@/src/contracts/user.d";
-import { GetClassesOfSecondarySchool } from "@/src/services/class";
-import { StackNavigationProps, StackNavigatorProp } from "@/src/shared";
-import { combineStore } from "@/src/store";
+import ClassCardOverview from "../../components/UI/ClassCardOverview";
+import PaginationControls from "../../components/UI/PaginationControls";
+import NoDataComponent from '../../components/UI/NoData';
+import { ISecondaryClassHeader } from "@/src/contracts/course";
+import { StackNavigationProps } from "@/src/shared";
 import { COLORS } from "@/src/theme/colors";
-import { SubheadingSemibold18 } from "@/src/theme/typography";
-import { Entypo, Ionicons } from "@expo/vector-icons";
-import React, { useEffect, useState } from "react";
-import {
-  ScrollView,
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import React, { useEffect, useState, useMemo } from "react";
+import { View, Text, ScrollView, TouchableOpacity, TextInput, RefreshControl } from "react-native";
+import { ScreenContainer } from "@/src/components/UI/ScreenContainer";
+import InputWithFilter from "@/src/components/UI/InputWithFilter";
+import LoadingComponent from "@/src/components/UI/LoadingComponent";
+
+import { GetClasses } from "@/src/services/class";
+import { asArray } from "@/src/utils";
 
 const AllClassScreen = ({ navigation }: StackNavigationProps) => {
-  const [schoolClasses, setSchoolClasses] = useState<
-    ISecondaryClassHeader[] | null
-  >(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [schoolClasses, setSchoolClasses] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const { user } = combineStore();
+  // --- Pagination Logic ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 20;
 
   useEffect(() => {
-    const isSecondaryInstructor =
-      user?.accounts[0].lecturer?.lecturerType === "SECONDARY";
-    const isSchool = user?.accounts[0].type === AccountType.SCHOOL;
+    fetchClasses();
+  }, []);
 
-    if (isSecondaryInstructor && user.accounts[0].lecturer) {
-      handleFetchClassesOfSecondarySchool({
-        schoolId: user.accounts[0].lecturer.schoolId,
-      });
-    } else if (isSchool && user.accounts[0].school) {
-      handleFetchClassesOfSecondarySchool({
-        schoolId: user.accounts[0].school.accountId,
-      });
+  const fetchClasses = async () => {
+    setLoading(true);
+    try {
+      const { responseData, responseStatus } = await GetClasses();
+      if (responseStatus === 200) {
+        setSchoolClasses(asArray(responseData));
+      }
+    } catch (error) {
+      console.error("fetchClasses error:", error);
+    } finally {
+      setLoading(false);
     }
-  }, [user]);
-
-  const handleFetchClassesOfSecondarySchool = ({
-    schoolId,
-  }: {
-    schoolId: number;
-  }) => {
-    setIsLoading(true);
-    GetClassesOfSecondarySchool({ schoolId })
-      .then(({ responseData, responseStatus }) => {
-        console.log(JSON.stringify(responseData), "classes of school");
-        if (responseData.data) {
-          const secondaryClasses = responseData.data;
-          setSchoolClasses(secondaryClasses);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
   };
 
+  const filteredClasses = useMemo(() => {
+    if (!searchQuery) {
+      return schoolClasses;
+    }
+    const lowerCaseQuery = (searchQuery || "").toLowerCase();
+    return (schoolClasses || []).filter(
+      (cl) =>
+        (cl?.name || "").toLowerCase().includes(lowerCaseQuery) ||
+        (cl?.classLevel?.name && cl.classLevel.name.toLowerCase().includes(lowerCaseQuery))
+    );
+  }, [schoolClasses, searchQuery]);
+
+  const totalPages = Math.ceil(filteredClasses.length / ITEMS_PER_PAGE);
+  const paginatedClasses = filteredClasses.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
   return (
-    <View className="flex-1 bg-white px-4 pt-7">
-      <StatusBar
-        backgroundColor={COLORS.white}
-        barStyle={"dark-content"}
-        animated
-      />
-      <View className="flex-row items-center ">
+    <ScreenContainer>
+      <View className="flex-row items-center px-4 mb-4">
         <BackBtn />
-        <SubheadingSemibold18 text="Classes" customClassName="ml-5" />
+        <Text className="text-lg font-bold text-gray-900 ml-4">All Classes</Text>
       </View>
 
-      {isLoading ? (
-        <View className="p-3 pt-7">
+
+      <View className="px-4">
+        <InputWithFilter
+          value={searchQuery}
+          onChangeText={(text) => {
+            setSearchQuery(text);
+            setCurrentPage(1);
+          }}
+          placeHolder="Search for class"
+        />
+      </View>
+
+      <View className="flex-1 px-4">
+        {loading ? (
           <LoadingComponent />
-          <LoadingComponent />
-        </View>
-      ) : schoolClasses && schoolClasses.length ? (
-        <ScrollView className="mt-8">
-          {schoolClasses.map((classItem) => (
-            <ClassItem
-              classItem={classItem}
-              key={classItem.id}
-              onPress={() =>
-                navigation.navigate("SecondaryClassDetailScreen", {
-                  classItem,
-                })
-              }
-            />
-          ))}
-        </ScrollView>
-      ) : (
-        <View className="p-3 pt-7">
-          <Text>No Classes Found!</Text>
-        </View>
-      )}
-    </View>
+        ) : (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchClasses} tintColor="#F97316" colors={["#F97316"]} />}
+          >
+            {paginatedClasses.length === 0 ? (
+              <NoDataComponent />
+            ) : (
+              paginatedClasses.map((cl: any) => {
+                const titlePieces = [cl?.name, cl?.section?.name].filter(Boolean).join(" ");
+                const groupName = cl?.classGroup?.name || cl?.classLevel?.name || "";
+                const isJunior = /junior|primary|nursery|kg|prep/i.test(groupName);
+                const facultyPiece = !isJunior ? cl?.faculty?.name : groupName;
+                const subtitlePieces = [groupName, facultyPiece].filter(Boolean).join(" • ");
+                return (
+                  <ClassCardOverview
+                    key={cl.id}
+                    title={titlePieces || cl?.name || 'Class'}
+                    subTitle={subtitlePieces || 'Class'}
+                    variant="light"
+                    showChevron={true}
+                    showAttendanceAvg={false}
+                    showAttendanceStats={false}
+                    onPress={() => navigation.navigate("SecondaryClassDetailScreen", { classId: cl.id, className: titlePieces || cl.name })}
+                  />
+                );
+              })
+            )}
+          </ScrollView>
+        )}
+
+        <PaginationControls
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      </View>
+    </ScreenContainer>
   );
 };
 
 export default AllClassScreen;
-
-const ClassItem = ({
-  classItem,
-  onPress,
-}: {
-  classItem: ISecondaryClassHeader;
-  onPress?: () => void;
-}) => {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      className={`bg-info-200 p-3 rounded-md flex-row items-center justify-between mb-3 $`}
-    >
-      <View className="flex-row items-center">
-        <View className="bg-white p-2 rounded-full">
-          <Ionicons name="trophy" size={18} color={COLORS.primary[400]} />
-        </View>
-        <View className="ml-3">
-          <Text className={`font-medium`}>{classItem.name}</Text>
-          <Text className={`text-xs mt-1`}>
-            {classItem.name.startsWith("S.S") ? "Senior" : "Junior"}
-          </Text>
-        </View>
-      </View>
-
-      {<Entypo name="chevron-thin-right" size={20} />}
-    </TouchableOpacity>
-  );
-};

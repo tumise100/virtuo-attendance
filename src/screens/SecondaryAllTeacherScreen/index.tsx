@@ -1,197 +1,256 @@
-import { View, Text, StatusBar } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
-import { GetAllSchoolTeacher } from "@/src/services/teacher";
-import { combineStore } from "@/src/store";
-import { ILecturerUser } from "@/src/contracts/user";
-import LoadingComponent from "@/src/components/UI/LoadingComponent";
-import { COLORS } from "@/src/theme/colors";
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
+import NoDataComponent from "../../components/UI/NoData";
+import CustomAvatar from "@/src/components/UI/CustomAvatar";
+import { useState, useMemo, useRef, useEffect } from "react";
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from "react-native";
+import { ScreenContainer } from "@/src/components/UI/ScreenContainer";
+import PaginationControls from "../../components/UI/PaginationControls";
+import { StackNavigationProps, ModalProp } from "@/src/shared";
+import { COLORS } from "@/src/theme/colors";
 import { SubheadingSemibold18 } from "@/src/theme/typography";
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
 import InputWithFilter from "@/src/components/UI/InputWithFilter";
-import { AttendanceHistoryButton } from "../AttendanceHistoryScreen/components";
-import { FilterModalContext } from "@/src/contexts/modals.context";
-import { StackNavigationProps } from "@/src/shared";
-import { BodyText } from "@/src/theme/typography/BodyText";
-import { TextFontType } from "@/src/theme/typography/typography";
-import { ScrollView } from "react-native";
-import StudentOverviewCard from "@/src/components/UI/StudentOverviewCard";
-import FloatingButton from "@/src/components/UI/Buttons/FloatingButton";
-import { FlatList } from "react-native";
-import CustomPagination, {
-  handlePaginationItemPress,
-  handlePaginationNextPress,
-  handlePaginationPrevPress,
-} from "@/src/components/UI/Buttons/CustomPagination";
+import FilterTeacherModal from "@/src/components/UI/Modals/FilterTeacherModal";
+
+// Teacher Card Item matching the design
+const TeacherCardItem = ({
+  teacher,
+  stats,
+  onPress,
+}: {
+  teacher: any;
+  stats?: { present: number; absent: number; avg: number };
+  onPress: () => void;
+}) => {
+  const fullName = [teacher.firstName, teacher.lastName].filter(Boolean).join(" ");
+  const present = stats?.present ?? 0;
+  const absent = stats?.absent ?? 0;
+  const avg = stats?.avg ?? 0;
+  return (
+    <TouchableOpacity onPress={onPress} className="flex-row items-center justify-between mb-3 bg-white border border-gray-100 rounded-2xl p-3 shadow-[0px_1px_2px_rgba(0,0,0,0.05)]">
+      <View className="flex-row items-center flex-1">
+        <CustomAvatar name={fullName} size={48} />
+        <View className="ml-3 flex-1">
+          <Text className="text-base font-bold text-gray-900" numberOfLines={1}>{fullName}</Text>
+          <Text className="text-xs text-gray-500 mt-0.5">
+            {teacher.designation || teacher.role || "Staff"}
+          </Text>
+        </View>
+      </View>
+
+      <View className="items-end">
+        <Text className="text-sm font-bold text-gray-900 mb-1">{avg}% Avg.</Text>
+        <View className="flex-row items-center">
+          <Text className="text-[10px] text-green-600 font-bold bg-green-50 px-1.5 py-0.5 rounded mr-1">P <Text className="text-gray-500 font-normal">{present}</Text></Text>
+          <Text className="text-[10px] text-red-600 font-bold bg-red-50 px-1.5 py-0.5 rounded">A <Text className="text-gray-500 font-normal">{absent}</Text></Text>
+        </View>
+      </View>
+    </TouchableOpacity >
+  );
+}
+
+import { GetStaff } from "@/src/services/teacher";
+import { GetStaffAttendance } from "@/src/services/attendance";
+import LoadingComponent from "../../components/UI/LoadingComponent";
+import { asArray } from "@/src/utils";
+import moment from "moment";
 
 const SecondaryAllTeacherScreen = ({
   navigation,
   route,
 }: StackNavigationProps) => {
-  const [allTeachers, setAllTeachers] = useState<ILecturerUser[] | null>(null);
-  const [loading, setLoading] = useState(false);
-  const { user } = combineStore();
-
+  const [allTeachers, setAllTeachers] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [perPage] = useState(100);
-  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [designationFilter, setDesignationFilter] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<"PRESENT" | "ABSENT" | null>(null);
+  const [todayStaffIds, setTodayStaffIds] = useState<Set<number>>(new Set());
+  const [staffStats, setStaffStats] = useState<Map<number, { present: number; absent: number; avg: number }>>(new Map());
+  const filterModalRef = useRef<ModalProp>(null);
 
-  const { filterStudentsByModalRef } = useContext(FilterModalContext);
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const ITEMS_PER_PAGE = 20;
 
   useEffect(() => {
-    if (user && user.accounts[0].school?.accountId) {
-      fetchAllSchoolTeachers(user.accounts[0].school?.accountId);
-      console.log(user.accounts[0].id, "user.accounts[0].id");
-    }
-  }, [user, currentPage, perPage, searchTerm]);
+    fetchTeachers();
+  }, [currentPage, searchTerm]);
 
-  const fetchAllSchoolTeachers = async (
-    lecturerId: number,
-    currentPage?: number,
-    perPage?: number,
-    searchTerm?: string
-  ) => {
-    if (!user) return;
+  useEffect(() => {
+    const today = moment().format("YYYY-MM-DD");
 
-    setLoading(true);
-    GetAllSchoolTeacher(lecturerId, currentPage, perPage, searchTerm)
+    GetStaffAttendance({ date: today })
       .then(({ responseData, responseStatus }) => {
-        console.log(
-          JSON.stringify(responseData),
-          responseStatus,
-          "all teachers"
-        );
-        // return;
         if (responseStatus === 200) {
-          setAllTeachers(responseData.data);
-          setTotalCount(responseData.meta.totalCount);
-        } else {
-          console.log(responseData, "some data 2");
+          const records = asArray(responseData);
+          const ids = new Set<number>(
+            records
+              .filter((r: any) => r?.status === "PRESENT")
+              .map((r: any) => r?.staffId || r?.staff?.id)
+              .filter(Boolean),
+          );
+          setTodayStaffIds(ids);
         }
       })
-      .catch((err) => {
-        console.log(err, "err");
+      .catch(() => {});
+
+    GetStaffAttendance({ period: "month" })
+      .then(({ responseData, responseStatus }) => {
+        if (responseStatus === 200) {
+          const records = asArray(responseData);
+          const counts = new Map<number, { present: number; absent: number }>();
+          records.forEach((r: any) => {
+            const id = r?.staffId || r?.staff?.id;
+            if (!id) return;
+            const cur = counts.get(id) || { present: 0, absent: 0 };
+            if (r?.status === "PRESENT") cur.present += 1;
+            else cur.absent += 1;
+            counts.set(id, cur);
+          });
+          const stats = new Map<number, { present: number; absent: number; avg: number }>();
+          counts.forEach((v, k) => {
+            const total = v.present + v.absent;
+            const avg = total ? Math.round((v.present / total) * 100) : 0;
+            stats.set(k, { ...v, avg });
+          });
+          setStaffStats(stats);
+        }
       })
-      .finally(() => setLoading(false));
+      .catch(() => {});
+  }, []);
+
+  const fetchTeachers = async () => {
+    setLoading(true);
+    try {
+      const { responseData, responseStatus } = await GetStaff({
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
+        search: searchTerm,
+      });
+      if (responseStatus === 200) {
+        const rows = asArray<any>(responseData);
+        setAllTeachers(rows);
+        const total =
+          responseData?.meta?.total ??
+          responseData?.meta?.totalCount ??
+          rows.length;
+        setTotalCount(total);
+      }
+    } catch (error) {
+      console.error("fetchTeachers error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // if (loading) {
-  //   return (
-  //     <View className="flex-1 px-4 py-7 bg-white">
-  //       <LoadingComponent />
-  //       <LoadingComponent />
-  //     </View>
-  //   );
-  // }
+  const availableDesignations = useMemo(() => {
+    const set = new Set<string>();
+    (allTeachers || []).forEach((t) => {
+      if (t?.designation) set.add(String(t.designation));
+    });
+    return Array.from(set);
+  }, [allTeachers]);
 
-  // if (!allTeachers)
-  //   return (
-  //     <View className="bg-white items-center justify-center flex-1">
-  //       <Text>No Data</Text>
-  //     </View>
-  //   );
+  const paginatedTeachers = useMemo(() => {
+    return (allTeachers || []).filter((t: any) => {
+      if (designationFilter && t?.designation !== designationFilter) return false;
+      if (statusFilter) {
+        const present = todayStaffIds.has(t?.id);
+        if (statusFilter === "PRESENT" && !present) return false;
+        if (statusFilter === "ABSENT" && present) return false;
+      }
+      return true;
+    });
+  }, [allTeachers, designationFilter, statusFilter, todayStaffIds]);
+
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   return (
-    <View className="flex-1 bg-white px-4 pt-7">
-      <StatusBar
-        backgroundColor={COLORS.white}
-        barStyle={"dark-content"}
-        animated
-      />
-      <View className="flex-row items-center ">
+    <ScreenContainer>
+      <View className="flex-row items-center px-4 mb-4">
         <BackBtn />
-        <SubheadingSemibold18 text="Teachers" customClassName="ml-5" />
+        <SubheadingSemibold18 text="Teachers" customClassName="ml-5 text-gray-900" />
       </View>
-      <InputWithFilter
-        filterModalRef={filterStudentsByModalRef}
-        placeHolder="Search for teachers"
-        // value={searchTerm}
-        // onChangeText={setSearchTerm}
-      />
-      {loading ? (
-        <View className="flex-1 bg-white">
-          <LoadingComponent />
-          <LoadingComponent />
-        </View>
-      ) : !allTeachers ? (
-        <View className="bg-white items-center justify-center flex-1">
-          <Text>No Data</Text>
-        </View>
-      ) : (
-        <View className="flex-1">
-          <AttendanceHistoryButton
-            title="Attendance history"
-            // onPress={() => navigation.navigate("AttendanceHistoryScreen")}
-            onPress={() =>
-              navigation.navigate("AttendanceHistoryHeaderForInstructorScreen")
-            }
-          />
-          <View className="flex-row justify-between items-center">
-            <BodyText text="Teachers" type={TextFontType.Bold} />
-            <BodyText
-              // text={`${allTeachers.length || 0}`}
-              text={`${totalCount || 0}`}
-              type={TextFontType.Bold}
-            />
+
+
+      <View className="flex-1 px-4">
+        {/* Search and Filter */}
+        <InputWithFilter
+          filterModalRef={filterModalRef}
+          value={searchTerm}
+          onChangeText={(text) => {
+            setSearchTerm(text);
+            setCurrentPage(1);
+          }}
+          placeHolder="Search for teacher"
+        />
+
+        {/* Attendance History Banner */}
+        <TouchableOpacity
+          className="bg-orange-500 rounded-xl p-4 mb-6 flex-row items-center justify-between shadow-lg shadow-orange-200"
+          onPress={() => navigation.navigate("AttendanceHistoryHeaderForInstructorScreen")}
+        >
+          <View className="flex-row items-center">
+            <View className="w-10 h-10 bg-white rounded-full items-center justify-center mr-3">
+              <Ionicons name="trophy" size={20} color="#F97316" />
+            </View>
+            <Text className="text-white font-bold text-base">Attendance history</Text>
           </View>
+          <Ionicons name="chevron-forward" size={24} color="white" />
+        </TouchableOpacity>
 
-          {allTeachers && allTeachers.length ? (
-            <>
-              <FlatList
-                data={allTeachers.slice(0, perPage)}
-                renderItem={({ item: teacher, index }) => (
-                  <StudentOverviewCard
-                    hideStatsShowOnlyAttendanceAverage={true}
-                    hideStatsShowOnlyAttendanceStat={true}
-                    hideTextStats={true}
-                    key={teacher.accountId}
-                    fullName={`${teacher.firstName} ${teacher.lastName}`}
-                    // title={`${teacher.courseId}`}
-                    studentId={teacher.accountId}
-                    onPress={() =>
-                      navigation.navigate("InstructorAttendanceViewScreen", {
-                        id: teacher.accountId,
-                      })
-                    }
-                  />
-                )}
-                keyExtractor={(item) => `${item.accountId}`}
-                ListFooterComponent={() => <View className="h-36" />}
-              />
-
-              <CustomPagination
-                currentPage={currentPage}
-                numberOfPage={Math.ceil(totalCount / perPage)}
-                onNextPress={() =>
-                  handlePaginationNextPress(
-                    currentPage,
-                    totalCount,
-                    setCurrentPage
-                  )
-                }
-                onPressItem={(val) => {
-                  handlePaginationItemPress(
-                    val,
-                    Math.ceil(perPage / currentPage),
-                    setCurrentPage
-                  );
-                }}
-                onPrevPress={() => {
-                  handlePaginationPrevPress(
-                    currentPage,
-                    totalCount,
-                    setCurrentPage
-                  );
-                }}
-              />
-            </>
-          ) : (
-            <Text>No Teacher</Text>
-          )}
+        <View className="flex-row justify-between items-center mb-2 px-1">
+          <Text className="text-base font-bold text-gray-900">All Teachers</Text>
+          <Text className="text-base font-bold text-gray-900">{totalCount}</Text>
         </View>
-      )}
-      {/* <FloatingButton title={"Export Teacher"} /> */}
-    </View>
+
+        {loading ? (
+          <View className="flex-1">
+            <LoadingComponent />
+            <LoadingComponent />
+          </View>
+        ) : (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchTeachers} tintColor="#F97316" colors={["#F97316"]} />}
+          >
+            {paginatedTeachers.length === 0 ? (
+              <NoDataComponent />
+            ) : (
+              paginatedTeachers.map((teacher) => (
+                <TeacherCardItem
+                  key={teacher.accountId || teacher.id}
+                  teacher={teacher}
+                  stats={staffStats.get(teacher.id)}
+                  onPress={() => navigation.navigate("InstructorAttendanceViewScreen", { id: teacher.id, teacher })}
+                />
+              ))
+            )}
+          </ScrollView>
+        )}
+
+        <PaginationControls
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      </View>
+
+      {/* Filter Modal */}
+      <FilterTeacherModal
+        ref={filterModalRef}
+        designations={availableDesignations}
+        selectedDesignation={designationFilter}
+        selectedStatus={statusFilter}
+        onApply={(filters: any) => {
+          setDesignationFilter(filters?.designation ?? null);
+          setStatusFilter(filters?.status ?? null);
+        }}
+      />
+    </ScreenContainer>
   );
 };
 

@@ -2,6 +2,7 @@ import { View, Text } from "react-native";
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import OnboardingScreen from "@/src/screens/OnboardingScreen";
+import SplashScreen from "@/src/screens/SplashScreen";
 import SignUpScreen from "@/src/screens/SignUpScreen";
 import ConfirmEmailScreen from "@/src/screens/ConfirmEmailScreen";
 import RegisterCourseToTakeScreen from "@/src/screens/RegisterCourseToTakeScreen";
@@ -12,7 +13,8 @@ const AuthNavigator = () => {
   const Stack = createStackNavigator();
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator id={undefined} initialRouteName="SplashScreen" screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="SplashScreen" component={SplashScreen} />
       <Stack.Screen name="OnboardingScreen" component={OnboardingScreen} />
       <Stack.Screen name="SignInScreen" component={SignInScreen} />
       <Stack.Screen name="SignUpScreen" component={SignUpScreen} />

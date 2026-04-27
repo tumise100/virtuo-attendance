@@ -1,58 +1,56 @@
 import {
   View,
   Text,
-  StatusBar,
   ImageSourcePropType,
   TouchableOpacity,
   Linking,
+  Image,
 } from "react-native";
 import React from "react";
-import { COLORS } from "@/src/theme/colors";
+import { ScreenContainer } from "@/src/components/UI/ScreenContainer";
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
 import { SubheadingSemibold18 } from "@/src/theme/typography";
-import { Image } from "react-native";
 import SocialIcon from "@/assets/images/SocialIcon.png";
 import HeadsetIcon from "@/assets/images/headphones.png";
 import VLogoIcon from "@/assets/images/Vlogo 1.png";
 
 const SupportScreen = () => {
   return (
-    <View className="flex-1 bg-white px-4 pt-7">
-      <StatusBar
-        backgroundColor={COLORS.white}
-        barStyle={"dark-content"}
-        animated
-      />
-      <View className="flex-row items-center ">
+    <ScreenContainer>
+      <View className="flex-row items-center px-4 mb-6">
         <BackBtn />
-        <SubheadingSemibold18 text="Support" customClassName="ml-5" />
+        <SubheadingSemibold18 text="Support" customClassName="ml-5 text-gray-900" />
       </View>
 
-      <View className="mt-10">
-        <SupportScreenSocialItem
-          source={VLogoIcon}
-          title="Message Support"
-          subtitle="Hi there, How can I help you today?"
-          onPress={() => {
-            Linking.openURL("mailto:info@virtuobusiness.com");
-          }}
-        />
-        <SupportScreenSocialItem
-          source={SocialIcon}
-          subtitle="Chat us on whatsapp"
-          onPress={() => {
-            Linking.openURL("https://wa.me/+2347064272131");
-          }}
-        />
-        <SupportScreenSocialItem
-          source={HeadsetIcon}
-          subtitle="Care to speak with us? Call us"
-          onPress={() => {
-            Linking.openURL("tel:+234 706 427 2131");
-          }}
-        />
+      <View className="flex-1 px-4">
+
+
+        <View className="mt-10">
+          <SupportScreenSocialItem
+            source={VLogoIcon}
+            title="Message Support"
+            subtitle="Hi there, How can I help you today?"
+            onPress={() => {
+              Linking.openURL("mailto:info@virtuobusiness.com");
+            }}
+          />
+          <SupportScreenSocialItem
+            source={SocialIcon}
+            subtitle="Chat us on whatsapp"
+            onPress={() => {
+              Linking.openURL("https://wa.me/+2347064272131");
+            }}
+          />
+          <SupportScreenSocialItem
+            source={HeadsetIcon}
+            subtitle="Care to speak with us? Call us"
+            onPress={() => {
+              Linking.openURL("tel:+234 706 427 2131");
+            }}
+          />
+        </View>
       </View>
-    </View>
+    </ScreenContainer>
   );
 };
 

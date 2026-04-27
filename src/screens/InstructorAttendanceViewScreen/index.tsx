@@ -1,203 +1,196 @@
-import AttendanceCard from "@/src/components/UI/AttendanceCard";
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
-import LoadingComponent from "@/src/components/UI/LoadingComponent";
-import NoDataComponent from "@/src/components/UI/NoData";
-import { showToast } from "@/src/components/UI/showToast";
-import {
-  ISecondaryStudentAttendanceDetail,
-  ISecondaryTeacherAttendanceDetail,
-} from "@/src/contracts/attendance";
-import {
-  GetASingleStudentAttendance,
-  GetASingleTeacherAttendance,
-  MarkSecondaryStudentAttedance,
-  MarkSecondaryTeacherAttedance,
-} from "@/src/services/attendance";
-import { StackNavigationProps } from "@/src/shared";
+import CustomAvatar from "@/src/components/UI/CustomAvatar";
+import { CustomButton } from "@/src/components/UI/Buttons";
+import AttendanceCard from "@/src/components/UI/AttendanceCard";
+import CalendarFilterModal from "@/src/components/UI/Modals/CalendarFilterModal";
+import { ModalProp, StackNavigationProps } from "@/src/shared";
 import { COLORS } from "@/src/theme/colors";
 import { SubheadingSemibold18 } from "@/src/theme/typography";
-import { BodyText } from "@/src/theme/typography/BodyText";
-import { TextFontType } from "@/src/theme/typography/typography";
-import React, { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  ScrollView,
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { AttendanceHistoryCard } from "../AttendanceHistoryScreen/components";
-import { Feather } from "@expo/vector-icons";
-import { combineStore } from "@/src/store";
+import { Ionicons } from "@expo/vector-icons";
+import moment from "moment";
+import React, { useEffect, useRef, useState } from "react";
+import { FlatList, StatusBar, Text, TouchableOpacity, View, RefreshControl } from "react-native";
+import { GetASingleTeacherAttendance } from "@/src/services/attendance";
+import LoadingComponent from "@/src/components/UI/LoadingComponent";
 
 const InstructorAttendanceViewScreen = ({
   route,
   navigation,
 }: StackNavigationProps) => {
-  const [loading, setLoading] = useState(false);
-  const [loadingMarkingAttendance, setLoadingMarkingAttendance] =
-    useState(false);
+  const [loading, setLoading] = useState(true);
+  const calendarRef = useRef<ModalProp>(null);
 
-  const [teacherAttendance, setTeacherAttendance] =
-    useState<ISecondaryTeacherAttendanceDetail | null>(null);
+  const teacherParam = route?.params?.teacher as any;
+  const teacherId = (route?.params?.id as number) || teacherParam?.id || 1;
+  const initialName = teacherParam
+    ? `${teacherParam.firstName || ""} ${teacherParam.lastName || ""}`.trim()
+    : "";
+  const [teacherName, setTeacherName] = useState(initialName || "Staff");
+  const [attendanceHistory, setAttendanceHistory] = useState<any[]>([]);
 
-  const { user } = combineStore();
+  const fetchStaffAttendance = async (id: number | string) => {
+    if (!id) return;
+    setLoading(true);
+    try {
+      const { responseData, responseStatus } = await GetASingleTeacherAttendance(id);
+      if (responseStatus === 200) {
+        const records = Array.isArray(responseData)
+          ? responseData
+          : Array.isArray(responseData?.data)
+            ? responseData.data
+            : [];
+        
+        if (records[0]?.staff) {
+          const resolved = `${records[0].staff.firstName || ""} ${records[0].staff.lastName || ""}`.trim();
+          if (resolved) setTeacherName(resolved);
+        }
 
-  const isSchool = user?.accounts[0].school?.accountId;
+        if (records.length === 0) {
+          setAttendanceHistory([]);
+          return;
+        }
+
+        // Group by date
+        const groupedMap = new Map<string, any>();
+        
+        records.forEach((item: any) => {
+          const dateKey = moment(item.date).format("YYYY-MM-DD");
+          if (!groupedMap.has(dateKey)) {
+            groupedMap.set(dateKey, {
+              date: item.date,
+              clockIn: "--:--",
+              clockOut: "--:--",
+              present: false,
+            });
+          }
+          const entry = groupedMap.get(dateKey);
+          if (item.status === "PRESENT") {
+            entry.present = true;
+            const timeStr = moment(item.date).format("hh:mm A");
+            if (item.sessionType === "MORNING") {
+              entry.clockIn = timeStr;
+            } else if (item.sessionType === "AFTERNOON") {
+              entry.clockOut = timeStr;
+            }
+          }
+        });
+
+        const sorted = Array.from(groupedMap.values()).sort((a, b) => 
+          moment(b.date).diff(moment(a.date))
+        ).map((item, index) => ({
+          ...item,
+          id: index.toString(),
+          status: item.present ? "Present" : "Absent",
+        }));
+
+        setAttendanceHistory(sorted);
+      }
+    } catch (error) {
+      console.error("fetchStaffAttendance error:", error);
+      setAttendanceHistory([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (route && route.params && route.params.id) {
-      handleFetchInstructorAttendance(route.params.id);
-    }
-  }, [route]);
+    fetchStaffAttendance(teacherId);
+  }, [teacherId]);
 
-  const handleMarkInstructorAttendance = (id: string) => {
-    setLoadingMarkingAttendance(true);
-    MarkSecondaryTeacherAttedance(id)
-      .then(({ responseData, responseStatus }) => {
-        console.log(responseData);
-        if (responseData.accountId) {
-          showToast(`Teacher Attendance marked`);
-          handleFetchInstructorAttendance(id);
-        } else if (!responseData.success) {
-          showToast(responseData.message);
-        }
-      })
-      .catch((err) => {
-        console.log(err, "mark instructor attendance");
-      })
-      .finally(() => {
-        setLoadingMarkingAttendance(false);
-      });
-  };
-
-  const handleFetchInstructorAttendance = (id: string) => {
-    setLoading(true);
-    GetASingleTeacherAttendance(id)
-      .then(({ responseData, responseStatus }) => {
-        console.log(responseStatus, "responseStatus");
-
-        if (responseData.totalCount || responseStatus == 200) {
-          setTeacherAttendance(responseData);
-        }
-        console.log(responseData, "teacher responseData");
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
+  // Force refresh on focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchStaffAttendance(teacherId);
+    });
+    return unsubscribe;
+  }, [navigation, teacherId]);
 
   if (loading) {
     return (
-      <View className="flex-1 px-4 py-7 bg-white">
-        <LoadingComponent />
+      <View className="flex-1 bg-white px-4 pt-14">
         <LoadingComponent />
       </View>
     );
   }
 
-  // return studentAttendance ? (
-  return teacherAttendance ? (
-    <ScrollView className="flex-1 bg-white px-4 pt-7">
+  const presents = attendanceHistory.filter((item) => item.status === "Present").length;
+  const absents = attendanceHistory.length - presents;
+
+  return (
+    <View className="flex-1 bg-white px-4 pt-14">
       <StatusBar
         backgroundColor={COLORS.white}
         barStyle={"dark-content"}
         animated
       />
-      <View className="flex-row items-center ">
-        <BackBtn />
-        <SubheadingSemibold18
-          text={`${teacherAttendance.teacherData?.firstName} ${teacherAttendance.teacherData?.lastName}`}
-          customClassName="ml-5"
-        />
+
+      {/* Header */}
+      <View className="flex-row items-center justify-between mb-6">
+        <View className="flex-row items-center flex-1">
+          <BackBtn />
+          <SubheadingSemibold18 text={teacherName} customClassName="ml-4 text-gray-900 flex-1" />
+        </View>
+        {/* Calendar Icon */}
         <TouchableOpacity
-          disabled={loadingMarkingAttendance}
-          onPress={() =>
-            handleMarkInstructorAttendance(
-              `${teacherAttendance?.teacherData?.accountId}`
-            )
-          }
-          className="p-1 ml-auto rounded-md border border-neutral-300"
+          className="w-10 h-10 border border-gray-200 rounded-lg items-center justify-center bg-white"
+          onPress={() => calendarRef.current?.setVisible(true)}
         >
-          {loadingMarkingAttendance ? (
-            <ActivityIndicator size={"small"} color={COLORS.black} />
-          ) : (
-            <Feather name="check" size={19} />
-          )}
+          <Ionicons name="calendar-outline" size={20} color={COLORS.gray3} />
         </TouchableOpacity>
       </View>
-      <View className="flex-row justify-between items-center mt-7">
+
+      {/* Summary Cards */}
+      <View className="flex-row justify-between items-center mb-6">
         <AttendanceCard
           title="Presents"
-          subtitle={`${teacherAttendance?.totalPresent}`}
-          borderColor="border-success-500"
+          subtitle={`${presents}`}
+          borderColor="border-green-500 bg-green-50"
         />
         <AttendanceCard
           title="Absents"
-          subtitle={`${teacherAttendance?.totalAbsent}`}
-          borderColor="border-danger-500"
+          subtitle={`${absents}`}
+          borderColor="border-red-500 bg-red-50"
         />
       </View>
 
-      <View>
-        <BodyText
-          text="Attendance"
-          type={TextFontType.Bold}
-          customClassName="my-4"
-        />
-        {teacherAttendance && teacherAttendance.data.length ? (
-          teacherAttendance.data.reverse().map((item) => {
-            return (
-              <View key={item.id}>
-                <AttendanceHistoryCard
-                  item={{ date: item.date }}
-                  isMorningType={true}
-                  attended={item.morningAttendance}
-                  key={item.id + "1"}
-                  showAttendanceStatus
-                  alt
-                  onPress={() => {
-                    navigation.navigate(
-                      "AttendanceHistoryDetailForInstructorScreen",
-                      {
-                        date: item.date,
-                        attendancePeriod: "Morning",
-                      }
-                    );
-                  }}
-                />
-                <AttendanceHistoryCard
-                  item={{ date: item.date }}
-                  isAfternoonType={true}
-                  attended={item.afternoonAttendance}
-                  key={item.id + "2"}
-                  showAttendanceStatus
-                  alt
-                  onPress={() => {
-                    navigation.navigate(
-                      "AttendanceHistoryDetailForInstructorScreen",
-                      {
-                        date: item.date,
-                        attendancePeriod: "Afternoon",
-                      }
-                    );
-                  }}
-                />
+      {/* Attendance List */}
+      <View className="flex-1">
+        <View className="flex-row items-center justify-between mb-4">
+          <Text className="text-base font-bold text-gray-900">Attendance History</Text>
+        </View>
+
+        <FlatList
+          data={attendanceHistory}
+          keyExtractor={(item) => item.id.toString()}
+          showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={loading} onRefresh={() => fetchStaffAttendance(teacherId)} tintColor="#F97316" colors={["#F97316"]} />}
+          renderItem={({ item }) => (
+            <View className="flex-row items-center justify-between mb-3 bg-white border border-gray-100 rounded-2xl p-4 shadow-[0px_1px_2px_rgba(0,0,0,0.05)]">
+              <View className="flex-row items-center flex-1">
+                <View className="w-10 h-10 bg-gray-900 rounded-full items-center justify-center mr-3">
+                  <Ionicons name="trophy" size={18} color="#F97316" />
+                </View>
+                <View>
+                  <Text className="text-sm font-bold text-gray-900">{moment(item.date).format("dddd, Do MMM")}</Text>
+                  <Text className="text-xs text-gray-500 mt-0.5">{item.clockIn} - {item.clockOut}</Text>
+                </View>
               </View>
-            );
-          })
-        ) : (
-          <Text>No Attendance for this teacher yet</Text>
-        )}
+
+              <View className={`w-7 h-7 rounded-lg items-center justify-center ${item.status === 'Present' ? 'bg-green-50' : 'bg-red-50'}`}>
+                <Text className={`text-xs font-bold ${item.status === 'Present' ? 'text-green-600' : 'text-red-600'}`}>
+                  {item.status === 'Present' ? 'P' : 'A'}
+                </Text>
+              </View>
+            </View>
+          )}
+          ListFooterComponent={<View className="h-10" />}
+        />
       </View>
-      <View className="h-20" />
-    </ScrollView>
-  ) : (
-    <NoDataComponent />
+
+      {/* Calendar Modal */}
+      <CalendarFilterModal ref={calendarRef} />
+
+    </View>
   );
 };
 

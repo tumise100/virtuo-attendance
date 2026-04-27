@@ -19,6 +19,8 @@ import { SubheadingSemibold18 } from "@/src/theme/typography";
 import { BodyText } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
 import React, { useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import moment from "moment";
 import {
   ActivityIndicator,
   ScrollView,
@@ -33,6 +35,7 @@ import { combineStore } from "@/src/store";
 
 const SecondaryStudentAttendanceViewScreen = ({
   route,
+  navigation,
 }: StackNavigationProps) => {
   const [loading, setLoading] = useState(false);
   const [loadingMarkingAttendance, setLoadingMarkingAttendance] =
@@ -48,22 +51,83 @@ const SecondaryStudentAttendanceViewScreen = ({
 
   const isSchool = user?.accounts[0].school?.accountId;
 
-  useEffect(() => {
-    if (route && route.params && route.params.id) {
-      handleFetchStudentAttendance(route.params.id);
-    }
-  }, [route]);
+  const studentId = route?.params?.id;
+
+  const handleFetchStudentAttendance = (id: string) => {
+    if (!id) return;
+    setLoading(true);
+    GetASingleStudentAttendance(id)
+      .then(({ responseData, responseStatus }) => {
+        if (responseStatus !== 200) return;
+        const records = Array.isArray(responseData)
+          ? responseData
+          : Array.isArray(responseData?.data)
+            ? responseData.data
+            : [];
+        
+        if (records.length === 0) {
+          setStudentAttendance({ attendancedata: [] } as any);
+          return;
+        }
+
+        const student = records[0]?.student;
+        
+        // Group by date
+        const groupedMap = new Map<string, any>();
+        
+        records.forEach((item: any) => {
+          const dateKey = moment(item.date).format("YYYY-MM-DD");
+          if (!groupedMap.has(dateKey)) {
+            groupedMap.set(dateKey, {
+              date: item.date,
+              morningAttendance: false,
+              afternoonAttendance: false,
+              id: item.id,
+            });
+          }
+          const entry = groupedMap.get(dateKey);
+          if (item.sessionType === "MORNING") {
+            entry.morningAttendance = item.status === "PRESENT";
+          } else if (item.sessionType === "AFTERNOON") {
+            entry.afternoonAttendance = item.status === "PRESENT";
+          }
+        });
+
+        const mapped = {
+          studentData: student
+            ? {
+              accountId: student.id,
+              firstName: student.firstName || "",
+              lastName: student.lastName || "",
+              class: { name: student.currentClass?.name || student.class?.name || "" },
+            }
+            : undefined,
+          attendancedata: Array.from(groupedMap.values()).sort((a, b) => 
+            moment(b.date).diff(moment(a.date))
+          ),
+          totalCount: records.length,
+          totalPresent: records.filter((r: any) => r.status === "PRESENT").length,
+          totalAbsent: records.filter((r: any) => r.status !== "PRESENT").length,
+        };
+        setStudentAttendance(mapped as any);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   const handleMarkSecondaryStudentAttendance = (id: string) => {
     setLoadingMarkingAttendance(true);
     MarkSecondaryStudentAttedance(id)
       .then(({ responseData, responseStatus }) => {
-        console.log(responseData);
-        if (responseData.accountId) {
+        if (responseStatus === 200 || responseStatus === 201) {
           showToast(`Student Attendance marked`);
           handleFetchStudentAttendance(id);
-        } else if (!responseData.success) {
-          showToast(responseData.message);
+        } else {
+          showToast(responseData?.message || "Attendance marking failed");
         }
       })
       .catch((err) => {
@@ -74,24 +138,28 @@ const SecondaryStudentAttendanceViewScreen = ({
       });
   };
 
-  const handleFetchStudentAttendance = (id: string) => {
-    setLoading(true);
-    GetASingleStudentAttendance(id)
-      .then(({ responseData, responseStatus }) => {
-        console.log(responseStatus, "responseStatus");
+  useEffect(() => {
+    if (studentId) {
+      handleFetchStudentAttendance(studentId);
+    }
+  }, [studentId]);
 
-        if (responseData.totalCount || responseStatus == 200) {
-          setStudentAttendance(responseData);
-        }
-        console.log(responseData, "studnet responseData");
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
+  useFocusEffect(
+    React.useCallback(() => {
+      if (studentId) {
+        handleFetchStudentAttendance(studentId);
+      }
+    }, [studentId])
+  );
+
+  // Force refresh on focus
+  const { addListener } = navigation as any;
+  useEffect(() => {
+    const unsubscribe = addListener('focus', () => {
+      if (studentId) handleFetchStudentAttendance(studentId);
+    });
+    return unsubscribe;
+  }, [addListener, studentId]);
 
   if (loading) {
     return (
@@ -169,7 +237,7 @@ const SecondaryStudentAttendanceViewScreen = ({
           customClassName="my-4"
         />
         {studentAttendance &&
-          studentAttendance.attendancedata.reverse().map((item) => {
+          studentAttendance.attendancedata.map((item) => {
             return (
               <View key={item.id}>
                 <AttendanceHistoryCard

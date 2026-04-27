@@ -9,13 +9,13 @@ export async function Login(input: { email: string; password: string }) {
 }
 
 export async function ChangePassword(input: {
-  oldPassword: string;
+  currentPassword: string;
   newPassword: string;
 }) {
   return FetchClient({
-    endpoint: "/auth/me/change-password",
+    endpoint: "/auth/change-password",
     body: input,
-    method: HttpMethod.PATCH,
+    method: HttpMethod.POST,
   });
 }
 
@@ -27,6 +27,6 @@ export async function GetMe() {
 
 export async function GetAllStudents() {
   return FetchClient({
-    endpoint: `/accounts?type=STUDENT`,
+    endpoint: `/student?limit=1000`,
   });
 }

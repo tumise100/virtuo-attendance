@@ -23,7 +23,29 @@ const ProfileScreen = () => {
 
   if (!user) return <NoUserDataComponent />;
 
-  const isSchoolUser = user?.accounts[0].school?.accountId;
+  const account = (user?.accounts as any[])?.[0] as any;
+  const staff = account?.staff;
+  const school = account?.school;
+  const isSchoolUser = account?.type === "SCHOOL";
+
+  const displayName =
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+    [staff?.firstName, staff?.lastName].filter(Boolean).join(" ") ||
+    school?.ownerName ||
+    school?.name ||
+    "User";
+
+  const displayRole = isSchoolUser
+    ? school?.schoolType
+      ? `${school.schoolType} School Admin`
+      : "School Admin"
+    : staff?.designation
+      ? `${staff.designation}${staff?.department?.name ? " • " + staff.department.name : ""}`
+      : "Staff";
+
+  const displaySchool = school?.name || staff?.school?.name || "";
+  const phoneDisplay = (user as any)?.phone || staff?.phone || "—";
+  const emailDisplay = user?.email || staff?.email || school?.email || "—";
 
   return (
     <ScrollView className="flex-1 bg-white px-4 pt-7">
@@ -37,47 +59,14 @@ const ProfileScreen = () => {
         <SubheadingSemibold18 text="Profile" customClassName="ml-5" />
       </View>
       <View className="items-center my-6">
-        <CustomAvatar
-          name={`${user?.firstName} ${user?.lastName}`}
-          size={105}
-        />
-        {/* <View className="w-[105px] h-[105px] rounded-full border-[3px] border-black">
-          <Image
-            source={ProfileAvatarImg}
-            className="h-full w-full rounded-full"
-          />
-          <View className="absolute p-2 rounded-full bg-borderColor bottom-0 right-0">
-            <Feather name="camera" size={17} />
-          </View>
-        </View> */}
+        <CustomAvatar name={displayName} size={105} />
       </View>
       <View className="mt-6">
-        <ProfileScreenItem title={`${user?.firstName} ${user?.lastName}`} />
-        <ProfileScreenItem
-          title={
-            isSchoolUser
-              ? `${user.accounts[0].school?.schoolType} ${
-                  user.accounts[0].type as string
-                }`
-              : user.accounts[0].lecturer?.position
-              ? `${user.accounts[0].lecturer.lecturerType} ${
-                  user.accounts[0].type as string
-                }`
-              : (user.accounts[0].type as string)
-          }
-          // title={
-          //   user.accounts[0].lecturer?.position || isSchoolUser
-          //     ? `${user.accounts[0].school?.schoolType} ${
-          //         user.accounts[0].type as string
-          //       }`
-          //     : (user.accounts[0].type as string)
-          // }
-          customTextClassName="uppercase"
-          hideArrowIcon
-        />
-        <ProfileScreenItem title="Nigeria" />
-        <ProfileScreenItem title={`${user?.email}`} />
-        <ProfileScreenItem title="+234 810 123 4567" />
+        <ProfileScreenItem title={displayName} />
+        <ProfileScreenItem title={displayRole} customTextClassName="uppercase" hideArrowIcon />
+        {displaySchool ? <ProfileScreenItem title={displaySchool} hideArrowIcon /> : null}
+        <ProfileScreenItem title={emailDisplay} />
+        <ProfileScreenItem title={phoneDisplay} />
       </View>
     </ScrollView>
   );

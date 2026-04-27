@@ -1,41 +1,34 @@
 import FetchClient, { HttpMethod } from "../config";
 
-export async function GetAStudent({
-  lecturerId,
-  studentId,
-}: {
-  lecturerId: number;
-  studentId: number;
-}) {
+export async function GetAStudent(studentId: number | string) {
   return FetchClient({
-    endpoint: `/courses/lecturer/${lecturerId}/student/${studentId}/details`,
+    endpoint: `/student/${studentId}`,
   });
 }
 
-export async function GetMyStudents(
-  id: number,
-  currentPage?: number,
-  perPage?: number,
-  search?: string
-) {
+export async function GetMyStudents(...args: any[]) {
+  let query: any = args[0] ?? {};
+
+  if (typeof query === "number" || typeof query === "string") {
+    const [_id, page, limit, search] = args;
+    query = { page, limit, search };
+  }
+
+  const queryString = new URLSearchParams(query).toString();
   return FetchClient({
-    endpoint: `/courses/lecturer/students/${id}?limit=${
-      perPage || 100
-    }&page=${currentPage}&search=${search}`,
+    endpoint: `/student?${queryString}`,
   });
 }
 
-export async function GetTeacherStudents(
-  id: number,
-  currentPage?: number,
-  perPage?: number,
-  search?: string
-) {
-  return FetchClient({
-    endpoint: `/students-attendance/lecturer/students/${id}?limit=${
-      perPage || 100
-    }&page=${currentPage}&search=${search}`,
-  });
+export async function GetTeacherStudents(...args: any[]) {
+  let query: any = args[0] ?? {};
+
+  if (typeof query === "number" || typeof query === "string") {
+    const [_id, page, limit, search] = args;
+    query = { page, limit, search };
+  }
+
+  return GetMyStudents(query);
 }
 
 export async function RegisterStudentCard({
@@ -46,8 +39,24 @@ export async function RegisterStudentCard({
   cardUID: string;
 }) {
   return FetchClient({
-    endpoint: "/card/create",
+    endpoint: "/student/register-nfc",
     method: HttpMethod.POST,
-    body: { email, cardUID },
+    body: { email, nfcCode: cardUID },
+  });
+}
+
+export async function CreateStudent(data: any) {
+  return FetchClient({
+    endpoint: "/student",
+    method: HttpMethod.POST,
+    body: data,
+  });
+}
+
+export async function UpdateStudent(id: number | string, data: any) {
+  return FetchClient({
+    endpoint: `/student/${id}`,
+    method: HttpMethod.PUT,
+    body: data,
   });
 }

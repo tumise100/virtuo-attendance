@@ -14,7 +14,6 @@ import { TextFontType } from "@/src/theme/typography/typography";
 import { BodyRegular } from "@/src/theme/typography/BodyText";
 import { COLORS } from "@/src/theme/colors";
 import { AttendanceStatusType } from "@/src/shared";
-import { useNavigation } from "@react-navigation/native";
 import moment from "moment";
 
 const ClassCardOverview = ({
@@ -23,40 +22,48 @@ const ClassCardOverview = ({
   showAttendanceStats = true,
   showAttendanceAvg = true,
   title,
-  classId = 1,
+  subTitle,
+  classId,
   courseCode,
   startTime,
   endTime,
   attendanceRate,
   onLongPress,
   isSelected,
+  variant,
+  showChevron,
 }: {
   title: string;
+  subTitle?: string;
   onPress?: () => void;
   customclassName?: string;
   showAttendanceStats?: boolean;
   showAttendanceAvg?: boolean;
   classId?: number;
-  courseCode: string;
+  courseCode?: string;
   startTime?: string;
   endTime?: string;
   attendanceRate?: string;
   onLongPress?: (event: GestureResponderEvent) => void;
   isSelected?: boolean;
+  variant?: 'default' | 'light';
+  showChevron?: boolean;
 }) => {
-  const navigation = useNavigation<any>();
+  const isLight = variant === 'light';
+
+  // Presentational card — owning screens must pass onPress to make it
+  // tappable. It used to silently default to navigating with classId = 1,
+  // which routed cards to the wrong class.
+  const Container: any = onPress || onLongPress ? TouchableOpacity : View;
+  const containerProps = onPress || onLongPress
+    ? { onPress, onLongPress }
+    : {};
 
   return (
-    <TouchableOpacity
-      onPress={() => {
-        onPress
-          ? onPress()
-          : navigation.navigate("ClassViewScreen", { classId });
-      }}
-      onLongPress={onLongPress}
-      className={`flex-row rounded-md items-center justify-between bg-info-500 p-3 mb-3 ${customclassName} ${
-        (isSelected) && "border-2 border-primary-400 bg-info-400"
-      }`}
+    <Container
+      {...containerProps}
+      className={`flex-row rounded-md items-center justify-between p-3 mb-3 ${customclassName} ${isLight ? 'bg-sky-100' : 'bg-info-500'
+        } ${isSelected && "border-2 border-primary-400 bg-info-400"}`}
     >
       <View className="bg-white p-[10px] rounded-full">
         <Ionicons name="trophy" size={19} color={COLORS.primary[500]} />
@@ -65,8 +72,15 @@ const ClassCardOverview = ({
         <Overline1Text
           text={title}
           type={TextFontType.Bold}
-          customClassName="text-white"
+          customClassName={isLight ? "text-gray-900" : "text-white"}
         />
+        {subTitle && (
+          <DescriptionText
+            text={subTitle}
+            type={isLight ? TextFontType.Regular : TextFontType.Medium}
+            customClassName={`${isLight ? "text-gray-500 text-xs" : "text-white text-[10px]"} mt-0.5`}
+          />
+        )}
         {startTime && endTime && (
           <DescriptionText
             // text="CMP101 Monday, 15th Mar. (9AM - 12PM)"
@@ -81,24 +95,30 @@ const ClassCardOverview = ({
         )}
       </View>
       <View className="items-center">
-        {showAttendanceAvg && (
-          <BodyRegular
-            text={`${attendanceRate}% Avg.`}
-            type={TextFontType.Medium}
-            customClassName="text-white mb-1"
-          />
+        {showChevron ? (
+          <Ionicons name="chevron-forward" size={20} color={COLORS.black} />
+        ) : (
+          <>
+            {showAttendanceAvg && (
+              <BodyRegular
+                text={`${attendanceRate}% Avg.`}
+                type={TextFontType.Medium}
+                customClassName="text-white mb-1"
+              />
+            )}
+            {showAttendanceStats ? (
+              <View className="flex-row items-center">
+                <OverviewAttendanceStatus />
+                <OverviewAttendanceStatus
+                  type={AttendanceStatusType.ABSENT}
+                  value={"20"}
+                />
+              </View>
+            ) : null}
+          </>
         )}
-        {showAttendanceStats ? (
-          <View className="flex-row items-center">
-            <OverviewAttendanceStatus />
-            <OverviewAttendanceStatus
-              type={AttendanceStatusType.ABSENT}
-              value={"20"}
-            />
-          </View>
-        ) : null}
       </View>
-    </TouchableOpacity>
+    </Container>
   );
 };
 
@@ -122,12 +142,13 @@ export const OverviewAttendanceStatus = ({
       <DescriptionText
         text={isPresent ? "P" : "A"}
         type={TextFontType.Regular}
-        customClassName={`px-[6px] py-[3px] rounded-full bg-danger-500 mr-[3px] text-white text-[8px] ${
-          isPresent && "bg-success-500"
-        } ${alt && "text-black"} ${
-          hideStatsShowOnlyAttendanceStat &&
-          "text-[12px] text-white px-[6px] py-[4px]"
-        }`}
+        customClassName={`px-[6px] py-[3px] rounded-full mr-[3px] text-[8px] ${hideStatsShowOnlyAttendanceStat
+          ? isPresent
+            ? "bg-green-100 text-green-700"
+            : "bg-red-100 text-red-700"
+          : `text-white ${isPresent ? "bg-success-500" : "bg-danger-500"}`
+          } ${alt && !hideStatsShowOnlyAttendanceStat && "text-black"} ${hideStatsShowOnlyAttendanceStat && "text-[12px] px-[8px] py-[4px]"
+          }`}
       />
       {!hideStatsShowOnlyAttendanceStat && (
         <DescriptionText
@@ -149,9 +170,8 @@ export const AttendanceStatusText = ({
   return (
     <View className="flex-row">
       <Text
-        className={`text-[12px] text-white px-[7px] py-[3px] rounded-full ${
-          isPresent ? "bg-success-600" : "bg-danger-600"
-        }`}
+        className={`text-[12px] text-white px-[7px] py-[3px] rounded-full ${isPresent ? "bg-success-600" : "bg-danger-600"
+          }`}
       >
         {isPresent ? "P" : "A"}
       </Text>

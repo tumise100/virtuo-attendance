@@ -13,14 +13,14 @@ const InputWithFilter = ({
   onChangeText,
 }: {
   placeHolder?: string;
-  filterModalRef: React.RefObject<ModalProp>;
+  filterModalRef?: React.RefObject<ModalProp | null>;
   value?: string;
   onChangeText?: (text: string) => void;
 }) => {
   return (
     <View className="my-5 flex-row items-center">
       <CustomPaperTextInputWithIcons
-        outerStyle="bg-white border border-borderColor flex-[.9]"
+        outerStyle={`bg-white border border-borderColor ${filterModalRef ? 'flex-[.9]' : 'flex-1'}`}
         innerStyle="bg-white text-sm text-black"
         inputStyle={{ height: 50 }}
         containerStyle={{ height: 48 }}
@@ -35,12 +35,14 @@ const InputWithFilter = ({
         value={value}
         onChangeText={onChangeText}
       />
-      <TouchableOpacity
-        onPress={() => filterModalRef.current?.setVisible(true)}
-        className="flex-[.1] ml-3 border border-borderColor self-stretch px-2 items-center justify-center rounded-md"
-      >
-        <Ionicons name="filter-outline" size={26} />
-      </TouchableOpacity>
+      {filterModalRef && (
+        <TouchableOpacity
+          onPress={() => filterModalRef?.current?.setVisible(true)}
+          className="flex-[.1] ml-3 border border-borderColor self-stretch px-2 items-center justify-center rounded-md"
+        >
+          <Ionicons name="filter-outline" size={26} />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };

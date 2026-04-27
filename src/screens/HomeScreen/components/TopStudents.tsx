@@ -25,12 +25,12 @@ const TopStudents = ({
           <LoadingComponent />
         ) : allStudents && allStudents.length ? (
           allStudents.map(
-            ({ id, student: { firstName, lastName, level, accountId } }) => (
+            ({ id, student: { firstName, lastName } }) => (
               <StudentOverviewCard
                 key={id}
                 fullName={`${firstName} ${lastName}`}
-                studentId={accountId}
-                // level={`${level}`}
+                // Presentational only — no onPress so the card doesn't
+                // navigate to a hard-coded / wrong student id.
               />
             )
           )

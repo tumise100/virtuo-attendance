@@ -64,7 +64,6 @@ const StudentAttendanceScreen = ({ route }: StackNavigationProps) => {
                 key={student.matric_no}
                 fullName={student.name}
                 level={student.level}
-                studentId={1}
               />
             ))
           ) : (

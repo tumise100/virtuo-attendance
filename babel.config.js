@@ -3,7 +3,7 @@ module.exports = function (api) {
   return {
     // presets: ["babel-preset-expo", "nativewind/babel",],
     presets: [["babel-preset-expo", { jsxImportSource: "nativewind" }], "nativewind/babel",],
-    plugins: ["react-native-paper/babel"],
+    plugins: ["react-native-paper/babel", "react-native-reanimated/plugin"],
     // plugins: ["nativewind/babel", "react-native-paper/babel"],
   };
 };

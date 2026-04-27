@@ -46,24 +46,22 @@ export const AttendanceHistoryCard = ({
         onPress
           ? onPress()
           : navigation.navigate(
-              // isSchool
-              //   ? "AttendanceHistoryDetailForInstructorScreen"
-              "AttendanceHistoryDetailScreen",
-              {
-                date: item.date,
-                attendancePeriod: isMorningType
-                  ? "Morning"
-                  : isAfternoonType
+            // isSchool
+            //   ? "AttendanceHistoryDetailForInstructorScreen"
+            "AttendanceHistoryDetailScreen",
+            {
+              date: item.date,
+              attendancePeriod: isMorningType
+                ? "Morning"
+                : isAfternoonType
                   ? "Afternoon"
                   : "None",
-              }
-            );
+            }
+          );
       }}
-      className={`${
-        alt ? "bg-white" : "bg-info-500"
-      } flex-row items-center p-3 mb-3 rounded-md ${
-        alt && "border border-gray-300"
-      }`}
+      className={`${alt ? "bg-white" : "bg-info-500"
+        } flex-row items-center p-3 mb-3 rounded-md ${alt && "border border-gray-300"
+        }`}
     >
       <View>
         <View
@@ -132,9 +130,8 @@ const AttendanceHistoryCardStatusWithNumbers = ({
   return (
     <View className="flex-row items-center mr-1">
       <Text
-        className={`text-[9px] py-[3px] px-[6px] text-white rounded-full ${
-          isPresent ? "bg-success-700" : "bg-danger-500"
-        }`}
+        className={`text-[9px] py-[3px] px-[6px] text-white rounded-full ${isPresent ? "bg-success-700" : "bg-danger-500"
+          }`}
       >
         {isPresent ? "P" : "A"}
       </Text>
@@ -165,11 +162,16 @@ export const AttendanceHistoryButton = ({
       onPress={onPress}
       className={`bg-info-200 p-3 rounded-md flex-row items-center justify-between mb-3 ${customClassName}`}
     >
-      <View className="flex-row items-center">
+      <View className="flex-row items-center flex-1 mr-2">
         <View className="bg-white p-2 rounded-full">
           <Ionicons name="trophy" size={18} color={COLORS.primary[400]} />
         </View>
-        <Text className={`ml-3 font-medium ${titleClassName}`}>{title}</Text>
+        <Text
+          numberOfLines={1}
+          className={`ml-3 font-medium flex-1 ${titleClassName}`}
+        >
+          {title}
+        </Text>
       </View>
 
       {leftText ? (
@@ -191,9 +193,8 @@ const AttendanceHistoryCardStatus = ({
   return (
     <View className="flex-row items-center mr-1">
       <Text
-        className={`text-[9px] py-[3px] px-[6px] text-white rounded-full ${
-          isPresent ? "bg-success-700" : "bg-danger-500"
-        }`}
+        className={`text-[9px] py-[3px] px-[6px] text-white rounded-full ${isPresent ? "bg-success-700" : "bg-danger-500"
+          }`}
       >
         {isPresent ? "P" : "A"}
       </Text>

@@ -13,6 +13,18 @@ export async function GetSchoolStudents(
   });
 }
 
+export async function GetSchoolProfile() {
+  return FetchClient({ endpoint: `/school/profile` });
+}
+
+export async function GetBranches() {
+  return FetchClient({ endpoint: `/school/branches` });
+}
+
+export async function GetIdCardSettings() {
+  return FetchClient({ endpoint: `/school/id-card-settings` });
+}
+
 // export async function GetSchoolStudents(schoolId: number) {
 //   return FetchClient({
 //     endpoint: `/students-attendance/school/students/${schoolId}`,

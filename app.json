@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "virtuo-attendance",
-    "slug": "virtuoattendance",
+    "name": "Virtuo App",
+    "slug": "virtuo-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/Vlogo 1.png",
@@ -12,18 +12,20 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow Virtuo-Attendance App to access your camera",
-          "microphonePermission": "Allow Virtuo-Attendance App to access your microphone",
+          "cameraPermission": "Allow Virtuo App to access your camera",
+          "microphonePermission": "Allow Virtuo App to access your microphone",
           "recordAudioAndroid": true
         }
       ]
     ],
     "splash": {
-      "image": "./assets/images/VirtuoAttendanceSplash.png",
+      "image": "./assets/images/Vlogo1.png",
       "resizeMode": "contain",
-      "backgroundColor": "#000000"
+      "backgroundColor": "#FFFFFF"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.isolomon.virtuoattendance",
@@ -39,7 +41,9 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FF6B00"
       },
-      "permissions": ["android.permission.NFC"],
+      "permissions": [
+        "android.permission.NFC"
+      ],
       "package": "com.isolomon.virtuoattendance"
     },
     "web": {
@@ -50,11 +54,10 @@
         "projectId": "e3e63d97-58a6-49e0-be58-fee66aabf64e"
       }
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.0",
     "updates": {
-      "url": "https://u.expo.dev/e3e63d97-58a6-49e0-be58-fee66aabf64e"
+      "url": "https://u.expo.dev/e3e63d97-58a6-49e0-be58-fee66aabf64e",
+      "enabled": false
     },
     "owner": "virtuo-attendance"
   }

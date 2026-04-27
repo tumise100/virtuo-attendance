@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import React from "react";
-import { AntDesign,Feather } from "@expo/vector-icons";
+import { AntDesign, Feather } from "@expo/vector-icons";
 import { COLORS } from "@/src/theme/colors";
 import { BodyRegular } from "@/src/theme/typography/BodyText";
 import { TextFontType } from "@/src/theme/typography/typography";
@@ -11,11 +11,15 @@ const QuickActionCard = ({
   title,
   subtitle,
   onPress,
+  iconName,
+  Icon,
 }: {
   colorType: string;
   title: string;
   subtitle: string;
   onPress?: () => void;
+  iconName?: string;
+  Icon?: any;
 }) => {
   let color100 = "";
   let color200 = "";
@@ -47,18 +51,22 @@ const QuickActionCard = ({
   }
 
 
+  // Render as a plain View when no onPress is wired so we don't invite
+  // dead taps. Callers that want a tappable action pass onPress.
+  const Container: any = onPress ? TouchableOpacity : View;
   return (
-    <TouchableOpacity
+    <Container
       onPress={onPress}
       className={`w-[47%] p-3 ${color100} rounded-md`}
     >
       <View className="flex-row">
         <View className={`${color200} p-[5px] rounded-full`}>
           <View className={`${color300} p-[5px] rounded-full`}>
-            {/* <Feather name="send" color={COLORS.white} /> */}
-            {/* <AntDesign name="appstore-o" color={COLORS.white} /> */}
-            <AntDesign name="appstore" color={COLORS.white} />
-            
+            {Icon ? (
+              <Icon name={iconName} size={20} color={COLORS.white} />
+            ) : (
+              <AntDesign name="appstore" size={20} color={COLORS.white} />
+            )}
           </View>
         </View>
       </View>
@@ -72,7 +80,7 @@ const QuickActionCard = ({
         type={TextFontType.Regular}
         customClassName="py-2 leading-[16px]"
       />
-    </TouchableOpacity>
+    </Container>
   );
 };
 

@@ -142,7 +142,6 @@ const ClassViewScreen = ({ navigation, route }: StackNavigationProps) => {
                 fullName={`${student.student.student.firstName} ${student.student.student.lastName}`}
                 title={classViewDetail.course.title}
                 level={convertLevelStringToNumber(classViewDetail.course.level)}
-                studentId={student.student.id}
               />
             ))}
             <View className="h-20" />

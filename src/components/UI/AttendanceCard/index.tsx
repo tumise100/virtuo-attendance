@@ -15,7 +15,7 @@ const AttendanceCard = ({
 }) => {
   return (
     <View
-      className={`p-3 border border-l-[16px] border-success-600 w-[47%] rounded-md ${borderColor}`}
+      className={`p-3 border border-l-[16px] w-[47%] rounded-md bg-white ${borderColor}`}
     >
       <BodySmall
         text={title}

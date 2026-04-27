@@ -12,7 +12,6 @@ import { BodyRegular } from "@/src/theme/typography/BodyText";
 import { H5Text } from "@/src/theme/typography/HeaderText";
 import { DescriptionText } from "@/src/theme/typography/OtherText";
 import { TextFontType } from "@/src/theme/typography/typography";
-import { extractStudentId } from "@/src/utils";
 import moment from "moment";
 import React, { useCallback, useEffect, useState } from "react";
 import {
@@ -26,12 +25,15 @@ import NfcManager, { Ndef, NfcEvents } from "react-native-nfc-manager";
 import NfcAttendanceTakingNotSupported from "../AttendanceTakingScreen/NfcAttendanceTakingNotSupported";
 import { StudentAttendanceMarked } from "@/src/components/UI/StudentOverviewCard";
 
+import { extractDataFromTag } from "@/src/utils/nfc";
+
+
 const AttendanceTakingForInstructorScreen = () => {
   const [loadingMarkingAttendance, setLoadingMarkingAttendance] =
     useState(false);
   const [userJustMarkedInfo, setUserJustMarkedInfo] = useState<any>(null);
 
-  const [userId, setUserId] = useState<string | null>(null);
+  const [cardHexCode, setCardHexCode] = useState<string | null>(null);
 
   const [disableTagReading, setDisableTagReading] = useState(false);
 
@@ -88,31 +90,13 @@ const AttendanceTakingForInstructorScreen = () => {
 
   useEffect(() => {
     handleMarkSecondaryAttendance();
-  }, [userId]);
+  }, [cardHexCode]);
 
   const handleTagReading = (tag: any) => {
-    console.log(
-      Ndef.uri.decodePayload(tag.ndefMessage[0].payload),
-      "handleTagReading"
-    );
-
     try {
-      const payload = tag.ndefMessage[0].payload;
-      const decodedPayload = Ndef.uri.decodePayload(payload);
-
-      if (!decodedPayload) return null;
-
-      const userId = extractStudentId(decodedPayload);
-
-      console.log(userId, "userId");
-
-      if (!userId) {
-        throw new Error("Bad ID");
-      }
-
-      setUserId(`${userId}`);
-
-      console.log(decodedPayload, userId, "decoded");
+      const parsedHex = extractDataFromTag(tag);
+      if (!parsedHex) throw new Error("Bad Hex");
+      setCardHexCode(parsedHex);
     } catch (error) {
       showToast("Invalid Tag!");
       console.log(error, "error");
@@ -120,22 +104,30 @@ const AttendanceTakingForInstructorScreen = () => {
   };
 
   const handleMarkSecondaryAttendance = useCallback(() => {
-    if (userId) {
-      console.log(userId, "handleMarkSecondaryAttendance");
+    if (cardHexCode) {
+      console.log(cardHexCode, "handleMarkSecondaryAttendance");
       setDisableTagReading(true);
       setLoadingMarkingAttendance(true);
       setUserJustMarkedInfo(null);
 
-      //   (isSchool
-      //     ? MarkSecondaryTeacherAttedance(userId)
-      //     : MarkSecondaryStudentAttedance(userId)
-      // )
-      MarkSecondaryTeacherAttedance(userId)
+      MarkSecondaryTeacherAttedance(undefined, {
+        linkId: cardHexCode,
+        status: "PRESENT",
+      })
         .then(({ responseData, responseStatus }) => {
           console.log(responseData);
-          if (responseData.accountId) {
+          const first = Array.isArray(responseData) ? responseData[0] : responseData;
+
+          if (responseStatus === 200 || responseStatus === 201) {
             showToast("Attendance marked");
-            // setUserJustMarkedInfo({ name: "JohnSon" });
+            const person = first?.staff || first?.student || first?.record?.staff || first?.record?.student;
+            const fullName = person 
+              ? [person.firstName, person.middleName, person.lastName].filter(Boolean).join(" ")
+              : `Card ${cardHexCode}`;
+
+            setUserJustMarkedInfo({
+              name: fullName,
+            });
           } else if (!responseData.success) {
             showToast(responseData.message);
           }
@@ -144,13 +136,12 @@ const AttendanceTakingForInstructorScreen = () => {
           console.log(err, "mark instructor student");
         })
         .finally(() => {
-          setUserId(null);
+          setCardHexCode(null);
           setLoadingMarkingAttendance(false);
           setDisableTagReading(false);
-          // setUserJustMarkedInfo(null);
         });
     }
-  }, [userId]);
+  }, [cardHexCode]);
 
   if (!hasNfc) {
     return <NfcAttendanceTakingNotSupported onRetry={checkIsSupported} />;
