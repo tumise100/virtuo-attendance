@@ -22,7 +22,10 @@ import * as DocumentPicker from 'expo-document-picker';
 import { GetClasses } from '@/src/services/class';
 import { GetSubjects } from '@/src/services/courses';
 import { CreateLesson, GenerateLessonNoteFromDocument } from '@/src/services/lesson';
+import { GetTopics, CreateTopic } from '@/src/services/topic';
+import { GetCurrentSession } from '@/src/services/academic-session';
 import { showToast } from '@/src/components/UI/showToast';
+import { combineStore } from '@/src/store';
 
 interface AddLessonModalProps {
     onSubmit: () => void;
@@ -36,14 +39,18 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
     // Data lists
     const [classes, setClasses] = useState<any[]>([]);
     const [subjects, setSubjects] = useState<any[]>([]);
+    const [topics, setTopics] = useState<any[]>([]);
 
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [selectedClass, setSelectedClass] = useState('');
     const [selectedSubject, setSelectedSubject] = useState('');
+    const [selectedTopic, setSelectedTopic] = useState('');
+    const [topicTitle, setTopicTitle] = useState('');
     const [documents, setDocuments] = useState<any[]>([]);
     const [isProcessingOCR, setIsProcessingOCR] = useState(false);
     const [capturedImage, setCapturedImage] = useState<string | null>(null);
+    const { activeTermId } = combineStore();
 
     useImperativeHandle(ref, () => ({
         setVisible: (val: boolean) => setVisible(val),
@@ -56,6 +63,15 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
             fetchInitialData();
         }
     }, [visible]);
+
+    useEffect(() => {
+        if (!selectedClass || !selectedSubject) {
+            setTopics([]);
+            setSelectedTopic('');
+            return;
+        }
+        fetchTopics(selectedClass, selectedSubject);
+    }, [selectedClass, selectedSubject]);
 
     const fetchInitialData = async () => {
         setFetchingData(true);
@@ -77,11 +93,37 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
         }
     };
 
+    const fetchTopics = async (classId: string, subjectId: string) => {
+        try {
+            const res = await GetTopics({ classId, subjectId });
+            if (res.responseStatus === 200) {
+                const topicOptions = asArray(res.responseData).map((topic: any) => ({
+                    label: topic.title || topic.name,
+                    value: topic.id.toString(),
+                    title: topic.title || topic.name,
+                }));
+                setTopics(topicOptions);
+                setSelectedTopic((prev) =>
+                    topicOptions.some((t: any) => t.value === prev) ? prev : ''
+                );
+            } else {
+                setTopics([]);
+                setSelectedTopic('');
+            }
+        } catch (error) {
+            console.error('Error fetching topics:', error);
+            setTopics([]);
+            setSelectedTopic('');
+        }
+    };
+
     const resetForm = () => {
         setTitle('');
         setContent('');
         setSelectedClass('');
         setSelectedSubject('');
+        setSelectedTopic('');
+        setTopicTitle('');
         setDocuments([]);
         setCapturedImage(null);
     };
@@ -104,14 +146,70 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
             Alert.alert('Error', 'Please select a subject');
             return;
         }
-
         setLoading(true);
         try {
+            let resolvedTopicId: number | undefined;
+            let resolvedTopicTitle = topicTitle.trim();
+
+            if (!resolvedTopicTitle && selectedTopic) {
+                const matched = topics.find((t: any) => t.value === selectedTopic);
+                resolvedTopicTitle = matched?.title || matched?.label || '';
+            }
+
+            if (!resolvedTopicTitle) {
+                Alert.alert('Error', 'Please select or enter a topic');
+                setLoading(false);
+                return;
+            }
+
+            if (selectedTopic) {
+                resolvedTopicId = Number(selectedTopic);
+            } else {
+                let resolvedTermId = activeTermId ? Number(activeTermId) : null;
+                if (!resolvedTermId) {
+                    const currentSessionRes = await GetCurrentSession();
+                    if (currentSessionRes.responseStatus === 200) {
+                        resolvedTermId = Number(currentSessionRes.responseData?.term?.id || 0) || null;
+                    }
+                }
+                if (!resolvedTermId) {
+                    Alert.alert('Error', 'No active term found. Please select a term from Home first.');
+                    setLoading(false);
+                    return;
+                }
+                const existing = topics.find(
+                    (t: any) =>
+                        String(t.title || t.label || '')
+                            .toLowerCase()
+                            .trim() === resolvedTopicTitle.toLowerCase().trim()
+                );
+                if (existing?.value) {
+                    resolvedTopicId = Number(existing.value);
+                } else {
+                    const created = await CreateTopic({
+                        title: resolvedTopicTitle,
+                        classId: Number(selectedClass),
+                        subjectId: Number(selectedSubject),
+                        termId: resolvedTermId,
+                    });
+
+                    if (created.responseStatus === 200 || created.responseStatus === 201) {
+                        const newTopic = created.responseData;
+                        resolvedTopicId = Number(newTopic?.id);
+                    } else {
+                        Alert.alert('Error', created.responseData?.message || 'Failed to create topic');
+                        setLoading(false);
+                        return;
+                    }
+                }
+            }
+
             const formData = new FormData();
             formData.append('title', title);
             formData.append('content', content);
             formData.append('classId', selectedClass);
             formData.append('subjectId', selectedSubject);
+            formData.append('topicId', String(resolvedTopicId || ''));
 
             // Add documents if any
             documents.forEach((doc, index) => {
@@ -308,6 +406,41 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
                                         renderRightIcon={() => <Ionicons name="chevron-down" size={18} color="gray" />}
                                     />
                                 </View>
+                            </View>
+
+                            <View className="mb-4">
+                                <Text className="text-sm font-medium text-gray-700 mb-2">Topic *</Text>
+                                <Dropdown
+                                    style={{ height: 48, borderColor: '#E5E7EB', borderWidth: 1, borderRadius: 8, paddingHorizontal: 12 }}
+                                    placeholderStyle={{ color: '#9CA3AF', fontSize: 14 }}
+                                    selectedTextStyle={{ color: '#111827', fontSize: 14 }}
+                                    data={topics}
+                                    labelField="label"
+                                    valueField="value"
+                                    placeholder={selectedClass && selectedSubject ? (topics.length ? "Select topic" : "No topic found") : "Select class & subject first"}
+                                    value={selectedTopic}
+                                    onChange={item => {
+                                        setSelectedTopic(item.value);
+                                        setTopicTitle(item.title || item.label || '');
+                                    }}
+                                    disable={!selectedClass || !selectedSubject || topics.length === 0}
+                                    renderRightIcon={() => <Ionicons name="chevron-down" size={18} color="gray" />}
+                                />
+                                <TextInput
+                                    value={topicTitle}
+                                    onChangeText={(text) => {
+                                        setTopicTitle(text);
+                                        if (selectedTopic) setSelectedTopic('');
+                                    }}
+                                    placeholder="Type topic (auto-creates if not existing)"
+                                    className="border border-gray-200 rounded-lg px-3 py-3 text-base mt-2"
+                                    placeholderTextColor="#9CA3AF"
+                                />
+                                {!!selectedClass && !!selectedSubject && topics.length === 0 && (
+                                    <Text className="text-xs text-amber-600 mt-1">
+                                        No topic exists yet. Type a topic above and it will be created automatically.
+                                    </Text>
+                                )}
                             </View>
 
                             <View className="mb-4">
