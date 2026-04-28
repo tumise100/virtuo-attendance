@@ -1,6 +1,5 @@
 import PhoneWithCardImg from "@/assets/images/phonewithcard.png";
 import { BackBtn } from "@/src/components/UI/Buttons/BackBtn";
-import { CustomButton } from "../../components/UI/Buttons";
 import { COLORS } from "@/src/theme/colors";
 import { SubheadingSemibold18 } from "@/src/theme/typography";
 import { BodyRegular } from "@/src/theme/typography/BodyText";
@@ -40,12 +39,16 @@ const AttendanceTakingForSecondaryScreen = ({ navigation }: StackNavigationProps
   const [scannedStudent, setScannedStudent] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const isMounted = useRef(true);
+  const resumeScanTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     isMounted.current = true;
     startNfcDiscovery();
     return () => {
       isMounted.current = false;
+      if (resumeScanTimeoutRef.current) {
+        clearTimeout(resumeScanTimeoutRef.current);
+      }
       NfcManager.cancelTechnologyRequest().catch(() => 0);
     };
   }, []);
@@ -200,6 +203,25 @@ const AttendanceTakingForSecondaryScreen = ({ navigation }: StackNavigationProps
     }
   };
 
+  const queueNextScan = () => {
+    if (resumeScanTimeoutRef.current) {
+      clearTimeout(resumeScanTimeoutRef.current);
+    }
+
+    resumeScanTimeoutRef.current = setTimeout(() => {
+      if (!isMounted.current) return;
+      setScreenState("SCANNING");
+      setScannedStudent(null);
+      startNfcDiscovery();
+    }, 1800);
+  };
+
+  useEffect(() => {
+    if (screenState === "SUCCESS") {
+      queueNextScan();
+    }
+  }, [screenState]);
+
   return (
     <View className="flex-1 bg-white px-4 pt-7 mb-4">
       <StatusBar
@@ -295,14 +317,6 @@ const AttendanceTakingForSecondaryScreen = ({ navigation }: StackNavigationProps
             </View>
           )}
 
-          <CustomButton
-            title="Scan Another"
-            onPress={() => {
-              setScreenState('SCANNING');
-              setScannedStudent(null);
-              startNfcDiscovery();
-            }}
-          />
         </View>
       )}
     </View>

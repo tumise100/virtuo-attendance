@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Image, StatusBar } from "react-native";
+import { View, Image, StatusBar, Text } from "react-native";
 import VlogoImg from "@/assets/images/Vlogo1.png";
 import { StackNavigationProps } from "@/src/shared";
 import { COLORS } from "@/src/theme/colors";
@@ -22,6 +22,9 @@ const SplashScreen = ({ navigation }: StackNavigationProps) => {
         resizeMode="contain"
         style={{ width: 180, height: 180 }}
       />
+      <Text className="text-gray-700 mt-2 text-base font-semibold">
+        Virtuo School Management System
+      </Text>
     </View>
   );
 };
