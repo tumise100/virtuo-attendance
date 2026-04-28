@@ -1,6 +1,6 @@
 import { asArray } from '@/src/utils';
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, TextInput, ActivityIndicator, RefreshControl, Alert } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, TextInput, ActivityIndicator, RefreshControl, Alert, Modal, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Dropdown } from 'react-native-element-dropdown';
 import AddLessonModal from './AddLessonModal';
@@ -15,12 +15,14 @@ import { showToast } from '@/src/components/UI/showToast';
 
 const LessonCard = ({
     lesson,
+    onView,
     onEdit,
     onDelete,
     onGenerateQuestions,
     isGeneratingQuestions,
 }: {
     lesson: any;
+    onView: () => void;
     onEdit: () => void;
     onDelete: () => void;
     onGenerateQuestions: () => void;
@@ -28,9 +30,11 @@ const LessonCard = ({
 }) => (
     <View className="bg-white rounded-xl p-4 mb-3 border border-gray-100 shadow-sm">
         <View className="flex-row items-start justify-between mb-2">
-            <Text className="text-base font-bold text-gray-900 flex-1 mr-2" numberOfLines={1}>
-                {lesson.title}
-            </Text>
+            <TouchableOpacity className="flex-1 mr-2" activeOpacity={0.7} onPress={onView}>
+                <Text className="text-base font-bold text-gray-900" numberOfLines={1}>
+                    {lesson.title}
+                </Text>
+            </TouchableOpacity>
             <View className="flex-row gap-2">
                 <TouchableOpacity onPress={onEdit} className="p-1">
                     <Ionicons name="create-outline" size={18} color="#F97316" />
@@ -41,9 +45,11 @@ const LessonCard = ({
             </View>
         </View>
 
-        <Text className="text-sm text-gray-600 mb-3" numberOfLines={2}>
-            {lesson.content}
-        </Text>
+        <TouchableOpacity activeOpacity={0.7} onPress={onView}>
+            <Text className="text-sm text-gray-600 mb-3" numberOfLines={2}>
+                {lesson.content}
+            </Text>
+        </TouchableOpacity>
 
         <View className="flex-row flex-wrap gap-2 mb-2">
             <View className="bg-blue-50 px-2.5 py-1 rounded-full flex-row items-center">
@@ -86,6 +92,7 @@ const LessonsTab = () => {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [generatingLessonId, setGeneratingLessonId] = useState<number | null>(null);
+    const [viewLesson, setViewLesson] = useState<any>(null);
 
     const addLessonRef = React.useRef<ModalProp>(null);
     const editLessonRef = React.useRef<any>(null);
@@ -241,6 +248,7 @@ const LessonsTab = () => {
                     renderItem={({ item }) => (
                         <LessonCard
                             lesson={item}
+                            onView={() => setViewLesson(item)}
                             onEdit={() => handleEdit(item)}
                             onDelete={() => handleDelete(item)}
                             onGenerateQuestions={() => handleGenerateQuestions(item)}
@@ -280,6 +288,49 @@ const LessonsTab = () => {
                 message="Are you sure you want to delete this lesson? This action cannot be undone."
                 itemName={selectedLesson?.title}
             />
+
+            <Modal
+                transparent
+                visible={!!viewLesson}
+                animationType="slide"
+                onRequestClose={() => setViewLesson(null)}
+            >
+                <View className="flex-1 bg-black/50 justify-end">
+                    <TouchableOpacity className="flex-1" activeOpacity={1} onPress={() => setViewLesson(null)} />
+                    <View className="bg-white rounded-t-3xl max-h-[88%]">
+                        <View className="flex-row justify-between items-center px-6 pt-5 pb-3 border-b border-gray-100">
+                            <Text className="text-lg font-bold text-gray-900 flex-1 mr-3">
+                                {viewLesson?.title || 'Lesson Details'}
+                            </Text>
+                            <TouchableOpacity onPress={() => setViewLesson(null)}>
+                                <Ionicons name="close-circle-outline" size={26} color="#9CA3AF" />
+                            </TouchableOpacity>
+                        </View>
+                        <ScrollView className="px-6 py-4" contentContainerStyle={{ paddingBottom: 30 }}>
+                            <View className="flex-row flex-wrap gap-2 mb-4">
+                                <View className="bg-blue-50 px-2.5 py-1 rounded-full">
+                                    <Text className="text-xs font-medium text-blue-700">Class: {viewLesson?.class?.name || 'N/A'}</Text>
+                                </View>
+                                <View className="bg-purple-50 px-2.5 py-1 rounded-full">
+                                    <Text className="text-xs font-medium text-purple-700">Subject: {viewLesson?.subject?.name || 'N/A'}</Text>
+                                </View>
+                                <View className="bg-gray-100 px-2.5 py-1 rounded-full">
+                                    <Text className="text-xs font-medium text-gray-700">
+                                        Date: {viewLesson?.date ? new Date(viewLesson.date).toLocaleDateString() : 'N/A'}
+                                    </Text>
+                                </View>
+                            </View>
+                            <Text className="text-sm font-semibold text-gray-800 mb-2">Lesson Note</Text>
+                            <Text className="text-sm text-gray-700 leading-6">
+                                {String(viewLesson?.content || '')
+                                    .replace(/<[^>]*>/g, ' ')
+                                    .replace(/\s+/g, ' ')
+                                    .trim() || 'No lesson note content available.'}
+                            </Text>
+                        </ScrollView>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
