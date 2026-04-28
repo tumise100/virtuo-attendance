@@ -31,6 +31,24 @@ interface AddLessonModalProps {
     onSubmit: () => void;
 }
 
+const inferMimeType = (
+    uriOrName: string,
+    explicitMimeType?: string | null,
+    fallback: string = 'application/octet-stream',
+) => {
+    const normalizedExplicit = (explicitMimeType || '').toLowerCase();
+    if (normalizedExplicit === 'image/jpg') return 'image/jpeg';
+    if (normalizedExplicit) return normalizedExplicit;
+
+    const candidate = uriOrName.split('?')[0].toLowerCase();
+    if (candidate.endsWith('.jpg') || candidate.endsWith('.jpeg')) return 'image/jpeg';
+    if (candidate.endsWith('.png')) return 'image/png';
+    if (candidate.endsWith('.webp')) return 'image/webp';
+    if (candidate.endsWith('.pdf')) return 'application/pdf';
+    if (candidate.endsWith('.txt')) return 'text/plain';
+    return fallback;
+};
+
 const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
     const [visible, setVisible] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -239,22 +257,42 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
 
     const processScannedAsset = async (asset: ImagePicker.ImagePickerAsset, fallbackName: string) => {
         const imageUri = asset.uri;
-        setCapturedImage(imageUri);
+        const name = asset.fileName || imageUri.split('/').pop() || fallbackName;
+        const type = inferMimeType(name || imageUri, asset.mimeType, 'image/jpeg');
+        await uploadScannedDocument({
+            uri: imageUri,
+            name,
+            type,
+            previewUri: type.startsWith('image/') ? imageUri : null,
+        });
+    };
+
+    const uploadScannedDocument = async ({
+        uri,
+        name,
+        type,
+        previewUri,
+    }: {
+        uri: string;
+        name: string;
+        type: string;
+        previewUri?: string | null;
+    }) => {
+        setCapturedImage(previewUri || null);
         setIsProcessingOCR(true);
 
         try {
             const formData = new FormData();
-            const name = asset.fileName || imageUri.split('/').pop() || fallbackName;
-            const type = asset.mimeType || 'image/jpeg';
-
             formData.append('file', {
-                uri: Platform.OS === 'ios' ? imageUri.replace('file://', '') : imageUri,
+                // React Native fetch expects the original file URI here.
+                uri,
                 name,
                 type,
             } as any);
             if (title.trim()) formData.append('title', title.trim());
             if (selectedClass) formData.append('classId', selectedClass);
             if (selectedSubject) formData.append('subjectId', selectedSubject);
+            if (selectedTopic) formData.append('topicId', selectedTopic);
 
             const res = await GenerateLessonNoteFromDocument(formData);
             if (res.responseStatus === 200 || res.responseStatus === 201) {
@@ -266,7 +304,7 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
                     setContent(generated.content);
                     Alert.alert('Success', 'Lesson note generated from scanned document.');
                 } else {
-                    Alert.alert('Error', 'The scan completed but no lesson note was generated. Try a clearer image.');
+                    Alert.alert('Error', 'The scan completed but no lesson note was generated. Try a clearer image or PDF.');
                 }
             } else {
                 Alert.alert('Error', res.responseData?.message || 'Failed to scan lesson note');
@@ -312,6 +350,30 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
 
         if (!result.canceled && result.assets[0]) {
             await processScannedAsset(result.assets[0], 'lesson-note-image.jpg');
+        }
+    };
+
+    const handleDocumentOCR = async () => {
+        try {
+            const result = await DocumentPicker.getDocumentAsync({
+                type: ['image/*', 'application/pdf', 'text/plain'],
+                copyToCacheDirectory: true,
+            });
+
+            if (result.canceled || !result.assets[0]) return;
+
+            const file = result.assets[0];
+            const type = inferMimeType(file.name || file.uri, file.mimeType, 'application/octet-stream');
+
+            await uploadScannedDocument({
+                uri: file.uri,
+                name: file.name || 'lesson-note-upload',
+                type,
+                previewUri: type.startsWith('image/') ? file.uri : null,
+            });
+        } catch (error) {
+            console.error('Document OCR picker error:', error);
+            Alert.alert('Error', 'Failed to select a document for scanning.');
         }
     };
 
@@ -475,6 +537,14 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
                                     >
                                         <Ionicons name="images" size={20} color="#3B82F6" />
                                         <Text className="text-xs font-medium text-blue-600 mt-1">From Gallery</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={handleDocumentOCR}
+                                        disabled={isProcessingOCR}
+                                        className="flex-1 bg-emerald-50 border border-emerald-200 rounded-xl p-3 items-center"
+                                    >
+                                        <Ionicons name="document-text" size={20} color="#059669" />
+                                        <Text className="text-xs font-medium text-emerald-600 mt-1">From Files</Text>
                                     </TouchableOpacity>
                                 </View>
 
