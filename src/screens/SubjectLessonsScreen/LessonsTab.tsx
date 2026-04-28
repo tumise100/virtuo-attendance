@@ -1,6 +1,6 @@
 import { asArray } from '@/src/utils';
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, TextInput, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, TextInput, ActivityIndicator, RefreshControl, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Dropdown } from 'react-native-element-dropdown';
 import AddLessonModal from './AddLessonModal';
@@ -10,16 +10,21 @@ import { ModalProp } from '@/src/shared';
 import { GetClasses } from '@/src/services/class';
 import { GetSubjects } from '@/src/services/courses';
 import { GetLessons, DeleteLesson } from '@/src/services/lesson';
+import { GenerateQuestionsFromLesson } from '@/src/services/exam';
 import { showToast } from '@/src/components/UI/showToast';
 
 const LessonCard = ({
     lesson,
     onEdit,
-    onDelete
+    onDelete,
+    onGenerateQuestions,
+    isGeneratingQuestions,
 }: {
     lesson: any;
     onEdit: () => void;
     onDelete: () => void;
+    onGenerateQuestions: () => void;
+    isGeneratingQuestions: boolean;
 }) => (
     <View className="bg-white rounded-xl p-4 mb-3 border border-gray-100 shadow-sm">
         <View className="flex-row items-start justify-between mb-2">
@@ -54,6 +59,20 @@ const LessonCard = ({
                 <Text className="text-xs font-medium text-gray-600 ml-1">{lesson.files?.length || 0} files</Text>
             </View>
         </View>
+        <TouchableOpacity
+            onPress={onGenerateQuestions}
+            disabled={isGeneratingQuestions}
+            className={`mt-2 rounded-lg px-3 py-2 flex-row items-center justify-center ${isGeneratingQuestions ? 'bg-orange-300' : 'bg-orange-500'}`}
+        >
+            {isGeneratingQuestions ? (
+                <ActivityIndicator size="small" color="white" />
+            ) : (
+                <Ionicons name="sparkles-outline" size={16} color="white" />
+            )}
+            <Text className="text-white text-sm font-semibold ml-2">
+                {isGeneratingQuestions ? 'Creating questions...' : 'Create Question Bank'}
+            </Text>
+        </TouchableOpacity>
     </View>
 );
 
@@ -66,6 +85,7 @@ const LessonsTab = () => {
     const [selectedSubject, setSelectedSubject] = useState('');
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const [generatingLessonId, setGeneratingLessonId] = useState<number | null>(null);
 
     const addLessonRef = React.useRef<ModalProp>(null);
     const editLessonRef = React.useRef<any>(null);
@@ -142,6 +162,24 @@ const LessonsTab = () => {
         }
     };
 
+    const handleGenerateQuestions = async (lesson: any) => {
+        if (!lesson?.id) return;
+        setGeneratingLessonId(lesson.id);
+        try {
+            const res = await GenerateQuestionsFromLesson(lesson.id, 10);
+            if (res.responseStatus === 200 || res.responseStatus === 201) {
+                showToast(`${res.responseData?.count || 0} questions created`);
+            } else {
+                Alert.alert('Error', res.responseData?.message || 'Failed to create questions from lesson note');
+            }
+        } catch (error) {
+            console.error('Generate lesson questions error:', error);
+            Alert.alert('Error', 'An error occurred while creating questions.');
+        } finally {
+            setGeneratingLessonId(null);
+        }
+    };
+
     return (
         <View className="flex-1 bg-gray-50">
             <View className="bg-white px-4 py-3 border-b border-gray-100">
@@ -205,6 +243,8 @@ const LessonsTab = () => {
                             lesson={item}
                             onEdit={() => handleEdit(item)}
                             onDelete={() => handleDelete(item)}
+                            onGenerateQuestions={() => handleGenerateQuestions(item)}
+                            isGeneratingQuestions={generatingLessonId === item.id}
                         />
                     )}
                     ListEmptyComponent={() => (

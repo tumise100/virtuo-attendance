@@ -14,12 +14,33 @@ import { GetSubjects } from '@/src/services/courses';
 import { GetExamQuestions, DeleteQuestion } from '@/src/services/exam';
 import { showToast } from '@/src/components/UI/showToast';
 
-const QuestionCard = ({ item, onDelete, onEdit }: any) => (
+const parseQuestionPayload = (item: any) => {
+    try {
+        const parsed = typeof item.question === 'string' ? JSON.parse(item.question) : item.question;
+        const options = Array.isArray(parsed?.options) ? parsed.options : [];
+        const answerOption = options.find((option: any) => `option${option.id}` === item.answer);
+        return {
+            questionText: parsed?.text || item.questionText || item.question || '',
+            className: parsed?.class || item.class?.name || 'All Classes',
+            correctAnswer: answerOption?.text || item.correctAnswer || item.answer || '',
+        };
+    } catch {
+        return {
+            questionText: item.questionText || item.question || '',
+            className: item.class?.name || 'All Classes',
+            correctAnswer: item.correctAnswer || item.answer || '',
+        };
+    }
+};
+
+const QuestionCard = ({ item, onDelete, onEdit }: any) => {
+    const display = parseQuestionPayload(item);
+    return (
     <View className="bg-white rounded-xl p-4 mb-3 border border-gray-100 shadow-sm">
         <View className="flex-row justify-between items-start mb-2">
             <View className="flex-row gap-2">
                 <View className="bg-blue-50 px-2 py-0.5 rounded text-xs flex-row items-center">
-                    <Text className="text-blue-600 text-xs font-semibold">{item.class?.name || 'All Classes'}</Text>
+                    <Text className="text-blue-600 text-xs font-semibold">{display.className}</Text>
                 </View>
                 <View className="bg-purple-50 px-2 py-0.5 rounded text-xs flex-row items-center">
                     <Text className="text-purple-600 text-xs font-semibold">{item.subject?.name || 'General'}</Text>
@@ -28,12 +49,12 @@ const QuestionCard = ({ item, onDelete, onEdit }: any) => (
         </View>
 
         <Text className="text-gray-900 font-medium text-base mb-3 leading-6">
-            {item.questionText}
+            {display.questionText}
         </Text>
 
         <View className="bg-green-50 px-3 py-2 rounded-lg self-start mb-3">
             <Text className="text-green-700 text-sm font-medium">
-                Ans: {item.correctAnswer}
+                Ans: {display.correctAnswer}
             </Text>
         </View>
 
@@ -48,7 +69,8 @@ const QuestionCard = ({ item, onDelete, onEdit }: any) => (
             </TouchableOpacity>
         </View>
     </View>
-);
+    );
+};
 
 const QuestionBankScreen = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -101,7 +123,8 @@ const QuestionBankScreen = () => {
     };
 
     const filteredQuestions = (questions || []).filter(q => {
-        const matchesSearch = (q?.questionText || "").toLowerCase().includes((searchTerm || "").toLowerCase());
+        const display = parseQuestionPayload(q);
+        const matchesSearch = (display.questionText || "").toLowerCase().includes((searchTerm || "").toLowerCase());
         const matchesClass = !selectedClass || q?.classId?.toString() === selectedClass;
         const matchesSubject = !selectedSubject || q?.subjectId?.toString() === selectedSubject;
         return matchesSearch && matchesClass && matchesSubject;
@@ -237,7 +260,7 @@ const QuestionBankScreen = () => {
                 onConfirm={confirmDelete}
                 title="Delete Question"
                 message="Are you sure you want to delete this question?"
-                itemName={selectedQuestion?.questionText.substring(0, 30) + (selectedQuestion?.questionText.length > 30 ? '...' : '')}
+                itemName={parseQuestionPayload(selectedQuestion || {}).questionText.substring(0, 30)}
             />
         </View>
     );
