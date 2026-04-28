@@ -1,8 +1,15 @@
 import FetchClient, { HttpMethod } from "../config";
 
-export async function GetStudentTransactions(studentId: number | string) {
+export async function GetStudentTransactions(
+  studentId: number | string,
+  opts?: { termId?: number | string; sessionId?: number | string },
+) {
+  const params = new URLSearchParams();
+  if (opts?.termId) params.set("termId", String(opts.termId));
+  if (opts?.sessionId) params.set("sessionId", String(opts.sessionId));
+  const query = params.toString() ? `?${params.toString()}` : "";
   return FetchClient({
-    endpoint: `/finance/payments/student/${studentId}`,
+    endpoint: `/finance/payments/student/${studentId}${query}`,
   });
 }
 

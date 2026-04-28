@@ -12,15 +12,17 @@ export async function GetClassTimetable(classId: number) {
   });
 }
 
-export async function GetSchoolTimetable() {
+export async function GetSchoolTimetable(termId?: number | string) {
+  const query = termId ? `?termId=${termId}` : "";
   return FetchClient({
-    endpoint: `/timetable/school`,
+    endpoint: `/timetable/school${query}`,
   });
 }
 
-export async function GetTodaySchedule(teacherId: number) {
+export async function GetTodaySchedule(teacherId: number, termId?: number | string) {
+  const query = termId ? `?termId=${termId}` : "";
   return FetchClient({
-    endpoint: `/timetable/teacher/${teacherId}`,
+    endpoint: `/timetable/teacher/${teacherId}${query}`,
   });
 }
 

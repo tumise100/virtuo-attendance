@@ -1,8 +1,9 @@
 import FetchClient, { HttpMethod } from "../config";
 
-export async function GetAnnouncements() {
+export async function GetAnnouncements(termId?: number | string) {
+  const query = termId ? `?termId=${termId}` : "";
   return FetchClient({
-    endpoint: `/communication/announcements`,
+    endpoint: `/communication/announcements${query}`,
   });
 }
 

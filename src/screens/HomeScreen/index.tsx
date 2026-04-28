@@ -223,9 +223,9 @@ const HomeScreen = ({
     const normalizeDay = (input: string = "") => input.trim().toLowerCase();
 
     const request = staffAccount?.staff?.id
-      ? GetTodaySchedule(Number(staffAccount.staff.id))
+      ? GetTodaySchedule(Number(staffAccount.staff.id), selectedTermDateRange?.termId)
       : schoolAccount?.school?.id
-        ? GetSchoolTimetable()
+        ? GetSchoolTimetable(selectedTermDateRange?.termId)
         : null;
 
     if (!request) {
@@ -252,7 +252,7 @@ const HomeScreen = ({
 
   const fetchNotificationCount = async () => {
     try {
-      const { responseData, responseStatus } = await GetNotifications(true);
+      const { responseData, responseStatus } = await GetNotifications(true, activeTermId || undefined);
       if (responseStatus === 200) {
         const unread = (responseData || []).filter((n: any) => !n.isRead).length;
         setNotificationCount(unread);

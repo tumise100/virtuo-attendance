@@ -30,7 +30,7 @@ export default async function FetchClient({
   headers?: Record<string, string>;
   isMultipart?: boolean;
 }) {
-  const { token, updateUserToken, activeBranchId, activeTermId } = Store.getState();
+  const { token, updateUserToken, activeBranchId } = Store.getState();
 
   const isFormData = body instanceof FormData || isMultipart;
 
@@ -39,8 +39,7 @@ export default async function FetchClient({
     headers: {
       ...(isFormData ? {} : { "Content-Type": "application/json" }),
       Authorization: token ? `Bearer ${token}` : "",
-      ...(activeBranchId ? { "x-branch-id": String(activeBranchId) } : {}),
-      ...(activeTermId ? { "x-term-id": String(activeTermId) } : {}),
+      "x-branch-id": activeBranchId ? String(activeBranchId) : "",
       ...headers,
     },
   };

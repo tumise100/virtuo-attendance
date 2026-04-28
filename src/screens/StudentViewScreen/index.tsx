@@ -13,6 +13,7 @@ import { GetIdCardSettings, GetSchoolProfile } from "../../services/school";
 import { getStudentFacultyLabel } from "../../utils";
 import { showToast } from "../../components/UI/showToast";
 import moment from "moment";
+import { combineStore } from "../../store";
 
 // --- Types ---
 type TabType = 'info' | 'test' | 'payment';
@@ -493,12 +494,13 @@ const StudentViewScreen = ({ navigation, route }: StackNavigationProps) => {
   const [schoolProfile, setSchoolProfile] = useState<any>(null);
 
   const studentId = route?.params?.id;
+  const { activeTermId, activeSessionId } = combineStore();
 
   useEffect(() => {
     if (studentId) {
       fetchStudentData();
     }
-  }, [studentId]);
+  }, [studentId, activeTermId, activeSessionId]);
 
   useEffect(() => {
     GetIdCardSettings()
@@ -531,17 +533,28 @@ const StudentViewScreen = ({ navigation, route }: StackNavigationProps) => {
       showToast("Failed to load student data");
     }
 
-    const rRes = await safe(() => GetResults({ studentId }));
+    const rRes = await safe(() =>
+      GetResults({
+        studentId,
+        ...(activeTermId ? { termId: activeTermId } : {}),
+        ...(activeSessionId ? { sessionId: activeSessionId } : {}),
+      }),
+    );
     const rData = rRes?.responseData;
     setResults(
       Array.isArray(rData) ? rData : Array.isArray(rData?.data) ? rData.data : [],
     );
 
-    const fRes = await safe(() => GetStudentFees(studentId));
+    const fRes = await safe(() => GetStudentFees(studentId, activeTermId || undefined));
     const fData = fRes?.responseData;
     setFees(fData?.data ?? fData ?? null);
 
-    const tRes = await safe(() => GetStudentTransactions(studentId));
+    const tRes = await safe(() =>
+      GetStudentTransactions(studentId, {
+        termId: activeTermId || undefined,
+        sessionId: activeSessionId || undefined,
+      }),
+    );
     const tData = tRes?.responseData;
     setTransactions(
       Array.isArray(tData) ? tData : Array.isArray(tData?.data) ? tData.data : [],

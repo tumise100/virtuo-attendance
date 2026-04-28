@@ -18,6 +18,16 @@ export async function CreateLesson(data: any) {
     endpoint: `/lesson`,
     method: HttpMethod.POST,
     body: data,
+    isMultipart: data instanceof FormData,
+  });
+}
+
+export async function GenerateLessonNoteFromDocument(data: FormData) {
+  return FetchClient({
+    endpoint: `/ai/generate-lesson-from-document`,
+    method: HttpMethod.POST,
+    body: data,
+    isMultipart: true,
   });
 }
 

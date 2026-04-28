@@ -21,7 +21,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { GetClasses } from '@/src/services/class';
 import { GetSubjects } from '@/src/services/courses';
-import { CreateLesson } from '@/src/services/lesson';
+import { CreateLesson, GenerateLessonNoteFromDocument } from '@/src/services/lesson';
 import { showToast } from '@/src/components/UI/showToast';
 
 interface AddLessonModalProps {
@@ -139,6 +139,48 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
         }
     };
 
+    const processScannedAsset = async (asset: ImagePicker.ImagePickerAsset, fallbackName: string) => {
+        const imageUri = asset.uri;
+        setCapturedImage(imageUri);
+        setIsProcessingOCR(true);
+
+        try {
+            const formData = new FormData();
+            const name = asset.fileName || imageUri.split('/').pop() || fallbackName;
+            const type = asset.mimeType || 'image/jpeg';
+
+            formData.append('file', {
+                uri: Platform.OS === 'ios' ? imageUri.replace('file://', '') : imageUri,
+                name,
+                type,
+            } as any);
+            if (title.trim()) formData.append('title', title.trim());
+            if (selectedClass) formData.append('classId', selectedClass);
+            if (selectedSubject) formData.append('subjectId', selectedSubject);
+
+            const res = await GenerateLessonNoteFromDocument(formData);
+            if (res.responseStatus === 200 || res.responseStatus === 201) {
+                const generated = res.responseData || {};
+                if (!title.trim() && generated.title) {
+                    setTitle(generated.title);
+                }
+                if (generated.content) {
+                    setContent(generated.content);
+                    Alert.alert('Success', 'Lesson note generated from scanned document.');
+                } else {
+                    Alert.alert('Error', 'The scan completed but no lesson note was generated. Try a clearer image.');
+                }
+            } else {
+                Alert.alert('Error', res.responseData?.message || 'Failed to scan lesson note');
+            }
+        } catch (error) {
+            console.error('OCR lesson note error:', error);
+            Alert.alert('Error', 'Failed to scan the document. Please try again.');
+        } finally {
+            setIsProcessingOCR(false);
+        }
+    };
+
     const handleOCRCapture = async () => {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== 'granted') {
@@ -153,16 +195,7 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
         });
 
         if (!result.canceled && result.assets[0]) {
-            const imageUri = result.assets[0].uri;
-            setCapturedImage(imageUri);
-            setIsProcessingOCR(true);
-
-            setTimeout(() => {
-                const extractedText = "This is sample text extracted from the image using OCR.\n\nIn a real implementation, this would be the actual text from the photographed notes.";
-                setContent(prev => prev ? `${prev}\n\n--- Extracted from image ---\n${extractedText}` : extractedText);
-                setIsProcessingOCR(false);
-                Alert.alert('Success', 'Text extracted from image successfully!');
-            }, 2000);
+            await processScannedAsset(result.assets[0], 'lesson-note-scan.jpg');
         }
     };
 
@@ -180,16 +213,7 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
         });
 
         if (!result.canceled && result.assets[0]) {
-            const imageUri = result.assets[0].uri;
-            setCapturedImage(imageUri);
-            setIsProcessingOCR(true);
-
-            setTimeout(() => {
-                const extractedText = "Text extracted from the selected image.\n\nThis simulates OCR functionality.";
-                setContent(prev => prev ? `${prev}\n\n--- Extracted from image ---\n${extractedText}` : extractedText);
-                setIsProcessingOCR(false);
-                Alert.alert('Success', 'Text extracted from image successfully!');
-            }, 2000);
+            await processScannedAsset(result.assets[0], 'lesson-note-image.jpg');
         }
     };
 
