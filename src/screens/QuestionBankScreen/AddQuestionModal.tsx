@@ -16,9 +16,11 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Dropdown } from 'react-native-element-dropdown';
+import * as ImagePicker from 'expo-image-picker';
 import { GetClasses } from '@/src/services/class';
 import { GetSubjects } from '@/src/services/courses';
-import { CreateQuestion } from '@/src/services/exam';
+import { CreateQuestion, UploadQuestionAsset } from '@/src/services/exam';
+import { GetTopics, CreateTopic } from '@/src/services/topic';
 import { showToast } from '@/src/components/UI/showToast';
 
 interface AddQuestionModalProps {
@@ -33,6 +35,7 @@ const AddQuestionModal = forwardRef((props: AddQuestionModalProps, ref) => {
     // Data lists
     const [classes, setClasses] = useState<any[]>([]);
     const [subjects, setSubjects] = useState<any[]>([]);
+    const [topics, setTopics] = useState<any[]>([]);
 
     // Context State
     const [selectedClass, setSelectedClass] = useState('');
@@ -41,8 +44,10 @@ const AddQuestionModal = forwardRef((props: AddQuestionModalProps, ref) => {
     // Question State
     const [questionText, setQuestionText] = useState('');
     const [topic, setTopic] = useState('');
+    const [selectedTopicId, setSelectedTopicId] = useState('');
     const [options, setOptions] = useState([{ id: 1, text: '' }, { id: 2, text: '' }]);
     const [correctOptionId, setCorrectOptionId] = useState<string>('');
+    const [uploadingImage, setUploadingImage] = useState(false);
 
     useImperativeHandle(ref, () => ({
         setVisible: (val: boolean) => setVisible(val),
@@ -55,6 +60,15 @@ const AddQuestionModal = forwardRef((props: AddQuestionModalProps, ref) => {
             fetchInitialData();
         }
     }, [visible]);
+
+    useEffect(() => {
+        if (!selectedClass || !selectedSubject) {
+            setTopics([]);
+            setSelectedTopicId('');
+            return;
+        }
+        fetchTopics(selectedClass, selectedSubject);
+    }, [selectedClass, selectedSubject]);
 
     const fetchInitialData = async () => {
         setFetchingData(true);
@@ -76,11 +90,34 @@ const AddQuestionModal = forwardRef((props: AddQuestionModalProps, ref) => {
         }
     };
 
+    const fetchTopics = async (classId: string, subjectId: string) => {
+        try {
+            const topicsRes = await GetTopics({ classId, subjectId });
+            if (topicsRes.responseStatus === 200) {
+                const mapped = asArray(topicsRes.responseData).map((t: any) => ({
+                    label: t.name,
+                    value: t.id.toString(),
+                    name: t.name,
+                }));
+                setTopics(mapped);
+                setSelectedTopicId((prev) => mapped.some((m: any) => m.value === prev) ? prev : '');
+            } else {
+                setTopics([]);
+                setSelectedTopicId('');
+            }
+        } catch (error) {
+            console.error('Error fetching topics:', error);
+            setTopics([]);
+            setSelectedTopicId('');
+        }
+    };
+
     const resetForm = () => {
         setSelectedClass('');
         setSelectedSubject('');
         setQuestionText('');
         setTopic('');
+        setSelectedTopicId('');
         setOptions([{ id: 1, text: '' }, { id: 2, text: '' }]);
         setCorrectOptionId('');
     };
@@ -114,6 +151,61 @@ const AddQuestionModal = forwardRef((props: AddQuestionModalProps, ref) => {
         setOptions(options.map(o => o.id === id ? { ...o, text } : o));
     };
 
+    const pickAndUploadImage = async (
+        target: 'question' | 'option',
+        optionId?: number,
+    ) => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            Alert.alert('Permission Required', 'Gallery permission is needed to upload images.');
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            quality: 0.8,
+        });
+        if (result.canceled || !result.assets[0]) return;
+
+        const asset = result.assets[0];
+        const file = {
+            uri: asset.uri,
+            name: asset.fileName || `question-${Date.now()}.jpg`,
+            type: asset.mimeType || 'image/jpeg',
+        };
+
+        setUploadingImage(true);
+        try {
+            const res = await UploadQuestionAsset(file);
+            if (res.responseStatus === 200 || res.responseStatus === 201) {
+                const url = res.responseData?.url;
+                if (!url) {
+                    Alert.alert('Error', 'Upload succeeded but no URL was returned.');
+                    return;
+                }
+                const imageTag = `<img src="${url}" />`;
+
+                if (target === 'question') {
+                    setQuestionText((prev) => `${(prev || '').trim()}\n${imageTag}`.trim());
+                } else if (typeof optionId === 'number') {
+                    setOptions((prev) =>
+                        prev.map((o) =>
+                            o.id === optionId ? { ...o, text: `${(o.text || '').trim()} ${imageTag}`.trim() } : o,
+                        ),
+                    );
+                }
+                showToast('Image uploaded');
+            } else {
+                Alert.alert('Error', res.responseData?.message || 'Failed to upload image');
+            }
+        } catch (error) {
+            console.error('Upload question image error:', error);
+            Alert.alert('Error', 'Image upload failed');
+        } finally {
+            setUploadingImage(false);
+        }
+    };
+
     const handleSubmit = async () => {
         if (!selectedClass || !selectedSubject) {
             Alert.alert('Missing Info', 'Please select a class and subject.');
@@ -133,14 +225,51 @@ const AddQuestionModal = forwardRef((props: AddQuestionModalProps, ref) => {
         }
 
         const correctAnswerText = options.find(o => o.id.toString() === correctOptionId)?.text;
+        const matchedClass = classes.find((c: any) => c.value === selectedClass);
+        const resolvedClassName = matchedClass?.label || '';
+
+        let resolvedTopicId: number | undefined;
+        let resolvedTopicName = topic.trim();
 
         setLoading(true);
         try {
+            if (!resolvedTopicName && selectedTopicId) {
+                const matched = topics.find((t: any) => t.value === selectedTopicId);
+                resolvedTopicName = matched?.name || '';
+            }
+
+            if (resolvedTopicName && !selectedTopicId) {
+                const existing = topics.find(
+                    (t: any) => t.name?.toLowerCase().trim() === resolvedTopicName.toLowerCase().trim()
+                );
+                if (existing?.value) {
+                    resolvedTopicId = Number(existing.value);
+                } else {
+                    const created = await CreateTopic({
+                        name: resolvedTopicName,
+                        classId: Number(selectedClass),
+                        subjectId: Number(selectedSubject),
+                    });
+                    if (created.responseStatus === 200 || created.responseStatus === 201) {
+                        const newTopic = created.responseData;
+                        resolvedTopicId = Number(newTopic?.id);
+                    } else {
+                        Alert.alert('Error', created.responseData?.message || 'Failed to create topic');
+                        setLoading(false);
+                        return;
+                    }
+                }
+            } else if (selectedTopicId) {
+                resolvedTopicId = Number(selectedTopicId);
+            }
+
             const res = await CreateQuestion({
                 classId: parseInt(selectedClass),
                 subjectId: parseInt(selectedSubject),
                 questionText,
-                topic,
+                topic: resolvedTopicName,
+                topicId: resolvedTopicId,
+                className: resolvedClassName,
                 options: options.map(o => o.text),
                 correctAnswer: correctAnswerText
             });
@@ -228,7 +357,17 @@ const AddQuestionModal = forwardRef((props: AddQuestionModalProps, ref) => {
                             </View>
 
                             <View className="mb-4">
-                                <Text className="text-sm font-medium text-gray-700 mb-2">Question *</Text>
+                                <View className="flex-row items-center justify-between mb-2">
+                                    <Text className="text-sm font-medium text-gray-700">Question *</Text>
+                                    <TouchableOpacity
+                                        onPress={() => pickAndUploadImage('question')}
+                                        disabled={uploadingImage}
+                                    >
+                                        <Text className="text-orange-500 text-sm font-semibold">
+                                            {uploadingImage ? 'Uploading...' : 'Add Image'}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
                                 <TextInput
                                     value={questionText}
                                     onChangeText={setQuestionText}
@@ -243,10 +382,29 @@ const AddQuestionModal = forwardRef((props: AddQuestionModalProps, ref) => {
 
                             <View className="mb-4">
                                 <Text className="text-sm font-medium text-gray-700 mb-2">Topic</Text>
+                                <Dropdown
+                                    style={{ height: 48, borderColor: '#E5E7EB', borderWidth: 1, borderRadius: 8, paddingHorizontal: 12, marginBottom: 8 }}
+                                    placeholderStyle={{ color: '#9CA3AF', fontSize: 14 }}
+                                    selectedTextStyle={{ color: '#111827', fontSize: 14 }}
+                                    data={topics}
+                                    labelField="label"
+                                    valueField="value"
+                                    placeholder={selectedClass && selectedSubject ? (topics.length ? "Select existing topic" : "No topic found, type below") : "Select class & subject first"}
+                                    value={selectedTopicId}
+                                    onChange={item => {
+                                        setSelectedTopicId(item.value);
+                                        setTopic(item.name || '');
+                                    }}
+                                    disable={!selectedClass || !selectedSubject || topics.length === 0}
+                                    renderRightIcon={() => <Ionicons name="chevron-down" size={18} color="gray" />}
+                                />
                                 <TextInput
                                     value={topic}
-                                    onChangeText={setTopic}
-                                    placeholder="e.g. Geometry"
+                                    onChangeText={(text) => {
+                                        setTopic(text);
+                                        if (selectedTopicId) setSelectedTopicId('');
+                                    }}
+                                    placeholder="Type topic (auto-creates if not existing)"
                                     className="border border-gray-200 rounded-lg px-3 py-3 text-base"
                                     placeholderTextColor="#9CA3AF"
                                 />
@@ -272,6 +430,12 @@ const AddQuestionModal = forwardRef((props: AddQuestionModalProps, ref) => {
                                             className="flex-1 border border-gray-200 rounded-lg px-3 py-2.5 text-base"
                                             placeholderTextColor="#9CA3AF"
                                         />
+                                        <TouchableOpacity
+                                            onPress={() => pickAndUploadImage('option', option.id)}
+                                            disabled={uploadingImage}
+                                        >
+                                            <Ionicons name="image-outline" size={20} color="#F97316" />
+                                        </TouchableOpacity>
                                         {options.length > 2 && (
                                             <TouchableOpacity onPress={() => handleRemoveOption(option.id)}>
                                                 <Ionicons name="trash-outline" size={20} color="#EF4444" />

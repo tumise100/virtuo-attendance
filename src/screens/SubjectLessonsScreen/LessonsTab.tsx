@@ -13,6 +13,19 @@ import { GetLessons, DeleteLesson } from '@/src/services/lesson';
 import { GenerateQuestionsFromLesson } from '@/src/services/exam';
 import { showToast } from '@/src/components/UI/showToast';
 
+const formatRichTextPreview = (value: any) =>
+    String(value || '')
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/p>/gi, '\n')
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/&amp;/gi, '&')
+        .replace(/&lt;/gi, '<')
+        .replace(/&gt;/gi, '>')
+        .replace(/\n{3,}/g, '\n\n')
+        .replace(/[ \t]{2,}/g, ' ')
+        .trim();
+
 const LessonCard = ({
     lesson,
     onView,
@@ -47,7 +60,7 @@ const LessonCard = ({
 
         <TouchableOpacity activeOpacity={0.7} onPress={onView}>
             <Text className="text-sm text-gray-600 mb-3" numberOfLines={2}>
-                {lesson.content}
+                {formatRichTextPreview(lesson.content)}
             </Text>
         </TouchableOpacity>
 
@@ -322,10 +335,7 @@ const LessonsTab = () => {
                             </View>
                             <Text className="text-sm font-semibold text-gray-800 mb-2">Lesson Note</Text>
                             <Text className="text-sm text-gray-700 leading-6">
-                                {String(viewLesson?.content || '')
-                                    .replace(/<[^>]*>/g, ' ')
-                                    .replace(/\s+/g, ' ')
-                                    .trim() || 'No lesson note content available.'}
+                                {formatRichTextPreview(viewLesson?.content) || 'No lesson note content available.'}
                             </Text>
                         </ScrollView>
                     </View>

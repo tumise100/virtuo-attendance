@@ -32,6 +32,7 @@ export async function CreateQuestion(data: any) {
       subjectId: data.subjectId,
       question,
       answer,
+      ...(data.topicId ? { topicId: data.topicId } : {}),
     },
   });
 }
@@ -56,5 +57,17 @@ export async function UpdateQuestion(id: number, data: any) {
     endpoint: `/exam/question/${id}`,
     method: HttpMethod.PUT,
     body: data,
+  });
+}
+
+export async function UploadQuestionAsset(file: { uri: string; name: string; type: string }) {
+  const formData = new FormData();
+  formData.append('file', file as any);
+
+  return FetchClient({
+    endpoint: `/exam/question/upload`,
+    method: HttpMethod.POST,
+    body: formData,
+    isMultipart: true,
   });
 }

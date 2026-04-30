@@ -68,6 +68,7 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
     const [documents, setDocuments] = useState<any[]>([]);
     const [isProcessingOCR, setIsProcessingOCR] = useState(false);
     const [capturedImage, setCapturedImage] = useState<string | null>(null);
+    const [showScanOptions, setShowScanOptions] = useState(false);
     const { activeTermId } = combineStore();
 
     useImperativeHandle(ref, () => ({
@@ -144,11 +145,26 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
         setTopicTitle('');
         setDocuments([]);
         setCapturedImage(null);
+        setShowScanOptions(false);
     };
 
     const handleClose = () => {
         setVisible(false);
         resetForm();
+    };
+
+    const resolveCurrentTermId = async () => {
+        let resolvedTermId = activeTermId ? Number(activeTermId) : null;
+        if (resolvedTermId) {
+            return resolvedTermId;
+        }
+
+        const currentSessionRes = await GetCurrentSession();
+        if (currentSessionRes.responseStatus === 200) {
+            return Number(currentSessionRes.responseData?.term?.id || 0) || null;
+        }
+
+        return null;
     };
 
     const handleSubmit = async () => {
@@ -166,6 +182,12 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
         }
         setLoading(true);
         try {
+            const resolvedTermId = await resolveCurrentTermId();
+            if (!resolvedTermId) {
+                Alert.alert('Error', 'No active term found. Please select a term from Home first.');
+                return;
+            }
+
             let resolvedTopicId: number | undefined;
             let resolvedTopicTitle = topicTitle.trim();
 
@@ -183,18 +205,6 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
             if (selectedTopic) {
                 resolvedTopicId = Number(selectedTopic);
             } else {
-                let resolvedTermId = activeTermId ? Number(activeTermId) : null;
-                if (!resolvedTermId) {
-                    const currentSessionRes = await GetCurrentSession();
-                    if (currentSessionRes.responseStatus === 200) {
-                        resolvedTermId = Number(currentSessionRes.responseData?.term?.id || 0) || null;
-                    }
-                }
-                if (!resolvedTermId) {
-                    Alert.alert('Error', 'No active term found. Please select a term from Home first.');
-                    setLoading(false);
-                    return;
-                }
                 const existing = topics.find(
                     (t: any) =>
                         String(t.title || t.label || '')
@@ -222,19 +232,26 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
                 }
             }
 
+            if (!resolvedTopicId) {
+                Alert.alert('Error', 'Please select or enter a topic');
+                return;
+            }
+
             const formData = new FormData();
-            formData.append('title', title);
+            formData.append('title', title.trim());
             formData.append('content', content);
+            formData.append('termId', String(resolvedTermId));
             formData.append('classId', selectedClass);
             formData.append('subjectId', selectedSubject);
-            formData.append('topicId', String(resolvedTopicId || ''));
+            formData.append('topicId', String(resolvedTopicId));
+            formData.append('date', new Date().toISOString());
 
             // Add documents if any
             documents.forEach((doc, index) => {
                 formData.append('files', {
-                    uri: Platform.OS === 'ios' ? doc.uri.replace('file://', '') : doc.uri,
+                    uri: doc.uri,
                     name: doc.name || `file_${index}`,
-                    type: doc.mimeType || 'application/octet-stream',
+                    type: inferMimeType(doc.name || doc.uri, doc.mimeType),
                 } as any);
             });
 
@@ -245,7 +262,7 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
                 props.onSubmit();
                 handleClose();
             } else {
-                Alert.alert('Error', res.responseData.message || 'Failed to create lesson');
+                Alert.alert('Error', res.responseData?.message || 'Failed to create lesson');
             }
         } catch (error) {
             console.error('Create lesson error:', error);
@@ -302,6 +319,7 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
                 }
                 if (generated.content) {
                     setContent(generated.content);
+                    setShowScanOptions(false);
                     Alert.alert('Success', 'Lesson note generated from scanned document.');
                 } else {
                     Alert.alert('Error', 'The scan completed but no lesson note was generated. Try a clearer image or PDF.');
@@ -327,7 +345,6 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
         const result = await ImagePicker.launchCameraAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             quality: 0.8,
-            base64: true,
         });
 
         if (!result.canceled && result.assets[0]) {
@@ -345,7 +362,6 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             quality: 0.8,
-            base64: true,
         });
 
         if (!result.canceled && result.assets[0]) {
@@ -506,7 +522,64 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
                             </View>
 
                             <View className="mb-4">
-                                <Text className="text-sm font-medium text-gray-700 mb-2">Lesson Content</Text>
+                                <View className="flex-row items-center justify-between gap-3 mb-2">
+                                    <Text className="text-sm font-medium text-gray-700">Lesson Content</Text>
+                                    <TouchableOpacity
+                                        onPress={() => setShowScanOptions((prev) => !prev)}
+                                        disabled={loading || isProcessingOCR}
+                                        className={`border border-orange-200 rounded-full px-3 py-2 flex-row items-center ${loading || isProcessingOCR ? 'opacity-70' : 'bg-orange-50'}`}
+                                    >
+                                        {isProcessingOCR ? (
+                                            <ActivityIndicator size="small" color="#F97316" />
+                                        ) : (
+                                            <Ionicons name="scan" size={16} color="#EA580C" />
+                                        )}
+                                        <Text className="text-xs font-medium text-orange-600 ml-2">
+                                            {isProcessingOCR ? 'Scanning...' : 'Create from scanned document'}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <Text className="text-xs text-gray-500 mb-3">
+                                    Scan a photo, gallery image, PDF, or text file and AI will turn it into a robust lesson note.
+                                </Text>
+
+                                {showScanOptions && (
+                                    <View className="mb-3 border border-orange-100 bg-orange-50 rounded-xl p-3">
+                                        <View className="flex-row gap-3">
+                                            <TouchableOpacity
+                                                onPress={handleOCRCapture}
+                                                disabled={isProcessingOCR}
+                                                className="flex-1 bg-white border border-orange-200 rounded-xl p-3 items-center"
+                                            >
+                                                <Ionicons name="camera" size={20} color="#F97316" />
+                                                <Text className="text-xs font-medium text-orange-600 mt-1">Take Photo</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                                onPress={handleGalleryOCR}
+                                                disabled={isProcessingOCR}
+                                                className="flex-1 bg-white border border-blue-200 rounded-xl p-3 items-center"
+                                            >
+                                                <Ionicons name="images" size={20} color="#3B82F6" />
+                                                <Text className="text-xs font-medium text-blue-600 mt-1">From Gallery</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                                onPress={handleDocumentOCR}
+                                                disabled={isProcessingOCR}
+                                                className="flex-1 bg-white border border-emerald-200 rounded-xl p-3 items-center"
+                                            >
+                                                <Ionicons name="document-text" size={20} color="#059669" />
+                                                <Text className="text-xs font-medium text-emerald-600 mt-1">From Files</Text>
+                                            </TouchableOpacity>
+                                        </View>
+
+                                        {capturedImage && !isProcessingOCR && (
+                                            <View className="mt-3">
+                                                <Image source={{ uri: capturedImage }} className="w-full h-24 rounded-lg" resizeMode="cover" />
+                                            </View>
+                                        )}
+                                    </View>
+                                )}
+
                                 <TextInput
                                     value={content}
                                     onChangeText={setContent}
@@ -517,49 +590,6 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
                                     className="border border-gray-200 rounded-lg px-3 py-3 text-base min-h-[120px]"
                                     placeholderTextColor="#9CA3AF"
                                 />
-                            </View>
-
-                            <View className="mb-4">
-                                <Text className="text-sm font-medium text-gray-700 mb-2">Scan Notes (OCR)</Text>
-                                <View className="flex-row gap-3">
-                                    <TouchableOpacity
-                                        onPress={handleOCRCapture}
-                                        disabled={isProcessingOCR}
-                                        className="flex-1 bg-orange-50 border border-orange-200 rounded-xl p-3 items-center"
-                                    >
-                                        <Ionicons name="camera" size={20} color="#F97316" />
-                                        <Text className="text-xs font-medium text-orange-600 mt-1">Take Photo</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        onPress={handleGalleryOCR}
-                                        disabled={isProcessingOCR}
-                                        className="flex-1 bg-blue-50 border border-blue-200 rounded-xl p-3 items-center"
-                                    >
-                                        <Ionicons name="images" size={20} color="#3B82F6" />
-                                        <Text className="text-xs font-medium text-blue-600 mt-1">From Gallery</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        onPress={handleDocumentOCR}
-                                        disabled={isProcessingOCR}
-                                        className="flex-1 bg-emerald-50 border border-emerald-200 rounded-xl p-3 items-center"
-                                    >
-                                        <Ionicons name="document-text" size={20} color="#059669" />
-                                        <Text className="text-xs font-medium text-emerald-600 mt-1">From Files</Text>
-                                    </TouchableOpacity>
-                                </View>
-
-                                {isProcessingOCR && (
-                                    <View className="mt-2 flex-row items-center justify-center py-2">
-                                        <ActivityIndicator size="small" color="#F97316" />
-                                        <Text className="ml-2 text-xs text-gray-600">Extracting text...</Text>
-                                    </View>
-                                )}
-
-                                {capturedImage && !isProcessingOCR && (
-                                    <View className="mt-2">
-                                        <Image source={{ uri: capturedImage }} className="w-full h-24 rounded-lg" resizeMode="cover" />
-                                    </View>
-                                )}
                             </View>
 
                             <View className="mb-6">
@@ -591,8 +621,8 @@ const AddLessonModal = forwardRef((props: AddLessonModalProps, ref) => {
 
                             <TouchableOpacity
                                 onPress={handleSubmit}
-                                disabled={loading}
-                                className={`bg-orange-500 rounded-xl py-4 items-center mb-6 ${loading ? 'opacity-70' : ''}`}
+                                disabled={loading || isProcessingOCR}
+                                className={`bg-orange-500 rounded-xl py-4 items-center mb-6 ${loading || isProcessingOCR ? 'opacity-70' : ''}`}
                             >
                                 {loading ? (
                                     <ActivityIndicator color="white" />

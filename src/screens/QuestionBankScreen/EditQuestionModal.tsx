@@ -16,9 +16,10 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Dropdown } from 'react-native-element-dropdown';
+import * as ImagePicker from 'expo-image-picker';
 import { GetClasses } from '@/src/services/class';
 import { GetSubjects } from '@/src/services/courses';
-import { UpdateQuestion } from '@/src/services/exam';
+import { UpdateQuestion, UploadQuestionAsset } from '@/src/services/exam';
 import { showToast } from '@/src/components/UI/showToast';
 
 interface EditQuestionModalProps {
@@ -44,23 +45,54 @@ const EditQuestionModal = forwardRef((props: EditQuestionModalProps, ref) => {
     const [topic, setTopic] = useState('');
     const [options, setOptions] = useState<any[]>([]);
     const [correctOptionId, setCorrectOptionId] = useState<string>('');
+    const [uploadingImage, setUploadingImage] = useState(false);
 
     useImperativeHandle(ref, () => ({
         open: (question: any) => {
             setQuestionId(question.id);
-            setQuestionText(question.questionText || '');
-            setTopic(question.topic || '');
-            
-            // Map string options back to objects
-            const opts = (question.options || []).map((o: string, index: number) => ({
-                id: index + 1,
-                text: o
-            }));
+            let parsedQuestion: any = null;
+            try {
+                parsedQuestion = typeof question.question === 'string'
+                    ? JSON.parse(question.question)
+                    : question.question;
+            } catch {
+                parsedQuestion = null;
+            }
+
+            const normalizedQuestionText =
+                question.questionText ||
+                parsedQuestion?.text ||
+                (typeof question.question === 'string' ? question.question : '') ||
+                '';
+            setQuestionText(normalizedQuestionText);
+            setTopic(question.topic || parsedQuestion?.topic || '');
+
+            const optionSource = Array.isArray(parsedQuestion?.options)
+                ? parsedQuestion.options.map((o: any, index: number) => ({
+                    id: Number(o?.id) || index + 1,
+                    text: String(o?.text || ''),
+                }))
+                : Array.isArray(question.options)
+                    ? question.options.map((o: string, index: number) => ({
+                        id: index + 1,
+                        text: o,
+                    }))
+                    : [];
+            const opts = optionSource.length > 0
+                ? optionSource
+                : [{ id: 1, text: '' }, { id: 2, text: '' }];
             setOptions(opts);
 
             // Find correct answer id
-            const correctOpt = opts.find((o: any) => o.text === question.correctAnswer);
-            setCorrectOptionId(correctOpt ? correctOpt.id.toString() : '');
+            const fromAnswerField = typeof question.answer === 'string' && question.answer.startsWith('option')
+                ? Number(question.answer.replace('option', ''))
+                : null;
+            if (fromAnswerField && opts.some((o: any) => o.id === fromAnswerField)) {
+                setCorrectOptionId(String(fromAnswerField));
+            } else {
+                const correctOpt = opts.find((o: any) => o.text === question.correctAnswer);
+                setCorrectOptionId(correctOpt ? correctOpt.id.toString() : '');
+            }
 
             // We need to resolve class and subject IDs if they are not in the object directly
             setSelectedClass(question.classId?.toString() || '');
@@ -125,6 +157,61 @@ const EditQuestionModal = forwardRef((props: EditQuestionModalProps, ref) => {
 
     const handleUpdateOption = (id: number, text: string) => {
         setOptions(options.map(o => o.id === id ? { ...o, text } : o));
+    };
+
+    const pickAndUploadImage = async (
+        target: 'question' | 'option',
+        optionId?: number,
+    ) => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            Alert.alert('Permission Required', 'Gallery permission is needed to upload images.');
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            quality: 0.8,
+        });
+        if (result.canceled || !result.assets[0]) return;
+
+        const asset = result.assets[0];
+        const file = {
+            uri: asset.uri,
+            name: asset.fileName || `question-${Date.now()}.jpg`,
+            type: asset.mimeType || 'image/jpeg',
+        };
+
+        setUploadingImage(true);
+        try {
+            const res = await UploadQuestionAsset(file);
+            if (res.responseStatus === 200 || res.responseStatus === 201) {
+                const url = res.responseData?.url;
+                if (!url) {
+                    Alert.alert('Error', 'Upload succeeded but no URL was returned.');
+                    return;
+                }
+                const imageTag = `<img src="${url}" />`;
+
+                if (target === 'question') {
+                    setQuestionText((prev) => `${(prev || '').trim()}\n${imageTag}`.trim());
+                } else if (typeof optionId === 'number') {
+                    setOptions((prev) =>
+                        prev.map((o) =>
+                            o.id === optionId ? { ...o, text: `${(o.text || '').trim()} ${imageTag}`.trim() } : o,
+                        ),
+                    );
+                }
+                showToast('Image uploaded');
+            } else {
+                Alert.alert('Error', res.responseData?.message || 'Failed to upload image');
+            }
+        } catch (error) {
+            console.error('Upload question image error:', error);
+            Alert.alert('Error', 'Image upload failed');
+        } finally {
+            setUploadingImage(false);
+        }
     };
 
     const handleSubmit = async () => {
@@ -242,7 +329,17 @@ const EditQuestionModal = forwardRef((props: EditQuestionModalProps, ref) => {
                             </View>
 
                             <View className="mb-4">
-                                <Text className="text-sm font-medium text-gray-700 mb-2">Question *</Text>
+                                <View className="flex-row items-center justify-between mb-2">
+                                    <Text className="text-sm font-medium text-gray-700">Question *</Text>
+                                    <TouchableOpacity
+                                        onPress={() => pickAndUploadImage('question')}
+                                        disabled={uploadingImage}
+                                    >
+                                        <Text className="text-orange-500 text-sm font-semibold">
+                                            {uploadingImage ? 'Uploading...' : 'Add Image'}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
                                 <TextInput
                                     value={questionText}
                                     onChangeText={setQuestionText}
@@ -286,6 +383,12 @@ const EditQuestionModal = forwardRef((props: EditQuestionModalProps, ref) => {
                                             className="flex-1 border border-gray-200 rounded-lg px-3 py-2.5 text-base"
                                             placeholderTextColor="#9CA3AF"
                                         />
+                                        <TouchableOpacity
+                                            onPress={() => pickAndUploadImage('option', option.id)}
+                                            disabled={uploadingImage}
+                                        >
+                                            <Ionicons name="image-outline" size={20} color="#F97316" />
+                                        </TouchableOpacity>
                                         {options.length > 2 && (
                                             <TouchableOpacity onPress={() => handleRemoveOption(option.id)}>
                                                 <Ionicons name="trash-outline" size={20} color="#EF4444" />

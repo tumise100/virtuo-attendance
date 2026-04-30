@@ -15,20 +15,33 @@ import { GetExamQuestions, DeleteQuestion } from '@/src/services/exam';
 import { showToast } from '@/src/components/UI/showToast';
 
 const parseQuestionPayload = (item: any) => {
+    const cleanText = (value: any) =>
+        String(value || '')
+            .replace(/<br\s*\/?>/gi, '\n')
+            .replace(/<\/p>/gi, '\n')
+            .replace(/<[^>]*>/g, ' ')
+            .replace(/&nbsp;/gi, ' ')
+            .replace(/&amp;/gi, '&')
+            .replace(/&lt;/gi, '<')
+            .replace(/&gt;/gi, '>')
+            .replace(/\s+\n/g, '\n')
+            .replace(/\n\s+/g, '\n')
+            .replace(/[ \t]{2,}/g, ' ')
+            .trim();
     try {
         const parsed = typeof item.question === 'string' ? JSON.parse(item.question) : item.question;
         const options = Array.isArray(parsed?.options) ? parsed.options : [];
         const answerOption = options.find((option: any) => `option${option.id}` === item.answer);
         return {
-            questionText: parsed?.text || item.questionText || item.question || '',
+            questionText: cleanText(parsed?.text || item.questionText || item.question || ''),
             className: parsed?.class || item.class?.name || 'All Classes',
-            correctAnswer: answerOption?.text || item.correctAnswer || item.answer || '',
+            correctAnswer: cleanText(answerOption?.text || item.correctAnswer || item.answer || ''),
         };
     } catch {
         return {
-            questionText: item.questionText || item.question || '',
+            questionText: cleanText(item.questionText || item.question || ''),
             className: item.class?.name || 'All Classes',
-            correctAnswer: item.correctAnswer || item.answer || '',
+            correctAnswer: cleanText(item.correctAnswer || item.answer || ''),
         };
     }
 };
